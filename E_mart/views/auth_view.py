@@ -6,8 +6,10 @@ import json
 from django.shortcuts import render,redirect
 from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import csrf_exempt
+from E_mart.constants.decorators import anonymous_required
 
 @method_decorator(csrf_exempt,name='dispatch')
+@method_decorator(anonymous_required(redirect_url='home'), name='dispatch')
 class LoginView(View):
     def get(self,request):
         return render(request, 'auth/login.html')
@@ -24,7 +26,8 @@ class LoginView(View):
         return JsonResponse({'message': 'Login Successfully'})
 
     
-@method_decorator(csrf_exempt,name='dispatch')    
+@method_decorator(csrf_exempt,name='dispatch')   
+@method_decorator(anonymous_required(redirect_url='home'), name='dispatch') 
 class SignupView(View):
     def get(self,request):
         return render(request, 'auth/signup.html')
@@ -50,6 +53,7 @@ class SignupView(View):
 
 
 @method_decorator(csrf_exempt,name='dispatch')   
+@method_decorator(anonymous_required(redirect_url='home'), name='dispatch')
 class OtpSendView(View):
     def post(self,request):
         data = json.loads(request.body)
@@ -84,6 +88,7 @@ class OtpSendView(View):
     
     
 @method_decorator(csrf_exempt,name='dispatch')   
+@method_decorator(anonymous_required(redirect_url='home'), name='dispatch')
 class VerifyOtpView(View):
     def post(self,request):
         data = json.loads(request.body)
@@ -105,7 +110,8 @@ class LogoutView(View):
         return redirect('/')
         
         
-@method_decorator(csrf_exempt,name='dispatch')          
+@method_decorator(csrf_exempt,name='dispatch') 
+@method_decorator(anonymous_required(redirect_url='admin'), name='dispatch')         
 class AdminLoginView(View):
     def get(self,request):
         return render(request, 'auth/admin_login.html')

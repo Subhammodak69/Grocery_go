@@ -1,4 +1,5 @@
 from django.shortcuts import redirect
+from functools import wraps
 
 def enduser_required(view_func):
     def _wrapped_view(request, *args, **kwargs):
@@ -13,3 +14,15 @@ def admin_required(view_func):
             return redirect('admin_login')
         return view_func(request, *args, **kwargs)
     return _wrapped_view
+
+
+
+def anonymous_required(redirect_url='dashboard'):
+    def decorator(view_func):
+        @wraps(view_func)
+        def _wrapped_view(request, *args, **kwargs):
+            if request.user.is_authenticated:
+                return redirect(redirect_url)
+            return view_func(request, *args, **kwargs)
+        return _wrapped_view
+    return decorator
