@@ -16,7 +16,7 @@ document.addEventListener('DOMContentLoaded', () => {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'X-CSRFToken': getCookie('csrftoken')
+        'X-CSRFToken': 'csrftoken'
       },
       body: JSON.stringify({
         email: email,
@@ -55,7 +55,7 @@ document.addEventListener('DOMContentLoaded', () => {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'X-CSRFToken': getCookie('csrftoken'),
+        'X-CSRFToken': 'csrftoken',
       },
       body: JSON.stringify({ email: email, purpose: 'signup' }),
     })
@@ -87,7 +87,7 @@ document.addEventListener('DOMContentLoaded', () => {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'X-CSRFToken': getCookie('csrftoken'),
+        'X-CSRFToken': 'csrftoken',
       },
       body: JSON.stringify({ email: email, otp: otp }),
     })
@@ -144,7 +144,7 @@ document.addEventListener('DOMContentLoaded', () => {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'X-CSRFToken': getCookie('csrftoken')
+        'X-CSRFToken': 'csrftoken'
       },
       body: JSON.stringify({
         email: email,

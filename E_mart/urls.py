@@ -8,4 +8,7 @@ urlpatterns = [
     path('signup/',SignupView.as_view(), name='signup'),
     path('send-otp/',OtpSendView.as_view(), name='send_otp'),
     path('verify-otp/',VerifyOtpView.as_view(), name='verify_otp'),
+    
+    path('admin/',AdminHomeView.as_view(), name='admin'),
+    path('admin/login/',AdminLoginView.as_view(), name="admin_login")
 ]

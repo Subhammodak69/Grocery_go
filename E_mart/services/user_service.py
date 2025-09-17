@@ -1,4 +1,5 @@
 from E_mart.models import User
+from django.contrib.auth.hashers import check_password
 
 def get_all_users():
     return User.objects.all()
@@ -20,3 +21,15 @@ def create_user(email,first_name,last_name,phone_number,address):
         phone_number = phone_number,
         address = address
     )
+    
+    
+    
+def check_admin_login(email, password):
+    try:
+        user = User.objects.get(email=email, is_active=True, role=1)
+    except User.DoesNotExist:
+        return None
+
+    if check_password(password, user.password):
+        return user
+    return None

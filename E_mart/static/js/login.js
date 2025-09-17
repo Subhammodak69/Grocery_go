@@ -17,7 +17,7 @@ document.addEventListener('DOMContentLoaded', () => {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'X-CSRFToken': getCookie('csrftoken')
+        'X-CSRFToken':'csrftoken'
       },
       body: JSON.stringify({
         email: email,
@@ -56,7 +56,7 @@ document.addEventListener('DOMContentLoaded', () => {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'X-CSRFToken': getCookie('csrftoken'),
+        'X-CSRFToken': 'csrftoken',
       },
       body: JSON.stringify({ email: email, purpose: 'login' }),
     })
@@ -88,7 +88,7 @@ document.addEventListener('DOMContentLoaded', () => {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'X-CSRFToken': getCookie('csrftoken'),
+        'X-CSRFToken': 'csrftoken',
       },
       body: JSON.stringify({ email: email, otp: otp }),
     })
@@ -125,7 +125,7 @@ document.addEventListener('DOMContentLoaded', () => {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'X-CSRFToken': getCookie('csrftoken'),
+        'X-CSRFToken': 'csrftoken',
       },
       body: JSON.stringify({ email: email }),
     })
@@ -150,22 +150,5 @@ document.addEventListener('DOMContentLoaded', () => {
       resTrue.style.display = "none";
       resFalse.innerHTML = error;
     });
-  }
-
- 
-  // Utility function to retrieve CSRF token cookie
-  function getCookie(name) {
-    let cookieValue = null;
-    if (document.cookie && document.cookie !== '') {
-      const cookies = document.cookie.split(';');
-      for (let i = 0; i < cookies.length; i++) {
-        const cookie = cookies[i].trim();
-        if (cookie.startsWith(name + '=')) {
-          cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-          break;
-        }
-      }
-    }
-    return cookieValue;
   }
 });

@@ -4,7 +4,10 @@ from E_mart.services import auth_service,user_service
 from django.contrib.auth import login,logout
 import json
 from django.shortcuts import render,redirect
+from django.utils.decorators import method_decorator
+from django.views.decorators.csrf import csrf_exempt
 
+@method_decorator(csrf_exempt,name='dispatch')
 class LoginView(View):
     def get(self,request):
         return render(request, 'auth/login.html')
@@ -21,7 +24,7 @@ class LoginView(View):
         return JsonResponse({'message': 'Login Successfully'})
 
     
-    
+@method_decorator(csrf_exempt,name='dispatch')    
 class SignupView(View):
     def get(self,request):
         return render(request, 'auth/signup.html')
@@ -45,7 +48,8 @@ class SignupView(View):
         login(request, user)
         return JsonResponse({'message': 'Signup completed'}, status=201)
 
-    
+
+@method_decorator(csrf_exempt,name='dispatch')   
 class OtpSendView(View):
     def post(self,request):
         data = json.loads(request.body)
@@ -78,6 +82,8 @@ class OtpSendView(View):
                 return JsonResponse({'message': 'User already exists'})
         return JsonResponse({'message': 'OTP sent successfully'})
     
+    
+@method_decorator(csrf_exempt,name='dispatch')   
 class VerifyOtpView(View):
     def post(self,request):
         data = json.loads(request.body)
@@ -99,3 +105,31 @@ class LogoutView(View):
         return redirect('/')
         
         
+@method_decorator(csrf_exempt,name='dispatch')          
+class AdminLoginView(View):
+    def get(self,request):
+        return render(request, 'auth/admin_login.html')
+    
+    def post(self, request):
+        try:
+            data = json.loads(request.body)
+        except json.JSONDecodeError:
+            return JsonResponse({'error': 'Invalid JSON.'}, status=400)
+
+        email = data.get('email')
+        password = data.get('password')
+        print("email: ",email, " password: ",password)
+        if not email or not password:
+            return JsonResponse({'error': 'Email and password are required.'}, status=400)
+
+        user = user_service.check_admin_login(email, password)
+        login(request,user)
+        print("user: ",user)
+
+        if user is None:
+            return JsonResponse({'error': 'Invalid credentials.'}, status=401)
+
+        if not user.is_staff:
+            return JsonResponse({'error': 'User is not an admin.'}, status=403)
+
+        return JsonResponse({'message': 'Login successful', 'email': user.email})
