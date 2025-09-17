@@ -6,7 +6,7 @@
 
     .sidebar {
         height: 100vh;
-        background: #1e293b;
+        background: #182232;
         /* dark slate background */
         transition: width 0.3s ease;
         overflow-x: hidden;
@@ -61,7 +61,8 @@
     .topbar {
         height: 60px;
         border-bottom: 1px solid #ddd;
-        background: #62ff99d2;
+        background: #233046;
+        color: white;
         display: flex;
         justify-content: space-between;
         align-items: center;
@@ -80,13 +81,6 @@
     .hide {
         display: none !important;
     }
-
-    i.bi {
-        text-shadow: 1px 1px 0 currentColor,
-            -1px 1px 0 currentColor;
-    }
-
-
 
     /* loader css */
     .spinner {

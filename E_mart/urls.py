@@ -10,5 +10,6 @@ urlpatterns = [
     path('verify-otp/',VerifyOtpView.as_view(), name='verify_otp'),
     
     path('admin/',AdminHomeView.as_view(), name='admin'),
-    path('admin/login/',AdminLoginView.as_view(), name="admin_login")
+    path('admin/login/',AdminLoginView.as_view(), name="admin_login"),
+    path('admin/users/',AdminUserListView.as_view(), name='admin_user_list'),
 ]

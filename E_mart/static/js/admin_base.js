@@ -1,19 +1,15 @@
 
-document.addEventListener('DOMContentLoaded', () => {
+window.onload = function() {
   const toggleBtn = document.getElementById('toggleSidebar');
   const sidebar = document.getElementById('sidebar');
-
   if (toggleBtn && sidebar) {
-    toggleBtn.addEventListener('click', () => {
+    toggleBtn.addEventListener('click', function() {
       sidebar.classList.toggle('collapsed');
-      if (sidebar.classList.contains('collapsed')) {
-        sidebar.style.width = '0px';
-      } else {
-        sidebar.style.width = '300px';
-      }
+      sidebar.style.width = sidebar.classList.contains('collapsed') ? '0px' : '300px';
     });
   }
-});
+};
+
 
 function change_color(value) {
   const body = document.body;
