@@ -19,3 +19,4 @@ __pycache__/
 # Env folder
 env/
 venv/
+**/static/posters

@@ -1,0 +1,86 @@
+{% extends 'admin/home.html' %}
+{% load static %}
+{% block title %}Create Admin Poster{% endblock %}
+{% block content %}
+<script src="{% static 'js/admin/poster/poster_create.js' %}"></script>
+<div class="card shadow-sm m-auto mt-4 p-4 rounded" style="max-width: 600px;">
+  <h2 class="mb-4 text-center fw-bold" style="color: #007bff;">Create Admin Poster</h2>
+  <form class="px-3" id="adminposterForm" onsubmit="return false;" novalidate>
+
+    <div class="mb-3">
+      <label for="title" class="form-label fw-semibold">Title*</label>
+      <input type="text" id="title" name="title" required class="form-control" placeholder="Enter Title" style="border-radius: 6px;" />
+    </div>
+
+    <div class="mb-3">
+      <label for="description" class="form-label fw-semibold">Description</label>
+      <textarea id="description" name="description" class="form-control" placeholder="Enter Description" style="border-radius: 6px;"></textarea>
+    </div>
+
+    <div class="mb-3">
+      <label for="start_date" class="form-label fw-semibold">Start Date*</label>
+      <input type="date" id="start_date" name="start_date" required class="form-control" style="border-radius: 6px;" />
+    </div>
+
+    <div class="mb-3">
+      <label for="end_date" class="form-label fw-semibold">End Date*</label>
+      <input type="date" id="end_date" name="end_date" required class="form-control" style="border-radius: 6px;" />
+    </div>
+
+    <div class="mb-3">
+      <label class="form-label fw-semibold">Image File*</label>
+      <button type="button" id="chooseFileBtn" class="btn btn-outline-primary" style="border-radius: 6px;">
+        Choose File
+      </button>
+      <input type="file" id="image" name="image" accept="image/*" style="display: none;" required />
+    </div>
+
+    <div class="mb-3" id="preview">
+      <!-- after select photo the photo is shows here -->
+    </div>
+
+   
+    <button type="submit" onclick="poster_create()" class="btn btn-primary fw-bold mt-3 w-100" style="padding: 12px; font-size: 18px; border-radius: 8px;">
+      Create Poster
+    </button>
+  </form>
+
+  <div id="message" class="text-center mt-4 fw-semibold m-auto"></div>
+</div>
+<script>
+  const fileInput = document.getElementById('image');
+  const chooseFileBtn = document.getElementById('chooseFileBtn');
+  const previewDiv = document.getElementById('preview');
+
+  // When clicking the button, trigger click on hidden file input
+  chooseFileBtn.addEventListener('click', () => {
+    fileInput.click();
+  });
+
+  // When file is selected, show preview image
+  fileInput.addEventListener('change', (event) => {
+    previewDiv.innerHTML = ''; // Clear previous
+    const file = event.target.files[0];
+    if (file) {
+      const img = document.createElement('img');
+      img.style.height = '100px';
+      img.style.borderRadius = '6px';
+      img.style.marginTop = '10px';
+      img.src = URL.createObjectURL(file);
+      previewDiv.appendChild(img);
+    }
+  });
+</script>
+
+
+<style>
+  #message.error {
+    margin: 20px auto;
+    color: #dc3545; /* Bootstrap danger red */
+  }
+  #message.success {
+    margin: 20px auto;
+    color: #28a745; /* Bootstrap success green */
+  }
+</style>
+{% endblock %}

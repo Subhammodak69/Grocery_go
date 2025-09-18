@@ -9,3 +9,4 @@ from .product_service import *
 from .productitem_service import *
 from .user_service import *
 from .auth_service import *
+from .poster_service import *

@@ -1,0 +1,56 @@
+{% extends "admin/home.html" %}
+{% load static %}
+{% block title %}Posters List{% endblock %}
+{% block content %}
+<script src="{% static 'js/admin/poster/poster_list.js'%}"></script>
+<div class="overflow-auto p-4 rounded h-100">
+    <div class="d-flex align-items-center justify-content-between mb-3">
+        <h4>Poster List</h4>
+        <button class="btn btn-success" onclick="create_poster()">+Create Poster</button>
+    </div>
+    <table class="table table-striped table-bordered w-100">
+        <thead class="table-dark">
+            <tr>
+                <th>ID</th>
+                <th>Title</th>
+                <th>Description</th>
+                <th>Image</th>
+                <th>Start Date</th>
+                <th>End Date</th>
+                <th>Is Active</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for poster in posters %}
+            <tr>
+                <td>{{ poster.id }}</td>
+                <td>{{ poster.title }}</td>
+                <td>{{ poster.description }}</td>
+                <td>
+                    <img src="{% static poster.image %}" height="40px" width="60px" >
+                </td>
+                <td>{{ poster.start_date }}</td>
+                <td>{{ poster.end_date }}</td>
+                <td>
+                    <div class="form-check form-switch" onclick="isactive_toggle()">
+                        <input class="form-check-input toggle-active" type="checkbox" data-poster-id="{{ poster.id }}" {% if poster.is_active %}checked{% endif %} />
+                    </div>
+                </td>
+                <td>
+                    <button class="btn btn-warning btn-sm" onclick="update_poster({{poster.id}})">Update</button>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+<style>
+    td {
+  max-width: 150px;        
+  white-space: nowrap;     
+  overflow: hidden;       
+  text-overflow: ellipsis; 
+}
+</style>
+{% endblock %}

@@ -15,4 +15,11 @@ urlpatterns = [
     path('admin/user/create/',AdminUserCreateView.as_view(), name='admin_user_create'),
     path('admin/user/update/<int:user_id>/',AdminUserUpdateView.as_view(), name='admin_user_update'),
     path('admin/users/toggle-active/',AdminUserToggleActiveView.as_view(), name='admin_user_toggle_active'),
+    
+    path('admin/posters/',AdminPosterListView.as_view(), name='admin_poster_list'),
+    path('admin/poster/create/',AdminPosterCreateView.as_view(), name='admin_poster_create'),
+    path('admin/poster/update/<int:poster_id>/',AdminPosterUpdateView.as_view(), name='admin_user_update'),
+    path('admin/posters/toggle-active/',AdminPosterToggleActiveView.as_view(), name='admin_user_toggle_active'),
+    
+    
 ]
