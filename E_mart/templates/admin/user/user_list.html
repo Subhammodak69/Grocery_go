@@ -2,7 +2,7 @@
 {% load static %}
 {% block title %}User List{% endblock %}
 {% block content %}
-<script src="{% static 'js/admin/admin_userlist.js'%}"></script>
+<script src="{% static 'js/admin/user/user_list.js'%}"></script>
 <div class="overflow-auto p-4 rounded h-100">
     <div class="d-flex align-items-center justify-content-between mb-3">
         <h4>User List</h4>
@@ -36,7 +36,7 @@
                     </div>
                 </td>
                 <td>
-                    <button class="btn btn-warning btn-sm">Update</button>
+                    <button class="btn btn-warning btn-sm" onclick="update_user({{user.id}})">Update</button>
                 </td>
             </tr>
             {% endfor %}

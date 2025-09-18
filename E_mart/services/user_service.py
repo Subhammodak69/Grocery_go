@@ -22,7 +22,17 @@ def create_user(email,first_name,last_name,phone_number,address):
         phone_number = phone_number,
         address = address
     )
-   
+
+def update_user(user_id,email,first_name,last_name,phone_number,address):
+    user = get_active_user_obj_by_id(user_id)
+    user.email = email
+    user.username = email
+    user.first_name = first_name
+    user.last_name = last_name
+    user.phone_number = phone_number
+    user.address = address
+    user.save() 
+    return user
 
     
    

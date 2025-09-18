@@ -13,5 +13,6 @@ urlpatterns = [
     path('admin/login/',AdminLoginView.as_view(), name="admin_login"),
     path('admin/users/',AdminUserListView.as_view(), name='admin_user_list'),
     path('admin/user/create/',AdminUserCreateView.as_view(), name='admin_user_create'),
+    path('admin/user/update/<int:user_id>/',AdminUserUpdateView.as_view(), name='admin_user_update'),
     path('admin/users/toggle-active/',AdminUserToggleActiveView.as_view(), name='admin_user_toggle_active'),
 ]

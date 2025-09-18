@@ -1,11 +1,10 @@
-// admin_usercreate.js
-
-async function user_create() {
+async function user_update() {
     const messageEl = document.getElementById('message');
     messageEl.textContent = '';
     messageEl.className = 'message';
 
     const first_name = document.getElementById('first_name').value.trim();
+    const userId = document.getElementById('user_id').value;
     const last_name = document.getElementById('last_name').value.trim();
     const email = document.getElementById('email').value.trim();
     const phone_number = document.getElementById('phone_number').value.trim();
@@ -17,9 +16,8 @@ async function user_create() {
         messageEl.classList.add('error');
         return;
     }
-
     try {
-        const response = await fetch('/admin/user/create/', {
+        const response = await fetch(`/admin/user/update/${userId}/`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
@@ -36,19 +34,17 @@ async function user_create() {
 
         if (!response.ok) {
             const errorData = await response.json();
-            throw new Error(errorData.error || 'Failed to create user.');
+            throw new Error(errorData.error || 'Failed to update user.');
         }
 
-        messageEl.textContent = 'User created successfully! Redirecting.....';
+        messageEl.textContent = 'User Updated successfully! Redirecting.....';
         messageEl.classList.add('success');
-
-        // Reset form fields after success
         document.getElementById('adminUserForm').reset();
 
         // Optionally redirect after success
         setTimeout(()=>{
             window.location.href = '/admin/users/';
-        },1000);
+        },2000);
     } catch (err) {
         messageEl.textContent = err.message;
         messageEl.classList.add('error');

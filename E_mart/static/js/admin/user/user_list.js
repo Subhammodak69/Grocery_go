@@ -36,3 +36,7 @@ window.isactive_toggle = function(){
 function create_user(){
     window.location.href='/admin/user/create/';
 }
+
+function update_user(userId){
+    window.location.href=`/admin/user/update/${userId}`;
+}

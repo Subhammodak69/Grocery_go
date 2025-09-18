@@ -2,7 +2,7 @@
 {% load static %}
 {% block title %}Create Admin User {% endblock %}
 {% block content %}
-<script src="{%static 'js/admin/admin_usercreate.js'%}"></script>
+<script src="{%static 'js/admin/user/user_create.js'%}"></script>
 <div class="card shadow-sm m-auto mt-4 p-4 rounded" style="max-width: 600px;">
   <h2 class="mb-4 text-center fw-bold" style="color: #007bff;">Create Admin User</h2>
   <form class="px-3" id="adminUserForm" onsubmit="return false;" novalidate>
@@ -37,16 +37,20 @@
     </button>
   </form>
 
-  <div id="message" class="text-center mt-4 fw-semibold"></div>
+  <div id="message" class="text-center mt-4 fw-semibold m-auto"></div>
 </div>
 
 <style>
+ <style>
   #message.error {
+    margin: 20px auto;
     color: #dc3545; /* Bootstrap danger red */
   }
   #message.success {
+    margin: 20px auto;
     color: #28a745; /* Bootstrap success green */
   }
+</style>
 </style>
 
 {% endblock %}

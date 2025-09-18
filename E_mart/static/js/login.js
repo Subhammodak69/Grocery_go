@@ -98,6 +98,7 @@ document.addEventListener('DOMContentLoaded', () => {
         resFalse.style.display = "none";
         resTrue.style.display = "flex";
         resTrue.innerHTML = "OTP verified successfully";
+        loader.style.display = 'none ';
         setTimeout(()=>{
           login(email);
         },1000
