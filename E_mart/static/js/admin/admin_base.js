@@ -1,16 +1,3 @@
-
-window.onload = function() {
-  const toggleBtn = document.getElementById('toggleSidebar');
-  const sidebar = document.getElementById('sidebar');
-  if (toggleBtn && sidebar) {
-    toggleBtn.addEventListener('click', function() {
-      sidebar.classList.toggle('collapsed');
-      sidebar.style.width = sidebar.classList.contains('collapsed') ? '0px' : '300px';
-    });
-  }
-};
-
-
 function change_color(value) {
   const body = document.body;
   const on = document.getElementById('on');
@@ -18,6 +5,7 @@ function change_color(value) {
 
   if (value === "on") {
     body.style.background = 'white';
+    body.style.color = '#000000ed';
 
     if (on) {
       on.classList.add('hide');
@@ -29,6 +17,7 @@ function change_color(value) {
     }
   } else {
     body.style.background = '#272727ed';
+    body.style.color = '#ffffffed';
 
     if (on) {
       on.classList.add('show');
