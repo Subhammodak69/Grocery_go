@@ -12,7 +12,6 @@ import json
 class AdminPosterListView(View):
     def get(self,request):
         posters = poster_service.get_all_posters()
-        print(posters)
         return render(request,'admin/poster/poster_list.html',{'posters':posters})
     
 @method_decorator(admin_required, name='dispatch')
@@ -70,13 +69,10 @@ class AdminPosterUpdateView(View):
 @method_decorator(csrf_exempt, name='dispatch')
 class AdminPosterToggleActiveView(View):
     def post(self, request):
-        print("hello")
         data = json.loads(request.body)
         is_active = data.get('is_active')
         poster_id = data.get('poster_id')
-        print("going",poster_id,is_active)
         poster = poster_service.toggle_active_poster(poster_id, is_active)
-        print("poster=>",poster.is_active)
         return JsonResponse({
             'success': True,
             'poster_id': poster.id,

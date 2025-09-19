@@ -3,3 +3,4 @@ from .home_view import *
 from .user_view import *
 from .poster_view import *
 from .category_view import *
+from .product_view import *

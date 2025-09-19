@@ -17,6 +17,8 @@ def category_create(name, description, photo_file):
         description=description,
         image=relative_url,
     )
+def get_category_data():
+    return list(Category.objects.values('id', 'name'))
 
 def toggle_active_category(category_id,is_active):
     category = Category.objects.filter(id = category_id).first()
@@ -39,7 +41,7 @@ def category_update(category_id,name, description, image_file):
 
 def get_relative_url_of_category(photo_file):
     # Save inside app's static/categories folder
-    categories_dir = os.path.join(settings.BASE_DIR, 'E_mart', 'static', 'categories')
+    categories_dir = os.path.join(settings.BASE_DIR, 'E_mart', 'static', 'images', 'categories')
     os.makedirs(categories_dir, exist_ok=True)
 
     file_ext = os.path.splitext(photo_file.name)[1]  # e.g., '.jpg'
@@ -49,5 +51,9 @@ def get_relative_url_of_category(photo_file):
     filename = fs.save(unique_filename, photo_file)
 
     # Relative URL should match STATIC_URL + folder inside app static
-    relative_url = f'categories/{filename}'
+    relative_url = f'images/categories/{filename}'
     return relative_url
+
+
+def get_all_active_categories():
+    return Category.objects.filter(is_active=True)

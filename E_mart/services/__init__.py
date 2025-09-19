@@ -6,7 +6,6 @@ from .order_service import *
 from .orderitem_service import *
 from .payment_service import *
 from .product_service import *
-from .productitem_service import *
 from .user_service import *
 from .auth_service import *
 from .poster_service import *

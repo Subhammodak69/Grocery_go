@@ -1,0 +1,58 @@
+{% extends "admin/home.html" %}
+{% load static %}
+{% block title %}Products List{% endblock %}
+{% block content %}
+<script src="{% static 'js/admin/product/product_list.js'%}"></script>
+<div class="overflow-auto p-4 rounded h-100">
+    <div class="d-flex align-items-center justify-content-between mb-3">
+        <h4>Product List</h4>
+        <button class="btn btn-success" onclick="create_product()">+Create product</button>
+    </div>
+    <table class="table table-striped table-bordered w-100">
+        <thead class="table-dark">
+            <tr>
+                <th>ID</th>
+                <th>Category Id</th>
+                <th>Name</th>
+                <th>Description</th>
+                <th>Image</th>
+                <th>Price</th>
+                <th>Stock</th>
+                <th>Is Active</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for product in products %}
+            <tr>
+                <td>{{ product.id }}</td>
+                <td>{{ product.category.id }}</td>
+                <td>{{ product.name }}</td>
+                <td>{{ product.description }}</td>
+                <td>
+                    <img src="{% static product.image %}" height="40px" width="60px" >
+                </td>
+                <td>{{ product.price }}</td>
+                <td>{{ product.stock }}</td>
+                <td>
+                    <div class="form-check form-switch" onclick="isactive_toggle()">
+                        <input class="form-check-input toggle-active" type="checkbox" data-product-id="{{ product.id }}" {% if product.is_active %}checked{% endif %} />
+                    </div>
+                </td>
+                <td>
+                    <button class="btn btn-warning btn-sm" onclick="update_product({{product.id}})">Update</button>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+<style>
+    td {
+  max-width: 150px;        
+  white-space: nowrap;     
+  overflow: hidden;       
+  text-overflow: ellipsis; 
+}
+</style>
+{% endblock %}

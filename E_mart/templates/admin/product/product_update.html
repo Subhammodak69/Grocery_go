@@ -1,0 +1,111 @@
+{% extends 'admin/home.html' %}
+{% load static %}
+{% block title %}Update Admin Product{% endblock %}
+{% block content %}
+<script src="{% static 'js/admin/product/product_update.js' %}"></script>
+<div class="card shadow-sm m-auto mt-4 p-4 rounded" style="max-width: 600px;">
+  <h2 class="mb-4 text-center fw-bold" style="color: #007bff;">Update Admin Product</h2>
+  <form class="px-3" id="adminproductForm" onsubmit="return false;" novalidate>
+
+    <input id="product_id" value="{{product.id}}" hidden>
+    <div class="mb-3">
+      <label for="category" class="form-label fw-semibold">Category*</label>
+      <select id="category" value="{{product.category.name}}" name="category" class="form-select" required>
+        <option value=''>Select Category</option>
+        {% for category in categories %}
+        <option value="{{ category.id }}">{{ category.name }}</option>
+        {% endfor %}
+      </select>
+    </div>
+
+    <div class="mb-3">
+      <label for="name" class="form-label fw-semibold">Name*</label>
+      <input type="text" id="name" value= "{{product.name}}" name="name" class="form-control" placeholder="Enter Product name" required style="border-radius: 6px;">
+    </div>
+
+    <div class="mb-3">
+      <label for="description" class="form-label fw-semibold">Description</label>
+      <textarea id="description" value= "{{product.description}}" name="description" class="form-control" placeholder="Enter Description" style="border-radius: 6px;"></textarea>
+    </div>
+
+    <div class="mb-3">
+      <label for="price" class="form-label fw-semibold">Price*</label>
+      <input type="number" step="0.01" min="0" id="price" value="{{product.price}}" name="price" class="form-control" placeholder="Enter Price" required style="border-radius: 6px;">
+    </div>
+
+    <div class="mb-3">
+      <label for="stock" class="form-label fw-semibold">Stock*</label>
+      <input type="number" min="0" id="stock" value="{{product.stock}}" name="stock" class="form-control" placeholder="Enter Stock Quantity" required style="border-radius: 6px;">
+    </div>
+
+    <div class="mb-3">
+      <label for="size" class="form-label fw-semibold">Size*</label>
+      <input type="number" min="0" id="size" value="{{product.size}}" name="size" class="form-control" placeholder="Enter Size" required style="border-radius: 6px;">
+    </div>
+
+    <div class="mb-3">
+      <label for="Photo" class="form-label fw-semibold">Image</label>
+      <img src="{% static product.image %}" height="100px" class="rounded" style="border-radius:6px;">
+    </div>
+
+    <div class="mb-3">
+      <label class="form-label fw-semibold">Image File*</label>
+      <button type="button" id="chooseFileBtn" class="btn btn-outline-primary" style="border-radius: 6px;">
+        Choose File
+      </button>
+      <input type="file" id="image" name="image" accept="image/*" style="display: none;" required />
+    </div>
+
+    <div class="mb-3" id="preview">
+      <!-- Selected photo preview appears here -->
+    </div>
+
+    <div class="form-check form-switch mb-3">
+      <input class="form-check-input" type="checkbox" id="is_active" name="is_active" checked>
+      <label class="form-check-label fw-semibold" for="is_active">Active</label>
+    </div>
+
+    <button type="submit" onclick="product_update()" class="btn btn-primary fw-bold mt-3 w-100" style="padding: 12px; font-size: 18px; border-radius: 8px;">
+      Update product
+    </button>
+  </form>
+
+  <div id="message" class="text-center mt-4 fw-semibold m-auto"></div>
+</div>
+
+<script>
+  const fileInput = document.getElementById('image');
+  const chooseFileBtn = document.getElementById('chooseFileBtn');
+  const previewDiv = document.getElementById('preview');
+
+  // When clicking the button, trigger click on hidden file input
+  chooseFileBtn.addEventListener('click', () => {
+    fileInput.click();
+  });
+
+  // When file is selected, show preview image
+  fileInput.addEventListener('change', (event) => {
+    previewDiv.innerHTML = ''; // Clear previous
+    const file = event.target.files[0];
+    if (file) {
+      const img = document.UpdateElement('img');
+      img.style.height = '100px';
+      img.style.borderRadius = '6px';
+      img.style.marginTop = '10px';
+      img.src = URL.UpdateObjectURL(file);
+      previewDiv.appendChild(img);
+    }
+  });
+</script>
+
+<style>
+  #message.error {
+    margin: 20px auto;
+    color: #dc3545; /* Bootstrap danger red */
+  }
+  #message.success {
+    margin: 20px auto;
+    color: #28a745; /* Bootstrap success green */
+  }
+</style>
+{% endblock %}

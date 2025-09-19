@@ -23,8 +23,15 @@ urlpatterns = [
 
     path('admin/categories/',AdminCategoryListView.as_view(), name='admin_category_list'),
     path('admin/category/create/',AdminCategoryCreateView.as_view(), name='admin_category_create'),
-    path('admin/category/update/<int:category_id>/',AdminCategoryUpdateView.as_view(), name='admin_user_update'),
-    path('admin/categories/toggle-active/',AdminCategoryToggleActiveView.as_view(), name='admin_user_toggle_active'),
+    path('admin/category/update/<int:category_id>/',AdminCategoryUpdateView.as_view(), name='admin_category_update'),
+    path('admin/categories/toggle-active/',AdminCategoryToggleActiveView.as_view(), name='admin_category_toggle_active'),
+
+    path('admin/products/',AdminProductListView.as_view(), name='admin_product_list'),
+    path('admin/product/create/',AdminProductCreateView.as_view(), name='admin_product_create'),
+    path('admin/product/update/<int:category_id>/',AdminProductUpdateView.as_view(), name='admin_product_update'),
+    path('admin/products/toggle-active/',AdminProductToggleActiveView.as_view(), name='admin_product_toggle_active'),
     
-    
+    #enduser
+
+    path('api/categories/',ApiGetAllCategory, name='api_get_categories'),
 ]

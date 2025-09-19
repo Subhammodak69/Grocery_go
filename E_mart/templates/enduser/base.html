@@ -83,16 +83,11 @@
               data-bs-toggle="dropdown" aria-expanded="false">
               Categories
             </a>
-            <ul class="dropdown-menu position-absolute px-4" aria-labelledby="accountDropdown" style="width:max-content;left: -18px;top:50px;">
-              {% if categories %}
-              {% for category in categories %}
-              <li><a class="dropdown-item" href="/products/{{category.id}}/">{{category.name}}</a></li>
-              {% endfor %}
-              {% else %}
-              <p class="text-danger cat-err">Categories not found yet.</p>
-              {% endif %}
+            <ul class="dropdown-menu position-absolute px-4" aria-labelledby="accountDropdown" style="width:max-content;left: -18px;top:50px;" id="categoriesDropdown">
+              <li class="dropdown-item text-muted">Loading categories...</li>
             </ul>
           </li>
+
 
           <li class="nav-item mx-2">
             <a class="nav-link fw-semibold" href="/deals">Deals</a>

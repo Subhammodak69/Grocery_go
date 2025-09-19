@@ -8,7 +8,6 @@ def save_otp(email, otp):
 
 def check_otp(email, otp):
     stored_otp = cache.get(f"otp_{email}")
-    print(stored_otp)
     if stored_otp and stored_otp == otp:
         cache.delete(f"otp_{email}") 
         return True
@@ -22,10 +21,8 @@ def generate_secure_otp(length=6):
 
 
 def send_otp_to_email(to_email, otp):
-    print("hello")
     subject = 'Your Verification OTP'
     message = f'Your OTP for email verification is: {otp}. Please use this OTP to verify your email address.'
     from_email = settings.EMAIL_HOST_USER
     recipient_list = [to_email]
-    print(subject,message, from_email, recipient_list)
     send_mail(subject, message, from_email, recipient_list)

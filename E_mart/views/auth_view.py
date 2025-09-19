@@ -124,13 +124,11 @@ class AdminLoginView(View):
 
         email = data.get('email')
         password = data.get('password')
-        print("email: ",email, " password: ",password)
         if not email or not password:
             return JsonResponse({'error': 'Email and password are required.'}, status=400)
 
         user = user_service.check_admin_login(email, password)
         login(request,user)
-        print("user: ",user)
 
         if user is None:
             return JsonResponse({'error': 'Invalid credentials.'}, status=401)

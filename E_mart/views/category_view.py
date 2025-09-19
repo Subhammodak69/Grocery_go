@@ -12,7 +12,6 @@ import json
 class AdminCategoryListView(View):
     def get(self,request):
         categories = category_service.get_all_categories()
-        print(categories)
         return render(request,'admin/category/category_list.html',{'categories':categories})
     
 @method_decorator(admin_required, name='dispatch')
@@ -67,15 +66,16 @@ class AdminCategoryUpdateView(View):
 @method_decorator(csrf_exempt, name='dispatch')
 class AdminCategoryToggleActiveView(View):
     def post(self, request):
-        print("hello")
         data = json.loads(request.body)
         is_active = data.get('is_active')
         category_id = data.get('category_id')
-        print("going",category_id,is_active)
         category = category_service.toggle_active_category(category_id, is_active)
-        print("category=>",category.is_active)
         return JsonResponse({
             'success': True,
             'category_id': category.id,
             'is_active': category.is_active
         })
+    
+def ApiGetAllCategory(request):
+    categories = category_service.get_category_data()
+    return JsonResponse({'categories': categories})

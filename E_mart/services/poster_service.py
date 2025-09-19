@@ -52,7 +52,7 @@ def poster_update(poster_id,title, description, image_file, start_date, end_date
 
 def get_relative_url_of_poster(photo_file):
     # Save inside app's static/posters folder
-    posters_dir = os.path.join(settings.BASE_DIR, 'E_mart', 'static', 'posters')
+    posters_dir = os.path.join(settings.BASE_DIR, 'E_mart', 'static', 'images', 'posters')
     os.makedirs(posters_dir, exist_ok=True)
 
     file_ext = os.path.splitext(photo_file.name)[1]  # e.g., '.jpg'
@@ -62,5 +62,5 @@ def get_relative_url_of_poster(photo_file):
     filename = fs.save(unique_filename, photo_file)
 
     # Relative URL should match STATIC_URL + folder inside app static
-    relative_url = f'posters/{filename}'
+    relative_url = f'images/posters/{filename}'
     return relative_url

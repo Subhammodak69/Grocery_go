@@ -18,13 +18,10 @@ class AdminUserListView(View):
 @method_decorator(csrf_exempt, name='dispatch')
 class AdminUserToggleActiveView(View):
     def post(self, request):
-        print("hello")
         data = json.loads(request.body)
         is_active = data.get('is_active')
         user_id = data.get('user_id')
-        print("going",user_id,is_active)
         user = user_service.toggle_active_user(user_id, is_active)
-        print("user=>",user.is_active)
         return JsonResponse({
             'success': True,
             'user_id': user.id,
@@ -41,7 +38,6 @@ class AdminUserCreateView(View):
     def post(self, request):
         try:
             data = json.loads(request.body)
-            print(data)  # For debugging
 
             first_name = data.get('first_name')
             last_name = data.get('last_name')
@@ -81,7 +77,6 @@ class AdminUserUpdateView(View):
     def post(self, request,user_id):
         try:
             data = json.loads(request.body)
-            print(data)  # For debugging
 
             first_name = data.get('first_name')
             last_name = data.get('last_name')
