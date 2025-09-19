@@ -3,9 +3,15 @@ import os
 from django.conf import settings
 from django.core.files.storage import FileSystemStorage
 from django.utils.crypto import get_random_string
+from django.utils.timezone import now
+
 
 def get_all_posters():
-    return Poster.objects.all()
+    return Poster.objects.all().order_by('id')
+
+def get_all_showable_posters():
+    return Poster.objects.filter(start_date__lte=now(), end_date__gte=now(),is_active=True)
+
 
 def get_poster_by_id(poster_id):
     return Poster.objects.filter(id= poster_id).first()
@@ -28,6 +34,14 @@ def toggle_active_poster(poster_id,is_active):
     
 def poster_update(poster_id,title, description, image_file, start_date, end_date):
     poster = Poster.objects.get(id=poster_id)
+    if image_file == None:
+        poster.title = title
+        poster.description = description
+        poster.start_date = start_date
+        poster.end_date = end_date
+        poster.save()
+        return poster
+
     poster.title = title
     poster.description = description
     poster.image = get_relative_url_of_poster(image_file)

@@ -1,6 +1,50 @@
 {% extends "enduser/base.html" %}
-{% block title %}Home{% endblock %} 
 {% load static %}
+{% block title %}Home{% endblock %}
+
 {% block content %}
-<h1>Welcome to Home page</h1>
+<div class="container py-4">
+
+  <!-- Category Catalog -->
+  <div class="row row-cols-2 row-cols-md-4 g-4 mb-5">
+    {% for category in categories %}
+      <div class="col text-center">
+        <div class="card h-100 shadow-sm border-0">
+          <img src="{% static category.image %}" class="card-img-top mx-auto mt-3" alt="{{ category.title }}" style="height:60px; width:auto; object-fit:contain;">
+          <div class="card-body p-2">
+            <h5 class="card-title mb-0">{{ category.title }}</h5>
+          </div>
+        </div>
+      </div>
+    {% endfor %}
+  </div>
+
+  <!-- Poster Carousel -->
+  {% if posters %}
+    <div id="posterCarousel" class="carousel slide mx-auto" data-bs-ride="carousel" data-bs-interval="3000" style="max-width:100%;">
+      <div class="carousel-inner">
+        {% for poster in posters %}
+          <div class="carousel-item {% if forloop.first %}active{% endif %}">
+            <img src="{% static poster.image %}" class="d-block w-100 rounded" alt="Poster {{forloop.counter}}" style="height:340px;object-fit:cover;">
+            {% if poster.caption %}
+              <div class="carousel-caption d-none d-md-block bg-dark bg-opacity-50 rounded p-2">
+                <h5>{{ poster.caption }}</h5>
+                <p>{{ poster.description }}</p>
+              </div>
+            {% endif %}
+          </div>
+        {% endfor %}
+      </div>
+      <button class="carousel-control-prev" type="button" data-bs-target="#posterCarousel" data-bs-slide="prev">
+        <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+        <span class="visually-hidden">Previous</span>
+      </button>
+      <button class="carousel-control-next" type="button" data-bs-target="#posterCarousel" data-bs-slide="next">
+        <span class="carousel-control-next-icon" aria-hidden="true"></span>
+        <span class="visually-hidden">Next</span>
+      </button>
+    </div>
+  {% endif %}
+
+</div>
 {% endblock %}

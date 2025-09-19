@@ -56,7 +56,7 @@ class AdminPosterUpdateView(View):
             end_date = request.POST.get('end_date')
 
            
-            if not all([title, image_file, start_date, end_date]):
+            if not all([title,description,start_date, end_date]):
                 return JsonResponse({'error': 'Missing required fields'}, status=400)
 
             poster_service.poster_update(poster_id,title, description, image_file, start_date, end_date)
