@@ -4,21 +4,19 @@
 
 {% block content %}
 <div class="container py-4">
-
   <!-- Category Catalog -->
-<div class="d-flex bg-light p-2 mb-5 mt-2 rounded w-100 overflow-auto" style="gap: 1rem; white-space: nowrap; scrollbar-width:none;">
-  {% for category in categories %}
-    <div class="text-center border-0 m-0 p-0 flex-shrink-0" style="width: 120px;">
-      <img src="{% static category.image %}" alt="{{ category.name }}" class="mx-auto mt-3" style="height: 60px; width: 100px; object-fit: cover;">
-      <div class="card-body p-2">
-        <h5 class="card-title mb-0 text-truncate" style="font-size: small; max-width: 100px;">
-          {{ category.name }}
-        </h5>
+  <div class="d-flex bg-light p-2 mb-5 mt-2 rounded w-100 overflow-auto" style="gap: 1rem; white-space: nowrap; scrollbar-width:none;">
+    {% for category in categories %}
+      <div class="text-center border-0 m-0 p-0 flex-shrink-0" style="width: 120px;">
+        <img src="{% static category.image %}" alt="{{ category.name }}" class="mx-auto mt-3" style="height: 60px; width: 100px; object-fit: cover;">
+        <div class="card-body p-2">
+          <h5 class="card-title mb-0 text-truncate" style="font-size: small; max-width: 100px;">
+            {{ category.name }}
+          </h5>
+        </div>
       </div>
-    </div>
-  {% endfor %}
-</div>
-
+    {% endfor %}
+  </div>
 
   <!-- Poster Carousel -->
   {% if posters %}
@@ -49,79 +47,29 @@
 
   <!--best deals-->
   <div class="products-grid mt-2">
-  {% for product in deals_product %}
-    <div class="product-card">
-      <h4>{{ product.name }}</h4>
-      <img src="{{ product.image_url }}" alt="{{ product.name }}" />
-      <p>{{ product.price }}</p>
-    </div>
-  {% endfor %}
-</div>
-
-
-  <!--products-->
-  <div class="products-grid mt-4">
-  {% for product in products %}
-    <div class="product-card ">
-      <div class="d-flex justify-content-center">
-      <img src="{%static product.image %}" id="p_img" alt="{{ product.name }}"height="220px" width="70%" style="object-fit:contain;"/>
+    {% for product in deals_products %}
+      <div class="product-card " style="height:270px;">
+        <div class="d-flex justify-content-center">
+        <img src="{%static product.image %}" id="p_img" alt="{{ product.name }}"height="160px" width="70%" style="object-fit:contain;"/>
+        </div>
+        <h6>{{ product.name }}</h6>
+        <p>{{ product.price }}</p>
       </div>
-       <h4>{{ product.name }}</h4>
-      <p>{{ product.price }}</p>
-    </div>
-  {% endfor %}
+    {% endfor %}
+  </div>
+
+
+    <!--products-->
+  <div class="products-grid mt-4">
+    {% for product in products %}
+      <div class="product-card " style="height:270px;">
+        <div class="d-flex justify-content-center">
+        <img src="{%static product.image %}" id="p_img" alt="{{ product.name }}"height="160px" width="70%" style="object-fit:contain;"/>
+        </div>
+        <h6>{{ product.name }}</h6>
+        <p>{{ product.price }}</p>
+      </div>
+    {% endfor %}
+  </div>
 </div>
-
-
-</div>
-<style>
-.products-grid {
-  display: grid;
-  grid-template-columns: repeat(5, 1fr);
-  gap: 3rem;
-}
-.product-card {
-  background: #f1f1f1;
-  padding: 1rem;
-  border-radius: 8px;
-  box-shadow: 0 2px 4px rgba(0,0,0,.06);
-}
-@media (max-width: 662px) {
-  .products-grid{
-    gap:1rem !important;
-  }
-  #p_img{
-    height:180px !important;
-  }
-}
-
-@media (max-width: 480px) {
-  .products-grid {
-    grid-template-columns: repeat(2, 1fr)!important;
-  }
-}
-
-@media (max-width: 1200px) {
-  .products-grid {
-    grid-template-columns: repeat(4, 1fr);
-  }
-}
-
-@media (max-width: 786px) {
-  .products-grid {
-    grid-template-columns: repeat(2, 1fr);
-  }
-  .container{
-    max-width:100% !important;
-  }
-}
-
-@media (max-width: 992px) {
-  .products-grid {
-    grid-template-columns: repeat(3, 1fr);
-  }
-}
-
-</style>
-
 {% endblock %}

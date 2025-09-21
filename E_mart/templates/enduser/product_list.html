@@ -1,0 +1,19 @@
+{% extends 'enduser/base.html' %}
+{% load static %}
+{% block title %}Products{% endblock %}
+{% block content %}
+<div class="container py-4">
+  <!--products-->
+  <div class="products-grid mt-4">
+    {% for product in products %}
+      <div class="product-card ">
+        <div class="d-flex justify-content-center">
+        <img src="{%static product.image %}" id="p_img" alt="{{ product.name }}"height="220px" width="70%" style="object-fit:contain;"/>
+        </div>
+        <h4>{{ product.name }}</h4>
+        <p>{{ product.price }}</p>
+      </div>
+    {% endfor %}
+  </div>
+</div>
+{% endblock %}

@@ -62,3 +62,42 @@ body {
     color: #f10000;
     box-shadow: inset 0 0 2px 1px #f10000;
 }
+
+
+
+.navbar-nav .dropdown-menu{
+    top: 40px;
+    position: absolute !important;
+    right:-20px;
+  }
+
+    @media (min-width: 1200px){
+        .search{
+            width: 400px;
+        }
+    }
+
+    @media (max-width: 992px){
+        .navbar-nav{
+            display: flex;
+            flex-direction: row;
+            justify-content: space-around;
+        }
+    }
+    @media (max-width:490px){
+      .btn{
+        font-size: smaller;
+      }
+      .navbar-nav{
+        font-size:smaller;
+      }
+      .signup{
+        display:none;
+      }
+      .nav-item{
+        margin: 0px !important;
+      }
+      .cat-err{
+        font-size: smaller;
+      }
+    }

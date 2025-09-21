@@ -85,3 +85,8 @@ class AdminProductToggleActiveView(View):
             'product_id': product.id,
             'is_active': product.is_active
         })
+    
+class CategoryProductList(View):
+    def get(self,request,category_id):
+        products = product_service.get_products_by_category(category_id)
+        return render(request, 'enduser/product_list.html',{'products':products})

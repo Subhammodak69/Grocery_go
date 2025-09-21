@@ -70,3 +70,7 @@ def toggle_active_product(product_id,is_active):
     product.is_active = is_active
     product.save()        
     return product
+
+
+def get_products_by_category(category_id):
+    return Product.objects.filter(category__id =category_id, is_active = True)

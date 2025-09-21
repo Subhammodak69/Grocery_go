@@ -34,4 +34,5 @@ urlpatterns = [
     #enduser
 
     path('api/categories/',ApiGetAllCategory, name='api_get_categories'),
+    path('products/<int:category_id>/',CategoryProductList.as_view(), name='category_products'),
 ]
