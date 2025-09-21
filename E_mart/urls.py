@@ -28,7 +28,7 @@ urlpatterns = [
 
     path('admin/products/',AdminProductListView.as_view(), name='admin_product_list'),
     path('admin/product/create/',AdminProductCreateView.as_view(), name='admin_product_create'),
-    path('admin/product/update/<int:category_id>/',AdminProductUpdateView.as_view(), name='admin_product_update'),
+    path('admin/product/update/<int:product_id>/',AdminProductUpdateView.as_view(), name='admin_product_update'),
     path('admin/products/toggle-active/',AdminProductToggleActiveView.as_view(), name='admin_product_toggle_active'),
     
     #enduser

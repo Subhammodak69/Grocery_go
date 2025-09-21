@@ -9,6 +9,9 @@ from django.utils.crypto import get_random_string
 def get_all_products():
     return Product.objects.all().order_by('id')
 
+def get_all_active_products():
+    return Product.objects.filter(is_active = True)
+
 def get_product_by_id(product_id):
     return Product.objects.filter(id=product_id).first()
 
@@ -18,7 +21,7 @@ def product_create(category_id ,name,description,image_file,price,stock,size):
         category = category,
         name = name,
         description = description,
-        image_file = get_relative_url_of_product(image_file),
+        image = get_relative_url_of_product(image_file),
         price = price,
         stock = stock,
         size = size
