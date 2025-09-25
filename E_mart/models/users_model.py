@@ -5,6 +5,7 @@ class User(AbstractUser):
     ROLES = [
         (1, 'ADMIN'),
         (2, 'ENDUSER'),
+        (3,'DELIVERYWORKER')
     ]
     first_name = models.CharField( max_length=150, blank=True)
     last_name = models.CharField( max_length=150, blank=True)

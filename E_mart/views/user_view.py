@@ -7,7 +7,7 @@ from django.views.decorators.csrf import csrf_exempt
 import json
 from django.http import JsonResponse
 
-method_decorator(admin_required,name='dispatch')
+@method_decorator(admin_required, name='dispatch')
 class AdminUserListView(View):
     def get(self,request):
         users_data = user_service.get_all_users()

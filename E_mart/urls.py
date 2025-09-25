@@ -35,4 +35,9 @@ urlpatterns = [
 
     path('api/categories/',ApiGetAllCategory, name='api_get_categories'),
     path('products/<int:category_id>/',CategoryProductList.as_view(), name='category_products'),
+
+
+
+    #delivery worker
+    path('delivery-worker/',DeliveryWorkerHomeView.as_view(), name='delivery_worker_home'),
 ]

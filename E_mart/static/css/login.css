@@ -1,0 +1,152 @@
+html, body {
+    height: 100%;
+    margin: 0;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: white;
+}
+.container-fluid, .row {
+    height: 100vh;
+}
+.left-pane {
+    
+    position: relative;
+    color: white;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: start;
+    padding: 3rem 4rem;
+    overflow: hidden;
+}
+.left-pane::before {
+    content: "";
+    position: absolute;
+    top: 0; bottom: 0; left: 0; right: 0;
+    background: rgba(50, 98, 62, 0.75);
+    backdrop-filter: blur(6px);
+    z-index: 1;
+}
+.left-content {
+    position: relative;
+    z-index: 2;
+    max-width: 420px;
+}
+.left-content h1 {
+    font-weight: 700;
+    font-size: 2.6rem;
+    margin-bottom: 1rem;
+    font-family: 'Brush Script MT', cursive;
+}
+.left-content p {
+    font-style: italic;
+    font-weight: 500;
+    font-size: 1.15rem;
+    margin-bottom: 2rem;
+}
+.btn-shop {
+    background-color: #ffc107;
+    border: none;
+    color: #3b3b3b;
+    font-weight: 700;
+    padding: 0.6rem 2rem;
+    border-radius: 0.25rem;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+.btn-shop:hover {
+    background-color: #e0a800;
+    color: #191919;
+}
+.logo-img {
+    display: block;
+    margin: 0 auto 1rem auto;
+}
+.form-label {
+    font-weight: 600;
+}
+.btn-primary, .btn-success, .btn-secondary {
+    border-radius: 4px;
+    font-weight: 600;
+}
+.btn-primary {
+    background-color: #32623e;
+    border: none;
+}
+.btn-primary:hover {
+    background-color: #234528;
+}
+.btn-success {
+    background-color: #3c8d40;
+    border: none;
+}
+.btn-success:hover {
+    background-color: #2a5d26;
+}
+.btn-secondary {
+    background-color: #6c757d;
+    border: none;
+}
+.btn-secondary:hover {
+    background-color: #495057;
+}
+.form-control:focus {
+    box-shadow: 0 0 6px #32623e;
+    border-color: #32623e;
+}
+#otpSection {
+    transition: opacity 0.3s ease-in-out;
+}
+p.text-center.mt-4 {
+    font-size: 0.95rem;
+}
+p.text-center.mt-4 a {
+    color: #32623e;
+    font-weight: 600;
+    text-decoration: none;
+}
+p.text-center.mt-4 a:hover {
+    text-decoration: underline;
+}
+@media(min-width: 992px){
+    .form-control{
+    font-size: larger;
+    padding: 10px;
+    }
+    .btn{
+    font-size: larger;
+    padding: 10px;
+    }
+    .form-label{
+    font-size:22px;
+    }
+    h2{
+    font-size:2.2rem;
+    }
+}
+@media (max-width: 768px) {
+    .container-fluid, .row {
+    height: auto;
+    }
+    .left-pane {
+    height: 40vh;
+    padding: 1.5rem 2rem;
+    align-items: center;
+    text-align: center;
+    }
+    .left-content {
+    max-width: 100%;
+    }
+    .left-content h1 {
+    font-size: 2.2rem;
+    }
+    .card {
+    max-width: 100%;
+    width: 100%;
+    margin: 1rem 0 2rem 0;
+    padding: 2.5rem 2rem;
+    }
+    .logo-img {
+    height: 50px;
+    width: 50px;
+    }
+}

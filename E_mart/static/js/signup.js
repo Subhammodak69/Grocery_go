@@ -32,6 +32,7 @@ document.addEventListener('DOMContentLoaded', () => {
         resTrue.innerHTML = data.message;
         document.getElementById('otpSection').classList.remove('d-none');
         document.getElementById('sendOtpBtn').classList.add('d-none');
+        document.getElementById('emailSection').classList.add('d-none');
         loader.style.display = 'none ';
       } else {
         loader.style.display = 'none ';
@@ -100,6 +101,7 @@ document.addEventListener('DOMContentLoaded', () => {
         loader.style.display = 'none ';
         document.getElementById('userDataSection').classList.remove('d-none');
         document.getElementById('otpSection').classList.add('d-none');
+        // document.getElementById('emailSection').classList.add('d-none');
       } else {
         loader.style.display = 'none ';
         resTrue.style.display = "none";
