@@ -1,10 +1,10 @@
 from django.views import View
 from django.shortcuts import render
 from django.utils.decorators import method_decorator
-from E_mart.constants.decorators import enduser_required,admin_required,delivery_worker_required
+from E_mart.constants.decorators import enduser_required,admin_required,delivery_worker_required,homeNavigate
 from E_mart.services import poster_service,category_service,product_service
 
-# @method_decorator(enduser_required, name='dispatch')
+@method_decorator(homeNavigate, name='dispatch')
 class HomeView(View):
     def get(self,request):
         categories = category_service.get_all_active_categories()

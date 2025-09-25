@@ -22,7 +22,13 @@ def delivery_worker_required(view_func):
         return view_func(request, *args, **kwargs)
     return _wrapped_view
 
-
+def homeNavigate(view_func):
+    def _wrapped_view(request,*args, **kwargs):
+        if request.user.is_authenticated:
+            if request.user.role == 3:
+                return redirect('delivery_worker_home')
+        return view_func(request, *args, **kwargs)
+    return _wrapped_view
 
 def anonymous_required(redirect_url='dashboard'):
     def decorator(view_func):
