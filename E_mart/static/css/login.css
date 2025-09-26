@@ -126,6 +126,11 @@ p.text-center.mt-4 a:hover {
 @media (max-width: 768px) {
     .container-fluid, .row {
     height: auto;
+    padding: 1rem !important;
+    gap:30px;
+    }
+    h2{
+        padding-bottom: 0px!important;
     }
     .left-pane {
     height: 40vh;

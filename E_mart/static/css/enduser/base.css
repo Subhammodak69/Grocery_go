@@ -85,6 +85,12 @@ body {
         }
     }
     @media (max-width:490px){
+      .cat-img{
+        width:60px !important;
+      }
+      .cat-img-div{
+        width:70px !important;
+      }
       .btn{
         font-size: smaller;
       }

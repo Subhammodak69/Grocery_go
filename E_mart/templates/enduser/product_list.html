@@ -6,11 +6,22 @@
   <!--products-->
   <div class="products-grid mt-4">
     {% for product in products %}
-      <div class="product-card ">
+      <div class="product-card">
+        <span class="wishlist-icon" 
+                data-product-id="{{ product.id }}"
+                onclick="toggleWishlist(this)">
+            {% if product.is_in_wishlist %}
+              <i class="bi bi-heart-fill" style="color:red"></i>
+            {% else %}
+              <i class="bi bi-heart"></i>
+            {% endif %}
+          </span>
         <div class="d-flex justify-content-center">
-        <img src="{%static product.image %}" id="p_img" alt="{{ product.name }}"height="220px" width="70%" style="object-fit:contain;"/>
+          <img src="{% static product.image %}" id="p_img" alt="{{ product.name }}" height="220px" width="70%" style="object-fit:contain;" />
         </div>
-        <h4>{{ product.name }}</h4>
+        <h4>
+          {{ product.name }}
+        </h4>
         <p>{{ product.price }}</p>
       </div>
     {% endfor %}

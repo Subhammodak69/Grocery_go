@@ -36,8 +36,8 @@ urlpatterns = [
     path('api/categories/',ApiGetAllCategory, name='api_get_categories'),
     path('products/<int:category_id>/',CategoryProductList.as_view(), name='category_products'),
 
-
-
+    path('wishlist/toggle/<int:product_id>/',ToggleWishlistCreateDelete.as_view(), name='wishlist_toggler'),
+    path('wishlist/check/<int:product_id>/', CheckWishlistStatus.as_view(), name='check_wishlist'),
     #delivery worker
     path('delivery-worker/',DeliveryWorkerHomeView.as_view(), name='delivery_worker_home'),
 ]
