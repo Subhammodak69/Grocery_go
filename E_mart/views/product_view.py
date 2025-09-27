@@ -26,17 +26,13 @@ class AdminProductCreateView(View):
             category_id = request.POST.get('category_id')
             name = request.POST.get('name')
             description = request.POST.get('description')
-            image_file = request.FILES.get('image') 
-            price = request.POST.get('price')
-            stock = request.POST.get('stock')
-            size = request.POST.get('size') 
-        
+            image_file = request.FILES.get('image')       
 
             
-            if not all([category_id ,name,description,image_file,price,stock,size]):
+            if not all([category_id ,name,description,image_file]):
                 return JsonResponse({'error': 'Missing required fields'}, status=400)
 
-            product_service.product_create(category_id ,name,description,image_file,price,stock,size)
+            product_service.product_create(category_id ,name,description,image_file)
             return JsonResponse({'message': 'product created successfully!'})
 
         except Exception as e:
@@ -57,15 +53,11 @@ class AdminProductUpdateView(View):
             name = request.POST.get('name')
             description = request.POST.get('description')
             image_file = request.FILES.get('image') 
-            price = request.POST.get('price')
-            stock = request.POST.get('stock')
-            size = request.POST.get('size') 
-
-           
-            if not all([category_id ,name,description,image_file,price,stock,size]):
+                   
+            if not all([category_id ,name,description,image_file]):
                 return JsonResponse({'error': 'Missing required fields'}, status=400)
 
-            product_service.product_update(product_id,category_id ,name,description,image_file,price,stock,size)
+            product_service.product_update(product_id,category_id ,name,description,image_file)
             return JsonResponse({'message': 'product created successfully!'})
 
         except Exception as e:
@@ -91,3 +83,7 @@ class CategoryProductList(View):
         products = product_service.get_products_by_category(category_id)
         return render(request, 'enduser/product_list.html',{'products':products})
     
+class ProductDetailsView(View):
+    def get(self,request,product_id):
+        product_data = product_service.get_product_data_by_id(product_id)
+        return render(request,'enduser/product_details.html')

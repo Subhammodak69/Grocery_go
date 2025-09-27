@@ -15,36 +15,27 @@ def get_all_active_products():
 def get_product_by_id(product_id):
     return Product.objects.filter(id=product_id).first()
 
-def product_create(category_id ,name,description,image_file,price,stock,size):
+def product_create(category_id ,name,description,image_file):
     category = category_service.get_category_by_id(category_id)
     return Product.objects.create(
         category = category,
         name = name,
         description = description,
-        image = get_relative_url_of_product(image_file),
-        price = price,
-        stock = stock,
-        size = size
+        image = get_relative_url_of_product(image_file)
     )
 
 
-def product_update(product_id,category_id ,name,description,image_file,price,stock,size):
+def product_update(product_id,category_id ,name,description,image_file):
     category = category_service.get_category_by_id(category_id)
     product = get_product_by_id(product_id)
     if image_file == None:
         product.category = category
         product.name = name
         product.description = description
-        product.price = price
-        product.stock = stock
-        product.size = size
     else:
         product.category = category
         product.name = name
         product.description = description
-        product.price = price
-        product.stock = stock
-        product.size = size
         product.image = get_relative_url_of_product(image_file)
     return product
 
@@ -74,3 +65,7 @@ def toggle_active_product(product_id,is_active):
 
 def get_products_by_category(category_id):
     return Product.objects.filter(category__id =category_id, is_active = True)
+
+def get_product_data_by_id(product_id):
+    product = Product.objects.filter(id=product_id, is_active = True).first()
+    

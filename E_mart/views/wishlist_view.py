@@ -18,5 +18,8 @@ class ToggleWishlistCreateDelete(View):
 class CheckWishlistStatus(View):
     def get(self, request, product_id):
         user = request.user
-        in_wishlist = wishlist_service.is_in_wishlist(product_id, user)
+        in_wishlist = False
+        if request.user.is_authenticated:
+            in_wishlist = wishlist_service.is_in_wishlist(product_id, user)
+            return JsonResponse({'in_wishlist': in_wishlist})
         return JsonResponse({'in_wishlist': in_wishlist})

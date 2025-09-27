@@ -6,15 +6,12 @@ async function product_create() {
     const category_id = document.getElementById('category').value;
     const name = document.getElementById('name').value.trim();
     const description = document.getElementById('description').value.trim();
-    const price = document.getElementById('price').value.trim();
-    const stock = document.getElementById('stock').value.trim();
-    const size = document.getElementById('size').value.trim();
     
     const fileInput = document.getElementById('image');
     const file = fileInput.files[0];
 
 
-    if (!category_id || !name || !description || !file || !price || !stock || !size) {
+    if (!category_id || !name || !description || !file ) {
         messageEl.textContent = 'Please fill all required fields.';
         messageEl.classList.add('error');
         return;
@@ -25,9 +22,6 @@ async function product_create() {
     formData.append('name', name);
     formData.append('description', description);
     formData.append('image', file); 
-    formData.append('price', price);
-    formData.append('stock', stock);
-    formData.append('size', size);
 
     try {
         const response = await fetch('/admin/product/create/', {

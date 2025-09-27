@@ -4,22 +4,27 @@ function toggleWishlist(span) {
   fetch(`/wishlist/toggle/${productId}/`, {
     method: 'POST',
     headers: {
-      'X-CSRFToken': 'csrftoken'
+      'X-CSRFToken':'csrftoken'
     }
   })
   .then(response => response.json())
-    .then(data => {
-        if (data.in_wishlist) {
-            icon.classList.remove('bi-heart');
-            icon.classList.add('bi-heart-fill');
-            icon.style.color = 'red';
-        } else {
-            icon.classList.remove('bi-heart-fill');
-            icon.classList.add('bi-heart');
-            icon.style.color = '';
-        }
-    });
+  .then(data => {
+    if (!data) return;
+    if (data.in_wishlist) {
+      icon.classList.remove('bi-heart');
+      icon.classList.add('bi-heart-fill');
+      icon.style.color = 'red';
+    } else {
+      icon.classList.remove('bi-heart-fill');
+      icon.classList.add('bi-heart');
+      icon.style.color = '';
+    }
+  })
+  .catch(error => {
+    window.location.href = '/login/';
+  });
 }
+
 
 // Helper to check if a single product is in wishlist
 function checkWishlist(productId) {
