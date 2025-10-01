@@ -1,16 +1,34 @@
-from E_mart.models import Product
+from E_mart.models import Product,ProductDetails
 from E_mart.services import category_service
 import os
 from django.conf import settings
 from django.core.files.storage import FileSystemStorage
 from django.utils.crypto import get_random_string
+import random
 
 
 def get_all_products():
     return Product.objects.all().order_by('id')
 
+def get_random_product_by_id(product_id):
+    products = list(ProductDetails.objects.filter(product=product_id, is_active=True).values('price','size'))
+    if products:
+        return random.choice(products)
+    return None
+
 def get_all_active_products():
-    return Product.objects.filter(is_active = True)
+    products = Product.objects.filter(is_active = True)
+    products_data = [
+        {
+            'id':p.id,
+            'name':p.name,
+            'image':p.image,
+            'product_details':get_random_product_by_id(p.id),
+        }
+        for p in products
+    ] 
+    print(products_data)
+    return products_data
 
 def get_product_by_id(product_id):
     return Product.objects.filter(id=product_id).first()
@@ -64,7 +82,18 @@ def toggle_active_product(product_id,is_active):
 
 
 def get_products_by_category(category_id):
-    return Product.objects.filter(category__id =category_id, is_active = True)
+    products = Product.objects.filter(category = category_id, is_active = True)
+    products_data = [
+        {
+            'id':p.id,
+            'name':p.name,
+            'image':p.image,
+            'product_details':get_random_product_by_id(p.id),
+        }
+        for p in products
+    ] 
+    print(products_data)
+    return products_data
 
 def get_product_data_by_id(product_id):
     product = Product.objects.filter(id=product_id, is_active = True).first()

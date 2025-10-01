@@ -1,5 +1,5 @@
 import json
-from django.shortcuts import render, get_object_or_404
+from django.shortcuts import render
 from django.http import JsonResponse
 from django.views import View
 from django.utils.decorators import method_decorator
@@ -74,8 +74,6 @@ class AdminProductDetailsUpdateView(View):
             is_active_value = request.POST.get('is_active', 'false').lower()
             is_active = is_active_value in ['true', 'on', '1']
 
-            print(f"Update data: {product_id}, {price}, {stock}, {size}, {image_file}, {is_active}")
-
             # Validate required fields
             if not all([product_id, price, stock, size]):
                 return JsonResponse({'error': 'Missing required fields'}, status=400)
@@ -93,7 +91,6 @@ class AdminProductDetailsUpdateView(View):
             return JsonResponse({'message': 'Product details updated successfully!'})
 
         except Exception as e:
-            print(f"Update error: {str(e)}")  # ✅ Add server-side logging
             return JsonResponse({'error': str(e)}, status=500)
 
 
@@ -102,7 +99,6 @@ class AdminProductDetailsUpdateView(View):
 @method_decorator(csrf_exempt, name='dispatch')
 class AdminProductDetailsToggleActiveView(View):
     def post(self, request):
-        print("jzjmxzcmxzncmxzmcmzxccxzczxcxzc")
         try:
             data = json.loads(request.body)
             is_active = data.get('is_active')

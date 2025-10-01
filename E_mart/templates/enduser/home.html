@@ -61,10 +61,13 @@
         <div class="d-flex justify-content-center">
           <img src="{% static product.image %}" id="p_img" alt="{{ product.name }}" height="220px" width="70%" style="object-fit:contain;" />
         </div>
-        <h4>
+        <h4 class="d-flex w-100 px-4 justify-content-start">
           {{ product.name }}
         </h4>
-        <p>{{ product.price }}</p>
+        <div class="details">
+          <p>₹{{ product.product_details.price }}</p>
+          <p>{{ product.product_details.size }}</p>
+        </div>
       </div>
     {% endfor %}
   </div>
@@ -86,10 +89,13 @@
         <div class="d-flex justify-content-center">
           <img src="{% static product.image %}" id="p_img" alt="{{ product.name }}" height="220px" width="70%" style="object-fit:contain;" />
         </div>
-        <h4>
+        <h4 class="d-flex px-4 w-100 justify-content-start">
           {{ product.name }}
         </h4>
-        <p>{{ product.price }}</p>
+        <div class="details">
+          <p>₹{{ product.product_details.price }}</p>
+          <p>{{ product.product_details.size }}</p>
+        </div>
       </div>
     {% endfor %}
   </div>
