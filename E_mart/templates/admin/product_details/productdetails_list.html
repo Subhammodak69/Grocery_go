@@ -16,7 +16,6 @@
                 <th>Price</th>
                 <th>Stock</th>
                 <th>Size</th>
-                <th>Image</th>
                 <th>Is Active</th>
                 <th>Actions</th>
             </tr>
@@ -29,9 +28,6 @@
                 <td>{{ product_detail.price }}</td>
                 <td>{{ product_detail.stock }}</td>
                 <td>{{ product_detail.size }}</td>
-                <td>
-                    <img src="{% static product_detail.image %}" alt="Image" height="40" width="60" style="object-fit: contain;" />
-                </td>
                 <td>
                    <div class="form-check form-switch">
                         <input class="form-check-input toggle-active" type="checkbox" 

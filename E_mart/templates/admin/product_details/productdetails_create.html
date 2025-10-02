@@ -32,17 +32,6 @@
       <input type="text" id="size" name="size" class="form-control" placeholder="Size (e.g., S, M, L)" required style="border-radius: 6px;">
     </div>
 
-    <div class="mb-3">
-      <label class="form-label fw-semibold">Image*</label>
-      <button type="button" id="chooseFileBtn" class="btn btn-outline-primary" style="border-radius: 6px;">
-        Choose File
-      </button>
-      <input type="file" id="image" name="image" accept="image/*" style="display: none;" />
-    </div>
-
-    <div class="mb-3" id="preview">
-      <!-- Selected photo preview appears here -->
-    </div>
 
     <div class="form-check form-switch mb-3">
       <input class="form-check-input" type="checkbox" id="is_active" name="is_active" checked>
@@ -57,30 +46,7 @@
   <div id="message" class="text-center mt-4 fw-semibold m-auto"></div>
 </div>
 
-<script>
-  const fileInput = document.getElementById('image');
-  const chooseFileBtn = document.getElementById('chooseFileBtn');
-  const previewDiv = document.getElementById('preview');
 
-  // When clicking the button, trigger click on hidden file input
-  chooseFileBtn.addEventListener('click', () => {
-    fileInput.click();
-  });
-
-  // When file is selected, show preview image
-  fileInput.addEventListener('change', (event) => {
-    previewDiv.innerHTML = ''; // Clear previous preview
-    const file = event.target.files[0];
-    if (file) {
-      const img = document.createElement('img');
-      img.style.height = '100px';
-      img.style.borderRadius = '6px';
-      img.style.marginTop = '10px';
-      img.src = URL.createObjectURL(file);
-      previewDiv.appendChild(img);
-    }
-  });
-</script>
 <style>
   #message.error {
     margin: 20px auto;

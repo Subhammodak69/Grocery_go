@@ -29,12 +29,11 @@ class AdminProductDetailsCreateView(View):
             price = request.POST.get('price')
             stock = request.POST.get('stock')
             size = request.POST.get('size')
-            image_file = request.FILES.get('image')
             is_active = request.POST.get('is_active') == 'true'
 
-            print(product_id, price, stock, size, image_file, is_active)
+            print(product_id, price, stock, size, is_active)
             
-            if not all([product_id, price, stock, size, image_file]):
+            if not all([product_id, price, stock, size]):
                 return JsonResponse({'error': 'Missing required fields'}, status=400)
 
             product_details_service.product_details_create(
@@ -42,7 +41,6 @@ class AdminProductDetailsCreateView(View):
                 price=price,
                 stock=stock,
                 size=size,
-                image_file=image_file,
                 is_active=is_active
             )
             return JsonResponse({'message': 'Product details created successfully!'})
@@ -68,7 +66,6 @@ class AdminProductDetailsUpdateView(View):
             price = request.POST.get('price')
             stock = request.POST.get('stock')
             size = request.POST.get('size')
-            image_file = request.FILES.get('image')  # This will be None if no file uploaded
             
             # ✅ Improved boolean handling
             is_active_value = request.POST.get('is_active', 'false').lower()
@@ -85,7 +82,6 @@ class AdminProductDetailsUpdateView(View):
                 price=price,
                 stock=stock,
                 size=size,
-                image_file=image_file,  # Can be None for no image update
                 is_active=is_active
             )
             return JsonResponse({'message': 'Product details updated successfully!'})
