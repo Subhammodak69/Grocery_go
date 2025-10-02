@@ -25,14 +25,13 @@ class AdminProductCreateView(View):
         try:
             category_id = request.POST.get('category_id')
             name = request.POST.get('name')
-            description = request.POST.get('description')
-            image_file = request.FILES.get('image')       
+            description = request.POST.get('description')    
 
             
-            if not all([category_id ,name,description,image_file]):
+            if not all([category_id ,name,description ]):
                 return JsonResponse({'error': 'Missing required fields'}, status=400)
 
-            product_service.product_create(category_id ,name,description,image_file)
+            product_service.product_create(category_id ,name,description )
             return JsonResponse({'message': 'product created successfully!'})
 
         except Exception as e:
@@ -52,12 +51,11 @@ class AdminProductUpdateView(View):
             category_id = request.POST.get('category_id')
             name = request.POST.get('name')
             description = request.POST.get('description')
-            image_file = request.FILES.get('image') 
                    
-            if not all([category_id ,name,description,image_file]):
+            if not all([category_id ,name,description]):
                 return JsonResponse({'error': 'Missing required fields'}, status=400)
 
-            product_service.product_update(product_id,category_id ,name,description,image_file)
+            product_service.product_update(product_id,category_id ,name,description)
             return JsonResponse({'message': 'product created successfully!'})
 
         except Exception as e:
