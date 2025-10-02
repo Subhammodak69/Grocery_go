@@ -9,7 +9,7 @@ async function product_update() {
     const description = document.getElementById('description').value.trim();
     
 
-    if (!category_id || !name || !description) {
+    if (!category_id || !name || !description || !file) {
         messageEl.textContent = 'Please fill all required fields.';
         messageEl.classList.add('error');
         return;
@@ -19,6 +19,9 @@ async function product_update() {
     formData.append('category_id',category_id);
     formData.append('name', name);
     formData.append('description', description);
+    if (file !== undefined) {
+        formData.append('image', file);
+    }
 
     try {
         const response = await fetch(`/admin/product/update/${productId}/`, {

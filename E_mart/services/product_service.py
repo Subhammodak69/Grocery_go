@@ -1,5 +1,9 @@
 from E_mart.models import Product,ProductDetails
 from E_mart.services import category_service
+import os
+from django.conf import settings
+from django.core.files.storage import FileSystemStorage
+from django.utils.crypto import get_random_string
 import random
 
 
@@ -18,6 +22,7 @@ def get_all_active_products():
         {
             'id':p.id,
             'name':p.name,
+            'image':p.image,
             'product_details':get_random_product_by_id(p.id),
         }
         for p in products
@@ -28,22 +33,45 @@ def get_all_active_products():
 def get_product_by_id(product_id):
     return Product.objects.filter(id=product_id).first()
 
-def product_create(category_id ,name,description):
+def product_create(category_id ,name,description,image_file):
     category = category_service.get_category_by_id(category_id)
     return Product.objects.create(
         category = category,
         name = name,
         description = description,
+        image = get_relative_url_of_product(image_file)
     )
 
 
-def product_update(product_id,category_id ,name,description):
+def product_update(product_id,category_id ,name,description,image_file):
     category = category_service.get_category_by_id(category_id)
     product = get_product_by_id(product_id)
-    product.category = category
-    product.name = name
-    product.description = description
+    if image_file == None:
+        product.category = category
+        product.name = name
+        product.description = description
+    else:
+        product.category = category
+        product.name = name
+        product.description = description
+        product.image = get_relative_url_of_product(image_file)
     return product
+
+
+def get_relative_url_of_product(photo_file):
+    # Save inside app's static/categories folder
+    products_dir = os.path.join(settings.BASE_DIR, 'E_mart', 'static', 'images', 'products')
+    os.makedirs(products_dir, exist_ok=True)
+
+    file_ext = os.path.splitext(photo_file.name)[1]  # e.g., '.jpg'
+    unique_filename = get_random_string(12) + file_ext
+
+    fs = FileSystemStorage(location=products_dir)
+    filename = fs.save(unique_filename, photo_file)
+
+    # Relative URL should match STATIC_URL + folder inside app static
+    relative_url = f'images/products/{filename}'
+    return relative_url
 
 
 def toggle_active_product(product_id,is_active):
@@ -59,12 +87,14 @@ def get_products_by_category(category_id):
         {
             'id':p.id,
             'name':p.name,
+            'image':p.image,
             'product_details':get_random_product_by_id(p.id),
         }
         for p in products
     ] 
+    print(products_data)
     return products_data
 
 def get_product_data_by_id(product_id):
-    return  Product.objects.filter(id=product_id, is_active = True).first()
+    product = Product.objects.filter(id=product_id, is_active = True).first()
     

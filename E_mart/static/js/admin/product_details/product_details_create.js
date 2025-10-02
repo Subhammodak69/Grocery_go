@@ -8,12 +8,10 @@ async function product_details_create() {
     const price = document.getElementById('price').value.trim();
     const stock = document.getElementById('stock').value.trim();
     const size = document.getElementById('size').value.trim();
-    const fileInput = document.getElementById('image');
-    const file = fileInput.files[0];
     const isActive = document.getElementById('is_active').checked;
 
     // Validate required fields
-    if (!productId || !price || !stock || !size || !file) {
+    if (!productId || !price || !stock || !size) {
         messageEl.textContent = 'Please fill all required fields.';
         messageEl.classList.add('error');
         return;
@@ -25,7 +23,6 @@ async function product_details_create() {
     formData.append('price', price);
     formData.append('stock', stock);
     formData.append('size', size);
-    formData.append('image', file);  
     formData.append('is_active', isActive);
 
     try {
@@ -47,7 +44,6 @@ async function product_details_create() {
         messageEl.textContent = 'Product details created successfully! Redirecting...';
         messageEl.classList.add('success');
         document.getElementById('adminproduct_detailsForm').reset();
-        document.getElementById('preview').innerHTML = '';
 
         setTimeout(() => {
             window.location.href = '/admin/product_details_lists/';

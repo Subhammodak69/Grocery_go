@@ -17,6 +17,7 @@ class Product(models.Model):
     name = models.CharField(max_length=200)
     description = models.TextField(blank=True)
     is_active = models.BooleanField(default=True)
+    image = models.URLField(blank=False, null=False)
     
     class Meta:
         db_table = 'products'

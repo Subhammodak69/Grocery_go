@@ -10,9 +10,6 @@ async function product_details_update() {
     const size = document.getElementById('size').value.trim();
     const isActive = document.getElementById('is_active').checked;
 
-    const fileInput = document.getElementById('image');
-    const file = fileInput.files[0]; 
-
     // Validate required fields (image not required for update)
     if (!productId || !price || !stock || !size) {
         messageEl.textContent = 'Please fill all required fields.';
@@ -28,10 +25,6 @@ async function product_details_update() {
     formData.append('size', size);
     formData.append('is_active', isActive ? 'true' : 'false'); // ✅ Explicit boolean conversion
 
-    // ✅ Only append file if one is actually selected
-    if (file) {
-        formData.append('image', file);
-    }
 
     // ✅ Add CSRF token to FormData
     const csrfToken = getCookie('csrftoken');
@@ -58,8 +51,6 @@ async function product_details_update() {
         messageEl.textContent = result.message || 'Product details updated successfully! Redirecting...';
         messageEl.classList.add('success');
         
-        // Don't reset form on update - user might want to see current values
-        document.getElementById('preview').innerHTML = '';
 
         setTimeout(() => {
             window.location.href = '/admin/product_details_lists/';
