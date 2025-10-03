@@ -8,6 +8,7 @@ import random
 from E_mart.services import product_details_service
 
 
+
 def get_all_products():
     return Product.objects.all().order_by('id')
 
@@ -95,4 +96,17 @@ def get_products_by_category(category_id):
     ] 
     print(products_data)
     return products_data
+
+def product_all_data_by_details_id(product_details_id):
+    item = ProductDetails.objects.filter(id = product_details_id, is_active = True).first()
+    data = {
+        'id':item.id,
+        'name':item.product.name,
+        'size':item.size,
+        'price':item.price,
+        'stock':item.stock,
+        'image':item.product.image,
+        'description':item.product.description
+    }
+    return data
     

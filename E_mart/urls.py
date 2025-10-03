@@ -39,7 +39,8 @@ urlpatterns = [
     #enduser
 
     path('api/categories/',ApiGetAllCategory, name='api_get_categories'),
-    path('products/<int:category_id>/',CategoryProductList.as_view(), name='category_products'),   
+    path('products/<int:category_id>/',CategoryProductList.as_view(), name='category_products'),  
+    path('product-order/summary/',ProductOrderSummary.as_view(), name='product_order_summary'),
 
     path('wishlist/toggle/<int:product_id>/',ToggleWishlistCreateDelete.as_view(), name='wishlist_toggler'),
     path('wishlist/check/<int:product_id>/', CheckWishlistStatus.as_view(), name='check_wishlist'),

@@ -1,5 +1,5 @@
 from django.views import View
-from django.shortcuts import render
+from django.shortcuts import render,redirect
 from django.views.decorators.csrf import csrf_exempt
 from django.utils.decorators import method_decorator
 from E_mart.constants.decorators import admin_required
@@ -82,4 +82,14 @@ class CategoryProductList(View):
     def get(self,request,category_id):
         products = product_service.get_products_by_category(category_id)
         return render(request, 'enduser/product_list.html',{'products':products})
-    
+
+class ProductOrderSummary(View):
+    def get(self, request):
+        product_details_id = request.GET.get('product_details_id')
+        quantity = request.GET.get('quantity')
+        product_data = product_service.product_all_data_by_details_id(product_details_id)
+        product_data.update({
+            'quantity':quantity
+        })
+        print(product_data)
+        return render(request, 'enduser/singly_order_summary.html', {'data': product_data})

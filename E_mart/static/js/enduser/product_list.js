@@ -53,3 +53,16 @@ window.onload = function() {
     });
 };
 
+function buy_now(button) {
+  const form = button.closest('form');
+  const productDetails_id = form.querySelector('select[name="product_details_id"]').value;
+  const quantity = form.querySelector('input[name="quantity"]').value;
+
+  const params = new URLSearchParams({
+    product_details_id: productDetails_id,
+    quantity: quantity
+  });
+
+  console.log('Buy Now clicked:', productDetails_id, quantity);
+  window.location.href = `/product-order/summary/?${params.toString()}`;
+}

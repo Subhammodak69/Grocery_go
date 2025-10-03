@@ -24,7 +24,7 @@
       <div class="carousel-inner">
         {% for poster in posters %}
           <div class="carousel-item {% if forloop.first %}active{% endif %}">
-            <img src="{% static poster.image %}" class="d-block w-100 rounded" alt="Poster {{forloop.counter}}" style="height:340px;object-fit:cover;">
+            <img src="{% static poster.image %}" class="d-block w-100 rounded" alt="Poster {{forloop.counter}}" id="poster-img" style="height:340px;object-fit:cover;">
             {% if poster.caption %}
               <div class="carousel-caption d-none d-md-block bg-dark bg-opacity-50 rounded p-2">
                 <h5>{{ poster.caption }}</h5>
@@ -64,10 +64,9 @@
         <h4 class="d-flex w-100 px-4 justify-content-start" style="font-size:16px;">
           {{ product.name }}
         </h4>
-        <form method="POST" class="w-100">
-          {% csrf_token %}
+        <form id="productform" class="w-100">
           <div class="mb-2">
-            <select class="form-select" name="option_id" id="option_{{ product.id }}" style="font-size:12px;">
+            <select class="form-select" name="product_details_id" id="option_{{ product.id }}" style="font-size:12px;">
               {% if product.product_options %}
                 {% for item in product.product_options %}
                   <option value="{{ item.id }}" {% if forloop.first %}selected{% endif %}>
@@ -84,14 +83,16 @@
               Quantity:
             </label>
             <input type="number" name="quantity" id="quantity_{{ product.id }}"
-                  min="1" value="1" class="form-control" style="max-width: 80px;padding:5px; display: inline-block;font-size:12px;" />
+                  min="1" value="1" class="form-control" style="max-width: 80px; padding:5px; display: inline-block; font-size:12px;" />
           </div>
           <div class="d-flex justify-content-between gap-2">
-            <button type="submit" class="btn btn-danger w-100 px-0 fw-bold" style="letter-spacing: 0.5px;font-size:10px;">
+            <button type="button" onclick="buy_now(this)" class="btn btn-danger w-100 px-0 fw-bold" 
+                    style="letter-spacing: 0.5px; font-size:10px;">
               Buy Now
             </button>
-            <button type="submit" class="btn px-0 w-100 fw-bold" style="background:#32623e; color:white;letter-spacing: 0.5px;font-size:10px;">
-             add to cart
+            <button type="button" onclick="add_to_cart(this)" class="btn px-0 w-100 fw-bold" 
+                    style="background:#32623e; color:white; letter-spacing: 0.5px; font-size:10px;">
+              Add to cart
             </button>
           </div>
         </form>
@@ -118,10 +119,9 @@
         <h4 class="d-flex w-100 px-4 justify-content-start" style="font-size:16px;">
           {{ product.name }}
         </h4>
-        <form method="POST" class="w-100">
-          {% csrf_token %}
+        <form id="productform" class="w-100">
           <div class="mb-2">
-            <select class="form-select" name="option_id" id="option_{{ product.id }}" style="font-size:12px;">
+            <select class="form-select" name="product_details_id" id="option_{{ product.id }}" style="font-size:12px;">
               {% if product.product_options %}
                 {% for item in product.product_options %}
                   <option value="{{ item.id }}" {% if forloop.first %}selected{% endif %}>
@@ -138,14 +138,16 @@
               Quantity:
             </label>
             <input type="number" name="quantity" id="quantity_{{ product.id }}"
-                  min="1" value="1" class="form-control" style="max-width: 80px;padding:5px; display: inline-block;font-size:12px;" />
+                  min="1" value="1" class="form-control" style="max-width: 80px; padding:5px; display: inline-block; font-size:12px;" />
           </div>
           <div class="d-flex justify-content-between gap-2">
-            <button type="submit" class="btn btn-danger w-100 px-0 fw-bold" style="letter-spacing: 0.5px;font-size:10px;">
+            <button type="button" onclick="buy_now(this)" class="btn btn-danger w-100 px-0 fw-bold" 
+                    style="letter-spacing: 0.5px; font-size:10px;">
               Buy Now
             </button>
-            <button type="submit" class="btn px-0 w-100 fw-bold" style="background:#32623e; color:white;letter-spacing: 0.5px;font-size:10px;">
-             add to cart
+            <button type="button" onclick="add_to_cart(this)" class="btn px-0 w-100 fw-bold" 
+                    style="background:#32623e; color:white; letter-spacing: 0.5px; font-size:10px;">
+              Add to cart
             </button>
           </div>
         </form>
@@ -155,8 +157,8 @@
 </div>
 <style>
   @media(max-width: 662px){
-    .carousel-item.img{
-      height:150px;
+    #poster-img{
+      max-height:150px;
     }
   }
 </style>
