@@ -5,6 +5,7 @@ from django.conf import settings
 from django.core.files.storage import FileSystemStorage
 from django.utils.crypto import get_random_string
 import random
+from E_mart.services import product_details_service
 
 
 def get_all_products():
@@ -23,7 +24,7 @@ def get_all_active_products():
             'id':p.id,
             'name':p.name,
             'image':p.image,
-            'product_details':get_random_product_by_id(p.id),
+            'product_options':product_details_service.get_product_details_options_by_id(p.id),
         }
         for p in products
     ] 
@@ -88,13 +89,10 @@ def get_products_by_category(category_id):
             'id':p.id,
             'name':p.name,
             'image':p.image,
-            'product_details':get_random_product_by_id(p.id),
+            'product_options':product_details_service.get_product_details_options_by_id(p.id),
         }
         for p in products
     ] 
     print(products_data)
     return products_data
-
-def get_product_data_by_id(product_id):
-    product = Product.objects.filter(id=product_id, is_active = True).first()
     

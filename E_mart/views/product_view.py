@@ -83,7 +83,3 @@ class CategoryProductList(View):
         products = product_service.get_products_by_category(category_id)
         return render(request, 'enduser/product_list.html',{'products':products})
     
-class ProductDetailsView(View):
-    def get(self,request,product_id):
-        product_data = product_service.get_product_data_by_id(product_id)
-        return render(request,'enduser/product_details.html')

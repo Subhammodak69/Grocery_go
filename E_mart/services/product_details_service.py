@@ -46,3 +46,15 @@ def toggle_active_product(product_details_id,is_active):
     product_details.is_active = is_active
     product_details.save()        
     return product_details
+
+def get_product_details_options_by_id(product_id):
+    options = []
+    product_details = ProductDetails.objects.filter(product = product_id, is_active = True)
+    for item in product_details:
+        options.append({
+                'id':item.id,
+                'size':item.size,
+                'price':item.price,
+                'stock':item.stock
+            })
+    return options
