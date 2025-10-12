@@ -1,5 +1,5 @@
 from django.db import models
-from E_mart.models import User,Product
+from E_mart.models import User,Product,productdetails_model
 
 class Cart(models.Model):
     user = models.OneToOneField(User,related_name= 'cart', on_delete=models.CASCADE)
@@ -13,10 +13,9 @@ class Cart(models.Model):
 
 class CartItem(models.Model):
     cart = models.ForeignKey(Cart, related_name='items', on_delete=models.CASCADE)
-    product = models.ForeignKey(Product, on_delete=models.CASCADE)
     quantity = models.PositiveIntegerField(default=1)
     is_active = models.BooleanField(default=True)
-    
+    product_details = models.ForeignKey(productdetails_model.ProductDetails, on_delete=models.CASCADE, related_name='items')
     class Meta:
         db_table = 'cartitems'
         

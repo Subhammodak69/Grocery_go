@@ -6,3 +6,4 @@ from .category_view import *
 from .product_view import *
 from .wishlist_view import *
 from .product_details_view import *
+from .cart_view import *

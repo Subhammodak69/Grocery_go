@@ -29,7 +29,6 @@ def get_all_active_products():
         }
         for p in products
     ] 
-    print(products_data)
     return products_data
 
 def get_product_by_id(product_id):

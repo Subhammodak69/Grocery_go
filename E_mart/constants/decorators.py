@@ -27,6 +27,8 @@ def homeNavigate(view_func):
         if request.user.is_authenticated:
             if request.user.role == 3:
                 return redirect('delivery_worker_home')
+            elif request.user.role == 1:
+                return redirect('admin')
         return view_func(request, *args, **kwargs)
     return _wrapped_view
 

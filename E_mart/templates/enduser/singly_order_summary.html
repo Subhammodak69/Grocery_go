@@ -15,9 +15,11 @@
   <form id="order-summary-form" class="d-flex flex-column flex-md-row justify-content-between gap-4 bg-white rounded p-4 shadow-sm">
     
     <!-- Product Details Section -->
-    <div class="cart-item border rounded p-3 text-center mx-auto mb-4 mb-md-0" style="">
-      <img src="{% static data.image %}" alt="Product Image" class="rounded mb-3" style="height:200px; width: 100%;">
-      <h5 class="fw-semibold mb-3">{{ data.name }}</h5>
+    <div class="mx-auto">
+      <div class="cart-item border rounded p-3 text-center mb-4 mb-md-0" style="max-height:300px">
+        <img src="{% static data.image %}" alt="Product Image" class="rounded mb-3" style="height:200px; width: 100%;">
+      </div>
+      <h5 class="fw-semibold mb-3 d-flex gap-3"><p class="text-gray fs-20">Product Name:</p>{{ data.name }}</h5>
 
       <div class="d-flex flex-wrap justify-content-center gap-3">
         <div>

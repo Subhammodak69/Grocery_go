@@ -1,0 +1,82 @@
+{% extends 'enduser/base.html' %}
+{% load static %}
+{% block title %} Cart | Grocery_Go {% endblock %}
+{% block content %}
+<div class="container cart-wrapper rounded shadow p-4" style=" margin-top:5rem!important;height:87vh;background: aliceblue;">
+  <h4 class="pb-2">Your Shopping Cart</h4>
+  <div class="row g-4" style="border-bottom:2px solid gray">
+    <!-- Product List -->
+    <div class="col-md-8 overflow-auto " style="height: 70vh; scrollbar-width:none; ">
+      {% if cart_data %}
+      {% for item in cart_data %}
+      <div class="card-item mb-3 position-relative">
+        <div style="position: absolute;right: 20px;top: 10px;cursor:pointer;">
+          <i class="bi bi-x font-bold" style="font-size:25px;"></i> 
+        </div>
+        <div class="card-body d-flex justify-content-between align-items-center">
+          <div>
+            <h5 class="card-title mb-1">{{item.product_name}}</h5>
+            <span class="text-muted small">Qty: {{item.quantity}}</span>
+          </div>
+          <span class="badge bg-primary fs-6">₹{{item.product_price}}</span>
+        </div>
+      </div> 
+      {% endfor %}
+      {% else %}
+      <p>No items yet added.</p>
+      {% endif %}   
+    </div>
+    <!-- Summary Card -->
+    <div class="col-md-4">
+      <div class="card mb-3">
+        <div class="card-body">
+          <h5 class="card-title text-center mb-4">Order Summary</h5>
+          <div class="d-flex justify-content-between mb-2">
+            <span>Total Price</span>
+            <span>{{total_summary.total_price}}</span>
+          </div>
+          <div class="d-flex justify-content-between mb-2">
+            <span>Discount</span>
+            <span>-₹{{total_summary.discount}}</span>
+          </div>
+          <div class="d-flex justify-content-between mb-3">
+            <span>Fee</span>
+            <span>₹{{total_summary.fee}}</span>
+          </div>
+          <hr>
+          <div class="d-flex justify-content-between fs-5">
+            <strong>Total</strong>
+            <strong>₹{{total_summary.total_price}}</strong>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="d-flex justify-content-between align-items-center p-2 mt-2">
+      <div style="font-weight: 500;font-size: large;color: #0d6efd;" onclick="go_back()">
+      <i class="bi bi-arrow-left"></i>
+        Continue Shopping
+      </div>
+
+      <div>
+         <strong>Total</strong>
+          <strong>₹{{total_summary.total_price}}</strong>
+      </div>
+    </div>
+</div>
+<script>
+  function go_back() {
+    window.history.back();
+}
+
+</script>
+<style>
+  .card-item{
+    max-width: 650px;
+    width: 100%;
+    padding: 3rem;
+    background: white;
+    border-bottom:2px solid gray;
+  }
+</style>
+{% endblock %}

@@ -2,7 +2,7 @@ from django.views import View
 from django.shortcuts import render,redirect
 from django.views.decorators.csrf import csrf_exempt
 from django.utils.decorators import method_decorator
-from E_mart.constants.decorators import admin_required
+from E_mart.constants.decorators import admin_required,enduser_required
 from E_mart.services import product_service,category_service
 from django.http import JsonResponse
 import json
@@ -83,6 +83,7 @@ class CategoryProductList(View):
         products = product_service.get_products_by_category(category_id)
         return render(request, 'enduser/product_list.html',{'products':products})
 
+@method_decorator(enduser_required, name= 'dispatch')
 class ProductOrderSummary(View):
     def get(self, request):
         product_details_id = request.GET.get('product_details_id')
@@ -91,5 +92,4 @@ class ProductOrderSummary(View):
         product_data.update({
             'quantity':quantity
         })
-        print(product_data)
         return render(request, 'enduser/singly_order_summary.html', {'data': product_data})

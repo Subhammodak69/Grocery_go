@@ -4,6 +4,12 @@ from django.contrib.auth.hashers import check_password
 def get_all_users():
     return User.objects.filter(role=2).order_by('id')
 
+def check_is_admin(user_id):
+    user = User.objects.filter(id = user_id, is_active = True).first()
+    if user.role == 1:
+        return True
+    return False
+
 def get_active_user_obj_by_id(user_id):
     return User.objects.filter(id=user_id,is_active=True).first()
 
