@@ -7,3 +7,4 @@ from .payment_model import *
 from .poster_model import *
 from .wishlist_model import *
 from .productdetails_model import *
+from .help_model import *
