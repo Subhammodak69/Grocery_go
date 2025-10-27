@@ -1,4 +1,4 @@
-from E_mart.models import Order,OrderItem,CartItem
+from E_mart.models import Order,OrderItem,CartItem,ProductDetails
 from E_mart.services import cart_service
 
 def create_order(user, address):
@@ -42,4 +42,37 @@ def create_order(user, address):
         
     except Exception as e:
         print(f"Error creating order: {str(e)}")
+        return None
+
+
+
+def sigle_order_create(user, product_details_id, address, quantity):
+    try:
+        # Get active product details
+        product_details = ProductDetails.objects.get(id=product_details_id, is_active=True)
+
+        # Calculate total price (consider discount/quantity if required)
+        total_price = product_details.price * int(quantity)  # Basic total calculation
+
+        # Create order
+        order = Order.objects.create(
+            user=user,
+            status='pending',  # Default status
+            total_price=total_price,
+            delivery_address=address
+        )
+
+        # Create order item
+        order_item = OrderItem.objects.create(
+            order=order,
+            product_details=product_details,
+            quantity=quantity
+        )
+
+        # Return created order (could be used for confirmation, etc.)
+        return order
+
+    except Exception as e:
+        # Optional: log error, re-raise or handle as needed
+        print(f"Error creating order: {e}")
         return None

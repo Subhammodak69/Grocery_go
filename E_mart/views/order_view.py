@@ -5,7 +5,10 @@ from django.utils.decorators import method_decorator
 from E_mart.constants.decorators import enduser_required
 from django.views.decorators.csrf import csrf_exempt
 from django.http import JsonResponse
+from django.contrib import messages
 
+
+@method_decorator(csrf_exempt, name='dispatch')
 @method_decorator(enduser_required, name= 'dispatch')
 class ProductOrderSummary(View):
     def get(self, request):
@@ -15,12 +18,48 @@ class ProductOrderSummary(View):
         product_data.update({
             'quantity':quantity
         })
-        summary_data = {
-            'discount':'',
-            'total':''
-        }
-        print(product_data)
-        return render(request, 'enduser/singly_order_summary.html', {'data': product_data,'summary_data':summary_data})
+        total_price = product_data['price']* int(product_data['quantity'])
+        
+        return render(request, 'enduser/singly_order_summary.html', {'total_price':total_price,'data': product_data})
+    
+    def post(self, request):
+        try:
+            # Extract form data from POST request
+            user = request.user
+            product_details_id = request.POST.get('product_details_id')
+            address = request.POST.get('address', '').strip()
+            quantity = request.POST.get('quantity', '1').strip()
+
+            if not address:
+                return JsonResponse({
+                    'success': False,
+                    'message': 'Address is required'
+                })
+
+            if not product_details_id or not quantity.isdigit():
+                return JsonResponse({
+                    'success': False,
+                    'message': 'Invalid product or quantity'
+                })
+
+            quantity = int(quantity)
+            
+            # Create order using your service function
+            order = order_service.sigle_order_create(user, product_details_id, address, quantity)
+            
+            if order:
+                return redirect(f'/order/{order.id}')
+            else:
+                return JsonResponse({
+                    'success': False,
+                    'message': 'Failed to create order'
+                })
+        except Exception as e:
+            return JsonResponse({
+                'success': False,
+                'message': str(e)
+            })
+
     
 @method_decorator(enduser_required, name='dispatch')
 class ProductsOrderSummaryByCart(View):

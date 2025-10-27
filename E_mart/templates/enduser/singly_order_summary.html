@@ -4,6 +4,9 @@
 {% block extra_css %}
   <link rel="stylesheet" href="{% static 'css/enduser/singly_order_summary.css'%}"/>
 {% endblock %}
+{% block extra_js %}
+  <script src = "{% static 'js/enduser/geolocation_collector.js' %}"></script>
+{% endblock %}
 {% block content %}
 <div class="order-container">
   <div class="container-fluid m-auto px-md-4 py-4">
@@ -35,7 +38,7 @@
       </div>
     </div>
 
-    <form id="order-summary-form" class="order-form">
+    <form id="order-summary-form" method="post" class="order-form">
       <div class="row g-4">
         
         <!-- Product Details Section -->
@@ -81,6 +84,7 @@
                   </div>
                   <div class="attribute-details">
                     <span class="attribute-label">Quantity</span>
+                    <input type="hidden"  name="quantity" value="{{ data.quantity }}">
                     <span class="attribute-value">{{ data.quantity }}</span>
                   </div>
                 </div>
@@ -107,7 +111,7 @@
               </div>
             </div>
 
-            <input type="hidden" id="product_id" name="product_id" value="{{ product_item.id }}">
+            <input type="hidden" id="product_details_id" name="product_details_id" value="{{ data.id }}">
           </div>
         </div>
 
@@ -131,7 +135,7 @@
                     Product Price
                   </div>
                   <div class="price-value original-price">
-                     ₹{{ data.price|floatformat:2 }}
+                     ₹{{ data.price|floatformat:2 }}(each)
                   </div>
                 </div>
 
@@ -175,7 +179,7 @@
                     Total Amount
                   </div>
                   <div class="price-value total-amount">
-                     ₹{{ data.price|floatformat:2 }}
+                     ₹{{ total_price|floatformat:2 }}
                   </div>
                 </div>
 
@@ -291,7 +295,7 @@
                 <span class="btn-content">
                   <i class="bi bi-check-circle me-2"></i>
                   <span class="btn-text">Place Order</span>
-                  <span class="btn-price"> ₹{{ data.price|floatformat:2 }}</span>
+                  <span class="btn-price"> ₹{{ total_price|floatformat:2 }}</span>
                 </span>
                 <div class="btn-loader" style="display: none;">
                   <i class="bi bi-arrow-repeat spin"></i>
@@ -335,4 +339,5 @@
     </div>
   </div>
 </div>
+
 {% endblock %}

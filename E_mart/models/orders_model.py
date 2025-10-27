@@ -27,6 +27,7 @@ class OrderItem(models.Model):
     order = models.ForeignKey(Order, related_name='items', on_delete=models.CASCADE)
     product_details = models.ForeignKey(ProductDetails, on_delete=models.CASCADE)
     is_active = models.BooleanField(default=True)
+    quantity = models.PositiveIntegerField(default=1)
     
     class Meta:
         db_table = 'orderitems'
