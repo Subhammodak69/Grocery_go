@@ -13,6 +13,7 @@
   <script src="{% static 'js/base.js' %}"></script>
   <script src="{% static 'js/logout.js' %}"></script>
   {% block extra_css%}{%endblock%}
+  {% block extra_js%}{%endblock%}
 </head>
 
   
@@ -73,7 +74,7 @@
             <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="accountDropdown">
               <li><a class="dropdown-item" href="/profile/"><i class="fas fa-user me-2"></i>Profile</a></li>
               <li><a class="dropdown-item" href="/orders/"><i class="fas fa-box me-2"></i>Orders</a></li>
-              <li><a class="dropdown-item" href="/cart/"><i class="fas fa-shopping-cart me-2"></i>Cart</a></li>
+              <li><a class="dropdown-item" href="/user/cart/"><i class="fas fa-shopping-cart me-2"></i>Cart</a></li>
               <li><a class="dropdown-item" href="/wishlist/"><i class="fas fa-heart me-2"></i>Wishlist</a></li>
               <li><a class="dropdown-item" href="/bills/"><i class="fas fa-file-invoice-dollar me-2"></i>Bills</a></li>
               <li><hr class="dropdown-divider" /></li>

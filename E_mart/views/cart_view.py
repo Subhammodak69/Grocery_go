@@ -20,6 +20,7 @@ class UserCartDetailsView(View):
             request,
             'enduser/cart.html',
             {
+                'cart_id':user_cart.id,
                 'cart_data': user_cart_data,
                 'total_summary': total_summary_data
             }
@@ -27,6 +28,7 @@ class UserCartDetailsView(View):
 
     
 @method_decorator(csrf_exempt, name='dispatch')
+@method_decorator(enduser_required, name='dispatch')
 class UserCartCreateDataView(View):
     def post(self, request, *args, **kwargs):
         user = request.user
@@ -37,3 +39,27 @@ class UserCartCreateDataView(View):
         product_detail = cartitem_service.create_cartitem(user_cart,product_details_id,quantity)
 
         return JsonResponse({'status': 'success'})
+    
+
+@method_decorator(csrf_exempt, name='dispatch')
+@method_decorator(enduser_required, name='dispatch')
+class ApiRemoveCartItem(View):
+    def post(self, request, cart_id):
+        try:
+            data = json.loads(request.body)
+            item_id = data.get('itemId')
+            if not item_id:
+                return JsonResponse({'error': 'No itemId provided.'}, status=400)
+
+            # Assume cart_service.remove_item_from_cart(item_id) returns True on success, False otherwise
+            print("hello world")
+            res = cart_service.remove_item_from_cart(item_id)
+            print(res,"output for remove")
+            if res:
+                return JsonResponse({'success': True, 'message': 'Item removed from cart.'}, status=200)
+            else:
+                return JsonResponse({'success': False, 'error': 'Could not remove item.'}, status=400)
+        except Exception as e:
+            # Log the exception (best practice for production)
+            print(f'Error removing item from cart: {e}')
+            return JsonResponse({'success': False, 'error': 'Internal Server Error.'}, status=500)

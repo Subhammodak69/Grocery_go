@@ -4,7 +4,26 @@
 {% block extra_css %}
   <link rel="stylesheet" href="{% static 'css/enduser/singly_order_summary.css'%}"/>
 {% endblock %}
+{% block extra_js %}
+  <script src = "{% static 'js/enduser/cartitem_remove.js' %}"></script>
+  <script src = "{% static 'js/enduser/geolocation_collector.js' %}"></script>
+{% endblock %}
 {% block content %}
+
+<!-- Modal: Hidden by default -->
+<div id="remove-modal" style="display:none; position:fixed; z-index:9999; top:0; left:0; width:100vw; height:100vh; background:rgba(10,12,30,0.36); align-items:center; justify-content:center;">
+ <div style="max-width:350px; margin:auto; background:#fff; border-radius:12px; box-shadow:0 2px 24px rgba(30,30,140,.10); padding:2rem; position:relative;">
+  <p class="text-center fs-sm mb-3" id="remove-modal-msg">
+   Do you want to remove <span id="remove-item-name" style="font-weight:bold;"></span> from your cart?
+  </p>
+  <div class="d-flex gap-3 justify-content-center">
+   <button id="modal-remove-btn" class="btn btn-danger px-3">Remove</button>
+   <button id="modal-cancel-btn" class="btn btn-secondary px-3">Cancel</button>
+  </div>
+ </div>
+</div>
+
+
 <div class="order-container">
   <div class="container-fluid m-auto px-md-4 py-4">
     
@@ -14,7 +33,7 @@
         <div class="header-icon">
           <i class="bi bi-clipboard-check-fill"></i>
         </div>
-        <h1 class="order-title">Order Summary</h1>
+        <h5 class="order-title">Order Summary</h5>
         <p class="order-subtitle">Review your order details before placing</p>
       </div>
       <div class="progress-bar"style="flex-direction:row;">
@@ -35,81 +54,68 @@
       </div>
     </div>
 
-    <form id="order-summary-form" class="order-form">
-      <div class="row g-4">
-        
-        <!-- Product Details Section -->
-        <div class="col-12 col-lg-5">
-          <div class="product-card">
-            
-            <!-- Product Card Header -->
-            <div class="product-card-header">
-              <h3 class="section-title">
-                <i class="bi bi-box-seam me-2"></i>
-                Product Details
-              </h3>
-              <span class="item-badge">1 Item</span>
-            </div>
-
-            <!-- Product Image -->
-            <div class="product-image-container">
-              <div class="product-image-wrapper">
-                <img 
-                  src="{% static data.image %}" 
-                  alt="{{ data.name }}" 
-                  class="product-image"
-                  loading="eager"
-                >
-                <div class="image-overlay">
-                  <button type="button" class="image-zoom-btn">
-                    <i class="bi bi-zoom-in"></i>
-                  </button>
+    <form id="order-summary-form"  class="order-form">
+      <div class="row g-4"> 
+        <!-- Product Details Section (Multiple Products) -->
+        <div class="col-12 col-lg-5" style=" max-height:116vh;border-radius: 16px;border: 2px solid gray;background:#1e293b;padding: 16px;">
+          <div class="products-group overflow-auto  h-100" style="scrollbar-width:none;">
+            <h3 class="section-title mb-3 d-flex align-items-center">
+              <i class="bi bi-box-seam me-2"></i>
+              Product Details
+              <span class="item-badge ms-2">{{ products_data|length }} Items</span>
+            </h3>
+            <div>
+              {% if not products_data %}
+                <p class="text-danger text-center mt-5">No Products Found Yet.</p>
+              {% endif %}
+              {% for item in products_data %}
+              <div class="col m-2 cart-item" data-item-id="{{ item.id }}">
+                <div class="product-card h-100 flex flex-row" style="background:#475569;">
+                  <div class="product-image-container">
+                    <img 
+                      src="{% static item.product_image %}" 
+                      alt="{{ item.product_name }}"
+                      class="product-image img-fluid"
+                      loading="eager"
+                    >
+                    <!-- Delete Button -->
+                    <button class="delete-btn" aria-label="Remove item">
+                      <i class="bi bi-trash3"></i>
+                    </button>
+                  </div>
+                  <div class="product-info py-2">
+                    <h4 class="product-name fs-6 mb-1">{{ item.product_name }}</h4>
+                    <p class="product-description small mb-1">Premium quality product with excellent features</p>
+                    <div class="product-attributes d-flex flex-wrap mb-2" style="gap: 6px;!important;">
+                      <span class="attribute me-2 text-center" style="font-size: 12px; background: #1e293b;padding: 2px;border: 2px solid #9d9ed5;border-radius: 6px;color: whitesmoke;">
+                        <i class="bi bi-box me-1"></i>
+                        Qty: <span class="attribute-value" style="font-size: 10px;">{{ item.product_quantity }}</span>
+                      </span>
+                      <span class="attribute me-2 text-center" style="font-size: 12px; background: #1e293b;padding: 2px;border: 2px solid #9d9ed5;border-radius: 6px;color: whitesmoke;">
+                        <i class="bi bi-rulers me-1"></i>
+                        Size: <span class="attribute-value"style="font-size: 10px;">{{ item.product_size }}</span>
+                      </span>
+                      <span class="attribute me-2 text-center" style="font-size: 12px; background: #1e293b;padding: 2px;border: 2px solid #9d9ed5;border-radius: 6px;color: whitesmoke;">
+                        <i class="bi bi-tag-fill me-1"></i>
+                        Price: <span class="attribute-value" style="font-size: 10px;">₹{{ item.product_price|floatformat:2 }}</span>
+                      </span>
+                      {% if item.discount_amount > 0 %}
+                      <span class="attribute text-success me-2">
+                        <i class="bi bi-percent me-1"></i>
+                        Discount: <span class="attribute-value">-₹{{ item.discount_amount|floatformat:2 }}</span>
+                      </span>
+                      {% endif %}
+                    </div>
+                  </div>
+                  <input type="hidden" name="product_ids" value="{{ item.id }}">
                 </div>
               </div>
+              {% endfor %}
             </div>
-
-            <!-- Product Info -->
-            <div class="product-info">
-              <h4 class="product-name">{{ data.name }}</h4>
-              <p class="product-description">Premium quality product with excellent features</p>
-              
-              <!-- Product Attributes -->
-              <div class="product-attributes">
-                <div class="attribute-item">
-                  <div class="attribute-icon">
-                    <i class="bi bi-box"></i>
-                  </div>
-                  <div class="attribute-details">
-                    <span class="attribute-label">Quantity</span>
-                    <span class="attribute-value">{{ data.quantity }}</span>
-                  </div>
-                </div>
-
-                <div class="attribute-item">
-                  <div class="attribute-icon">
-                    <i class="bi bi-rulers"></i>
-                  </div>
-                  <div class="attribute-details">
-                    <span class="attribute-label">Size</span>
-                    <span class="attribute-value">{{ data.size }}</span>
-                  </div>
-                </div>
-
-                <div class="attribute-item">
-                  <div class="attribute-icon">
-                    <i class="bi bi-tag-fill"></i>
-                  </div>
-                  <div class="attribute-details">
-                    <span class="attribute-label">Unit Price</span>
-                    <span class="attribute-value"> ₹{{ data.price|floatformat:2 }}</span>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <input type="hidden" id="product_id" name="product_id" value="{{ product_item.id }}">
           </div>
         </div>
+
+        <input type="hidden" id="cartId" value="{{cart_id}}">
 
         <!-- Order Details Section -->
         <div class="col-12 col-lg-7">
@@ -131,7 +137,7 @@
                     Product Price
                   </div>
                   <div class="price-value original-price">
-                     ₹{{ data.price|floatformat:2 }}
+                     ₹{{ total_data.total_price|floatformat:2 }}
                   </div>
                 </div>
 
@@ -175,7 +181,7 @@
                     Total Amount
                   </div>
                   <div class="price-value total-amount">
-                     ₹{{ data.price|floatformat:2 }}
+                     ₹{{ total_data.total_price|floatformat:2 }}
                   </div>
                 </div>
 
@@ -287,11 +293,11 @@
                 Back
               </button>
               
-              <button type="submit" class="place-order-btn">
+              <button type="submit" class="place-order-btn" id="placeOrderBtn">
                 <span class="btn-content">
                   <i class="bi bi-check-circle me-2"></i>
                   <span class="btn-text">Place Order</span>
-                  <span class="btn-price"> ₹{{ data.price|floatformat:2 }}</span>
+                  <span class="btn-price"> ₹{{ total_data.total_price|floatformat:2 }}</span>
                 </span>
                 <div class="btn-loader" style="display: none;">
                   <i class="bi bi-arrow-repeat spin"></i>
@@ -335,4 +341,88 @@
     </div>
   </div>
 </div>
+
+<script>
+
+
+    // Attach event listener to form submission
+    document.getElementById('order-summary-form').addEventListener('submit', handlePlaceOrder);
+
+    // Handle place order submission
+    function handlePlaceOrder(e) {
+      e.preventDefault();
+      
+      const addressField = document.getElementById('delivery-address');
+      const address = addressField.value.trim();
+      
+      // Validation
+      if (!address) {
+        alert('Please enter a delivery address');
+        addressField.focus();
+        return;
+      }
+      
+      if (address.length < 10) {
+        alert('Please enter a complete delivery address');
+        addressField.focus();
+        return;
+      }
+      
+      const placeOrderBtn = document.getElementById('placeOrderBtn');
+      const btnContent = placeOrderBtn.querySelector('.btn-content');
+      const btnLoader = placeOrderBtn.querySelector('.btn-loader');
+      
+      btnContent.style.display = 'none';
+      btnLoader.style.display = 'block';
+      placeOrderBtn.disabled = true;
+      
+      console.log('Sending POST request with address:', address);
+      
+      // Send fetch request with CSRF token
+      fetch('/order/create/', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        credentials: 'same-origin',  // Include cookies
+        body: JSON.stringify({
+          address: address
+        })
+      })
+      .then(response => {
+        console.log('Response status:', response.status);
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        return response.json();
+      })
+      .then(data => {
+        console.log('Response data:', data);
+        
+        if (data.success) {
+          alert('Order placed successfully!');
+          window.location.href = data.redirect_url || '/orders/';
+        } else {
+          alert('Failed to place order: ' + (data.message || 'Unknown error'));
+          btnContent.style.display = 'block';
+          btnLoader.style.display = 'none';
+          placeOrderBtn.disabled = false;
+        }
+      })
+      .catch(error => {
+        console.error('Error:', error);
+        alert('Error placing order. Please try again.');
+        btnContent.style.display = 'block';
+        btnLoader.style.display = 'none';
+        placeOrderBtn.disabled = false;
+      });
+    }
+
+    // Attach click handler to place order button
+    document.getElementById('placeOrderBtn').addEventListener('click', function(e) {
+      // Form submission is handled by the form's submit event
+    });
+
+</script>
+
 {% endblock %}

@@ -41,8 +41,11 @@ urlpatterns = [
     path('api/categories/',ApiGetAllCategory, name='api_get_categories'),
     path('products/<int:category_id>/',CategoryProductList.as_view(), name='category_products'),  
     path('product-order/summary/',ProductOrderSummary.as_view(), name='product_order_summary'),
+    path('cart-product-order/summary/',ProductsOrderSummaryByCart.as_view(), name='cart_product_order_summary'),
     path('user/cart/',UserCartDetailsView.as_view(), name='user_cart'),
+    path('order/create/',OrderCreateView.as_view(),name='order_create'),
     path('user/cart/create-data/',UserCartCreateDataView.as_view(), name='user_cart_create_data'),
+    path('api/cart/remove-item/<int:cart_id>/',ApiRemoveCartItem.as_view(), name='cart_remove_item'),
 
     path('wishlist/toggle/<int:product_id>/',ToggleWishlistCreateDelete.as_view(), name='wishlist_toggler'),
     path('wishlist/check/<int:product_id>/', CheckWishlistStatus.as_view(), name='check_wishlist'),

@@ -1,5 +1,6 @@
 from django.db import models
-from E_mart.models import User,Product
+from E_mart.models import User
+from E_mart.models.productdetails_model import ProductDetails
 class Order(models.Model):
     STATUS_CHOICES = [
         ('PENDING', 'Pending'),
@@ -24,9 +25,7 @@ class Order(models.Model):
 
 class OrderItem(models.Model):
     order = models.ForeignKey(Order, related_name='items', on_delete=models.CASCADE)
-    product = models.ForeignKey(Product, on_delete=models.PROTECT)
-    quantity = models.PositiveIntegerField(default=1)
-    price = models.DecimalField(max_digits=10, decimal_places=2)
+    product_details = models.ForeignKey(ProductDetails, on_delete=models.CASCADE)
     is_active = models.BooleanField(default=True)
     
     class Meta:

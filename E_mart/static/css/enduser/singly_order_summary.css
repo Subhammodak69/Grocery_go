@@ -86,7 +86,7 @@
 }
 
 .order-title {
-  font-size: clamp(2rem, 5vw, 3rem);
+  font-size: clamp(2rem, 5vw, 1.5rem);
   font-weight: 700;
   color: #000000;
   margin-bottom: 0.5rem;
@@ -186,6 +186,23 @@
   align-items: center;
 }
 
+.delete-btn{
+  position: absolute;
+    top: 0.75rem;
+    color: whitesmoke;
+    right: 0.75rem;
+    background: var(--bg-secondary);
+    border: none;
+    border-radius: 50%;
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: var(--transition);
+    z-index: 10;
+}
 .item-badge {
   background: var(--primary-color);
   color: white;
@@ -761,7 +778,7 @@
 /* Laptop (992px - 1199px) */
 @media (min-width: 992px) and (max-width: 1199px) {
   .order-title {
-    font-size: 2.5rem;
+    font-size: 1.5rem;
   }
   
   .product-card {
@@ -801,7 +818,7 @@
 /* Mobile (576px - 767px) */
 @media (min-width: 576px) and (max-width: 767px) {
   .order-header {
-    margin-bottom: 2rem;
+    margin-bottom: 1.2rem;
   }
   
   .header-icon {

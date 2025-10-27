@@ -4,7 +4,24 @@
 {% block extra_css %}
   <link rel="stylesheet" href="{% static 'css/enduser/cart.css' %}">
 {% endblock %}
+{% block extra_js %}
+  <script src = "{% static 'js/enduser/cartitem_remove.js' %}"></script>
+{% endblock %}
 {% block content %}
+
+<!-- Modal: Hidden by default -->
+<div id="remove-modal" style="display:none; position:fixed; z-index:9999; top:0; left:0; width:100vw; height:100vh; background:rgba(10,12,30,0.36); align-items:center; justify-content:center;">
+ <div style="max-width:350px; margin:auto; background:#fff; border-radius:12px; box-shadow:0 2px 24px rgba(30,30,140,.10); padding:2rem; position:relative;">
+  <p class="text-center fs-sm mb-3" id="remove-modal-msg">
+   Do you want to remove <span id="remove-item-name" style="font-weight:bold;"></span> from your cart?
+  </p>
+  <div class="d-flex gap-3 justify-content-center">
+   <button id="modal-remove-btn" class="btn btn-danger px-3">Remove</button>
+   <button id="modal-cancel-btn" class="btn btn-secondary px-3">Cancel</button>
+  </div>
+ </div>
+</div>
+
 
 <div class="cart-container">
   <div class="container-fluid px-3 px-md-4 py-4">
@@ -23,7 +40,7 @@
         {% endif %}
       </p>
     </div>
-
+<input type="hidden" id="cartId" value="{{cart_id}}">
     <div class="row g-3 g-lg-4">
       
       <!-- Product List Section -->
@@ -146,7 +163,7 @@
 
             <!-- Checkout Button -->
             <div class="summary-footer">
-              <button class="btn-checkout" {% if not cart_data %}disabled{% endif %}>
+              <button class="btn-checkout" {% if not cart_data %}disabled{% endif %} onclick="window.location.href='/cart-product-order/summary/'">
                 <span class="checkout-text">Proceed to Checkout</span>
                 <i class="bi bi-arrow-right ms-2"></i>
               </button>
@@ -188,6 +205,7 @@
   </div>
 </div>
 
+
 <script>
   function go_back() {
     window.history.back();
@@ -214,17 +232,6 @@
     });
   });
 
-  // Delete item (add your AJAX logic here)
-  document.querySelectorAll('.delete-btn').forEach(btn => {
-    btn.addEventListener('click', function() {
-      if (confirm('Remove this item from cart?')) {
-        const cartItem = this.closest('.cart-item');
-        cartItem.style.opacity = '0';
-        setTimeout(() => cartItem.remove(), 300);
-        // Add AJAX call to update backend
-      }
-    });
-  });
 </script>
 
 
