@@ -93,7 +93,6 @@ def get_products_by_category(category_id):
         }
         for p in products
     ] 
-    print(products_data)
     return products_data
 
 def product_all_data_by_details_id(product_details_id):

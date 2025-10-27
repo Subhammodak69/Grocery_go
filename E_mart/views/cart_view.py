@@ -13,7 +13,6 @@ class UserCartDetailsView(View):
         user = request.user
         user_cart = cart_service.get_cart_by_user(user)
         user_cart_data = cartitem_service.get_all_cartitems_by_cart(user_cart)
-        print("data=> ",user_cart_data)
         total_summary_data = {
             "total_price": sum(item["product_price"] for item in user_cart_data)
         }

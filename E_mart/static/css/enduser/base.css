@@ -107,3 +107,14 @@ body {
         font-size: smaller;
       }
     }
+
+@media (min-width: 1400px) {
+    .container {
+        max-width: 80% !important;
+    }
+}
+@media (min-width: 2000px) {
+    .carousel-img{
+      height: 500px!important;
+    }
+}

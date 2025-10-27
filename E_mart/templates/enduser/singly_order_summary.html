@@ -1,81 +1,393 @@
 {% extends "enduser/base.html" %}
 {% load static %}
-{% block title %}Order | Grocery_go{% endblock %}
+{% block title %}Order Summary | Grocery_Go{% endblock %}
 {% block extra_css %}
-<link rel="stylesheet" href="{% static 'css/order_summary_singly.css' %}">
+  <link rel="stylesheet" href="{% static 'css/enduser/singly_order_summary.css'%}"/>
 {% endblock %}
-{% block extra_js %}
-<script src="{% static 'js/order_summary_singly.js' %}"></script>
-{% endblock %}
-
 {% block content %}
-<div class="container py-4">
-  <h2 class="mb-4 text-center">Your Order Summary</h2>
-
-  <form id="order-summary-form" class="d-flex flex-column flex-md-row justify-content-between gap-4 bg-white rounded p-4 shadow-sm">
+<div class="order-container">
+  <div class="container-fluid px-3 px-md-4 py-4">
     
-    <!-- Product Details Section -->
-    <div class="mx-auto">
-      <div class="cart-item border rounded p-3 text-center mb-4 mb-md-0" style="max-height:300px">
-        <img src="{% static data.image %}" alt="Product Image" class="rounded mb-3" style="height:200px; width: 100%;">
-      </div>
-      <h5 class="fw-semibold mb-3 d-flex gap-3"><p class="text-gray fs-20">Product Name:</p>{{ data.name }}</h5>
-
-      <div class="d-flex flex-wrap justify-content-center gap-3">
-        <div>
-          <label for="quantity" class="form-label d-block">Quantity:</label>
-          <p>{{data.quantity}}</p>
+    <!-- Header Section -->
+    <div class="order-header mb-5">
+      <div class="header-content">
+        <div class="header-icon">
+          <i class="bi bi-clipboard-check-fill"></i>
         </div>
-
-        <div>
-          <label for="size" class="form-label d-block">Size:</label>
-          <p>{{data.size}}</p>
+        <h1 class="order-title">Order Summary</h1>
+        <p class="order-subtitle">Review your order details before placing</p>
+      </div>
+      <div class="progress-bar">
+        <div class="progress-step active">
+          <i class="bi bi-cart-check"></i>
+          <span>Cart</span>
+        </div>
+        <div class="progress-line active"></div>
+        <div class="progress-step active">
+          <i class="bi bi-clipboard-check"></i>
+          <span>Review</span>
+        </div>
+        <div class="progress-line"></div>
+        <div class="progress-step">
+          <i class="bi bi-credit-card"></i>
+          <span>Payment</span>
         </div>
       </div>
     </div>
 
-    <input type="hidden" id="product_id" name="product_id" value="{{ product_item.id }}">
+    <form id="order-summary-form" class="order-form">
+      <div class="row g-4">
+        
+        <!-- Product Details Section -->
+        <div class="col-12 col-lg-5">
+          <div class="product-card">
+            
+            <!-- Product Card Header -->
+            <div class="product-card-header">
+              <h3 class="section-title">
+                <i class="bi bi-box-seam me-2"></i>
+                Product Details
+              </h3>
+              <span class="item-badge">1 Item</span>
+            </div>
 
-    <!-- Payment and User Details Section -->
-    <div style="flex: 1;max-width:600px;">
-      <div class="border rounded p-3 bg-light mb-4">
-        <h4>Payable Amount</h4>
-        <div class="d-flex justify-content-between">
-          <span>Product Price</span>
-          <span class="text-secondary">${{ data.price|floatformat:2 }}</span>
+            <!-- Product Image -->
+            <div class="product-image-container">
+              <div class="product-image-wrapper">
+                <img 
+                  src="{% static data.image %}" 
+                  alt="{{ data.name }}" 
+                  class="product-image"
+                  loading="eager"
+                >
+                <div class="image-overlay">
+                  <button type="button" class="image-zoom-btn">
+                    <i class="bi bi-zoom-in"></i>
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <!-- Product Info -->
+            <div class="product-info">
+              <h4 class="product-name">{{ data.name }}</h4>
+              <p class="product-description">Premium quality product with excellent features</p>
+              
+              <!-- Product Attributes -->
+              <div class="product-attributes">
+                <div class="attribute-item">
+                  <div class="attribute-icon">
+                    <i class="bi bi-box"></i>
+                  </div>
+                  <div class="attribute-details">
+                    <span class="attribute-label">Quantity</span>
+                    <span class="attribute-value">{{ data.quantity }}</span>
+                  </div>
+                </div>
+
+                <div class="attribute-item">
+                  <div class="attribute-icon">
+                    <i class="bi bi-rulers"></i>
+                  </div>
+                  <div class="attribute-details">
+                    <span class="attribute-label">Size</span>
+                    <span class="attribute-value">{{ data.size }}</span>
+                  </div>
+                </div>
+
+                <div class="attribute-item">
+                  <div class="attribute-icon">
+                    <i class="bi bi-tag-fill"></i>
+                  </div>
+                  <div class="attribute-details">
+                    <span class="attribute-label">Unit Price</span>
+                    <span class="attribute-value"> ₹{{ data.price|floatformat:2 }}</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <input type="hidden" id="product_id" name="product_id" value="{{ product_item.id }}">
+          </div>
         </div>
-        <div class="d-flex justify-content-between">
-          <span>Discount</span>
-          <span class="text-danger">- ${{ product_item.discount_amount|floatformat:2 }}</span>
-        </div>
-        <hr>
-        <div class="d-flex justify-content-between fw-bold text-success">
-          <span>Total</span>
-          <span>${{ product_item.total|floatformat:2 }}</span>
+
+        <!-- Order Details Section -->
+        <div class="col-12 col-lg-7">
+          <div class="order-details-section">
+            
+            <!-- Price Summary Card -->
+            <div class="summary-card">
+              <div class="summary-header">
+                <h3 class="section-title">
+                  <i class="bi bi-calculator me-2"></i>
+                  Price Breakdown
+                </h3>
+              </div>
+              
+              <div class="summary-body">
+                <div class="price-row">
+                  <div class="price-label">
+                    <i class="bi bi-tag me-2"></i>
+                    Product Price
+                  </div>
+                  <div class="price-value original-price">
+                     ₹{{ data.price|floatformat:2 }}
+                  </div>
+                </div>
+
+                {% if product_item.discount_amount > 0 %}
+                <div class="price-row discount">
+                  <div class="price-label">
+                    <i class="bi bi-percent me-2"></i>
+                    Discount Applied
+                  </div>
+                  <div class="price-value discount-value">
+                    - ₹{{ product_item.discount_amount|floatformat:2 }}
+                  </div>
+                </div>
+                {% endif %}
+
+                <div class="price-row">
+                  <div class="price-label">
+                    <i class="bi bi-truck me-2"></i>
+                    Delivery Fee
+                  </div>
+                  <div class="price-value delivery-fee">
+                    FREE
+                  </div>
+                </div>
+
+                <div class="price-row">
+                  <div class="price-label">
+                    <i class="bi bi-shield-check me-2"></i>
+                    Taxes & Fees
+                  </div>
+                  <div class="price-value tax-fee">
+                    Included
+                  </div>
+                </div>
+
+                <div class="price-divider"></div>
+
+                <div class="price-row total">
+                  <div class="price-label">
+                    <i class="bi bi-cash-coin me-2"></i>
+                    Total Amount
+                  </div>
+                  <div class="price-value total-amount">
+                     ₹{{ product.price|floatformat:2 }}
+                  </div>
+                </div>
+
+                {% if product_item.discount_amount > 0 %}
+                <div class="savings-highlight">
+                  <i class="bi bi-piggy-bank me-2"></i>
+                  You're saving  ₹{{ product_item.discount_amount|floatformat:2 }}!
+                </div>
+                {% endif %}
+              </div>
+            </div>
+
+            <!-- User Details Card -->
+            <div class="user-details-card">
+              <div class="card-header">
+                <h3 class="section-title">
+                  <i class="bi bi-person-circle me-2"></i>
+                  Account Information
+                </h3>
+                <button type="button" class="edit-btn">
+                  <i class="bi bi-pencil-square"></i>
+                  Edit
+                </button>
+              </div>
+              
+              <div class="user-info-grid">
+                <div class="info-item">
+                  <div class="info-icon">
+                    <i class="bi bi-person-fill"></i>
+                  </div>
+                  <div class="info-content">
+                    <span class="info-label">Full Name</span>
+                    <span class="info-value">{{ user.get_full_name|default:"Not provided" }}</span>
+                  </div>
+                </div>
+
+                <div class="info-item">
+                  <div class="info-icon">
+                    <i class="bi bi-envelope-fill"></i>
+                  </div>
+                  <div class="info-content">
+                    <span class="info-label">Email Address</span>
+                    <span class="info-value">{{ user.email }}</span>
+                  </div>
+                </div>
+
+                {% if user.phone %}
+                <div class="info-item">
+                  <div class="info-icon">
+                    <i class="bi bi-telephone-fill"></i>
+                  </div>
+                  <div class="info-content">
+                    <span class="info-label">Phone Number</span>
+                    <span class="info-value">{{ user.phone }}</span>
+                  </div>
+                </div>
+                {% endif %}
+
+                {% if user.address %}
+                <div class="info-item full-width">
+                  <div class="info-icon">
+                    <i class="bi bi-house-fill"></i>
+                  </div>
+                  <div class="info-content">
+                    <span class="info-label">Saved Address</span>
+                    <span class="info-value">{{ user.address }}</span>
+                  </div>
+                </div>
+                {% endif %}
+              </div>
+            </div>
+
+            <!-- Delivery Address Card -->
+            <div class="delivery-card">
+              <div class="card-header">
+                <h3 class="section-title">
+                  <i class="bi bi-geo-alt-fill me-2"></i>
+                  Delivery Address
+                </h3>
+              </div>
+              
+              <div class="address-input-container">
+                <textarea 
+                  id="delivery-address" 
+                  name="address" 
+                  class="address-textarea" 
+                  placeholder="Enter your complete delivery address..."
+                  required
+                  rows="4"
+                ></textarea>
+                
+                <div class="address-actions">
+                  <button type="button" class="location-btn" onclick="getCurrentLocation()">
+                    <i class="bi bi-geo-alt me-2"></i>
+                    Use Current Location
+                  </button>
+                  <button type="button" class="saved-address-btn">
+                    <i class="bi bi-bookmark me-2"></i>
+                    Saved Addresses
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <!-- Order Actions -->
+            <div class="order-actions">
+              <button type="button" class="back-btn" onclick="window.history.back()">
+                <i class="bi bi-arrow-left me-2"></i>
+                Back
+              </button>
+              
+              <button type="submit" class="place-order-btn">
+                <span class="btn-content">
+                  <i class="bi bi-check-circle me-2"></i>
+                  <span class="btn-text">Place Order</span>
+                  <span class="btn-price"> ₹{{ product_item.total|floatformat:2 }}</span>
+                </span>
+                <div class="btn-loader" style="display: none;">
+                  <i class="bi bi-arrow-repeat spin"></i>
+                  Processing...
+                </div>
+              </button>
+            </div>
+          </div>
         </div>
       </div>
+    </form>
 
-      <div class="border rounded p-3 bg-light mb-3">
-        <h4>User Details</h4>
-        <p><strong>Full Name:</strong> {{ user.get_full_name }}</p>
-        <p><strong>Email:</strong> {{ user.email }}</p>
-        {% if user.phone %}
-        <p><strong>Phone:</strong> {{ user.phone }}</p>
-        {% endif %}
-        {% if user.address %}
-        <p><strong>Address:</strong> {{ user.address }}</p>
-        {% endif %}
+    <!-- Trust Indicators -->
+    <div class="trust-section mt-5">
+      <div class="row g-3">
+        <div class="col-6 col-md-3">
+          <div class="trust-item">
+            <i class="bi bi-shield-check"></i>
+            <span>Secure Payment</span>
+          </div>
+        </div>
+        <div class="col-6 col-md-3">
+          <div class="trust-item">
+            <i class="bi bi-truck"></i>
+            <span>Fast Delivery</span>
+          </div>
+        </div>
+        <div class="col-6 col-md-3">
+          <div class="trust-item">
+            <i class="bi bi-arrow-repeat"></i>
+            <span>Easy Returns</span>
+          </div>
+        </div>
+        <div class="col-6 col-md-3">
+          <div class="trust-item">
+            <i class="bi bi-headset"></i>
+            <span>24/7 Support</span>
+          </div>
+        </div>
       </div>
-
-      <label for="delivery-address" class="form-label fw-semibold">Delivery Address</label>
-      <textarea id="delivery-address" name="address" class="form-control mb-3" placeholder="Enter delivery address manually..." required></textarea>
-
-      <button type="button" class="btn btn-outline-secondary btn-sm mb-3" onclick="getCurrentLocation()">
-        Use My Current Location
-      </button>
-
-      <button type="submit" class="btn btn-primary w-100">Place Order</button>
     </div>
-  </form>
+  </div>
 </div>
+
+<script>
+// Get current location functionality
+function getCurrentLocation() {
+  const addressField = document.getElementById('delivery-address');
+  const locationBtn = document.querySelector('.location-btn');
+  
+  if ('geolocation' in navigator) {
+    locationBtn.innerHTML = '<i class="bi bi-arrow-repeat spin me-2"></i>Getting Location...';
+    locationBtn.disabled = true;
+    
+    navigator.geolocation.getCurrentPosition(
+      function(position) {
+        // In a real app, you'd reverse geocode these coordinates
+        const lat = position.coords.latitude;
+        const lng = position.coords.longitude;
+        
+        // Simulate reverse geocoding
+        setTimeout(() => {
+          addressField.value = `Current Location:  ₹{lat.toFixed(6)},  ₹{lng.toFixed(6)}\n(Please update with complete address)`;
+          locationBtn.innerHTML = '<i class="bi bi-check-circle me-2"></i>Location Added';
+          locationBtn.disabled = false;
+          
+          setTimeout(() => {
+            locationBtn.innerHTML = '<i class="bi bi-geo-alt me-2"></i>Use Current Location';
+          }, 2000);
+        }, 1500);
+      },
+      function(error) {
+        locationBtn.innerHTML = '<i class="bi bi-exclamation-triangle me-2"></i>Location Failed';
+        setTimeout(() => {
+          locationBtn.innerHTML = '<i class="bi bi-geo-alt me-2"></i>Use Current Location';
+          locationBtn.disabled = false;
+        }, 2000);
+      }
+    );
+  } else {
+    alert('Geolocation is not supported by this browser.');
+  }
+}
+
+
+// Image zoom functionality
+document.querySelector('.image-zoom-btn').addEventListener('click', function() {
+  const img = document.querySelector('.product-image');
+  if (img.style.transform === 'scale(1.5)') {
+    img.style.transform = 'scale(1)';
+    this.innerHTML = '<i class="bi bi-zoom-in"></i>';
+  } else {
+    img.style.transform = 'scale(1.5)';
+    this.innerHTML = '<i class="bi bi-zoom-out"></i>';
+  }
+});
+</script>
+
 {% endblock %}

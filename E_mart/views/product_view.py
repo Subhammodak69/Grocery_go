@@ -83,13 +83,3 @@ class CategoryProductList(View):
         products = product_service.get_products_by_category(category_id)
         return render(request, 'enduser/product_list.html',{'products':products})
 
-@method_decorator(enduser_required, name= 'dispatch')
-class ProductOrderSummary(View):
-    def get(self, request):
-        product_details_id = request.GET.get('product_details_id')
-        quantity = request.GET.get('quantity')
-        product_data = product_service.product_all_data_by_details_id(product_details_id)
-        product_data.update({
-            'quantity':quantity
-        })
-        return render(request, 'enduser/singly_order_summary.html', {'data': product_data})

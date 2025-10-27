@@ -3,7 +3,7 @@
 {% block title %}Home{% endblock %}
 {% block content %}
 <script src="{% static 'js/enduser/product_list.js' %}"></script>
-<div class="container py-4" style="padding-right: 2px;padding-left: 2px;">
+<div class="container-9" style="padding-right: 20px;padding-left: 20px; padding-top:90px;">
   <!-- Category Catalog -->
   <div class="d-flex bg-light p-2 mb-5 mt-2 rounded w-100 overflow-auto" style="gap: 1rem; white-space: nowrap; scrollbar-width:none;">
     {% for category in categories %}
@@ -24,7 +24,7 @@
       <div class="carousel-inner">
         {% for poster in posters %}
           <div class="carousel-item {% if forloop.first %}active{% endif %}">
-            <img src="{% static poster.image %}" class="d-block w-100 rounded" alt="Poster {{forloop.counter}}" id="poster-img" style="height:340px;object-fit:cover;">
+            <img src="{% static poster.image %}" class="d-block w-100 rounded carousel-img" alt="Poster {{forloop.counter}}" id="poster-img" style="height:340px;object-fit:cover;">
             {% if poster.caption %}
               <div class="carousel-caption d-none d-md-block bg-dark bg-opacity-50 rounded p-2">
                 <h5>{{ poster.caption }}</h5>
@@ -46,7 +46,7 @@
   {% endif %}
 
   <!--best deals-->
-  <div class="products-grid mt-4">
+  <div class="products-grid mt-4 bg-light p-4">
     {% for product in products %}
       <div class="product-card">
         <span class="wishlist-icon" 
@@ -101,7 +101,7 @@
   </div>
 
     <!--products-->
-  <div class="products-grid mt-4">
+  <div class="products-grid mt-4 bg-light p-4">
     {% for product in products %}
       <div class="product-card">
         <span class="wishlist-icon" 

@@ -30,8 +30,6 @@ class AdminProductDetailsCreateView(View):
             stock = request.POST.get('stock')
             size = request.POST.get('size')
             is_active = request.POST.get('is_active') == 'true'
-
-            print(product_id, price, stock, size, is_active)
             
             if not all([product_id, price, stock, size]):
                 return JsonResponse({'error': 'Missing required fields'}, status=400)
