@@ -66,7 +66,9 @@ color: var(--text-secondary);
     PRODUCTS SECTION
     ============================================ */
 .products-section {
-background: var(--bg-primary);
+height: 100%;
+max-height: 95vh;
+background: #1e293b;
 border-radius: var(--border-radius-lg);
 box-shadow: var(--shadow-md);
 overflow: hidden;
@@ -130,7 +132,6 @@ align-items: center;
 position: absolute;
 top: 0.75rem;
 right: 0.75rem;
-background: var(--bg-secondary);
 border: none;
 border-radius: 50%;
 width: 32px;
@@ -176,7 +177,7 @@ min-width: 0;
 .product-name {
 font-size: 1rem;
 font-weight: 600;
-color: var(--text-primary);
+color: white;
 margin: 0;
 overflow: hidden;
 text-overflow: ellipsis;
@@ -185,7 +186,7 @@ white-space: nowrap;
 
 .product-description {
 font-size: 0.875rem;
-color: var(--text-secondary);
+color: rgb(218, 218, 218);
 margin: 0;
 display: -webkit-box;
 -webkit-line-clamp: 2;
@@ -198,7 +199,7 @@ overflow: hidden;
 display: flex;
 align-items: center;
 gap: 0.5rem;
-background: var(--bg-secondary);
+background: #223950;
 border-radius: var(--border-radius-sm);
 padding: 0.25rem;
 width: fit-content;
@@ -228,7 +229,7 @@ border-color: var(--primary-color);
 min-width: 30px;
 text-align: center;
 font-weight: 600;
-color: var(--text-primary);
+color: white;
 }
 
 /* Price Wrapper */
@@ -270,7 +271,7 @@ top: 90px;
 }
 
 .summary-card {
-background: var(--bg-primary);
+background: #1e293b;
 border-radius: var(--border-radius-lg);
 box-shadow: var(--shadow-lg);
 overflow: hidden;
@@ -307,12 +308,12 @@ color: var(--text-primary);
 }
 
 .summary-label {
-color: var(--text-secondary);
+color: rgb(169, 175, 175);
 }
 
 .summary-value {
 font-weight: 600;
-color: var(--text-primary);
+color: rgb(169, 175, 175);
 }
 
 .summary-divider {
@@ -336,7 +337,6 @@ margin-top: 1rem;
 /* Checkout Button */
 .summary-footer {
 padding: 1rem 1.5rem;
-background: var(--bg-secondary);
 }
 
 .btn-checkout {
@@ -370,7 +370,7 @@ cursor: not-allowed;
     TRUST BADGES
     ============================================ */
 .trust-badges {
-background: var(--bg-primary);
+background: #1e293b;
 border-radius: var(--border-radius-md);
 padding: 1rem;
 display: grid;
@@ -385,13 +385,13 @@ flex-direction: column;
 align-items: center;
 text-align: center;
 font-size: 0.75rem;
-color: var(--text-secondary);
+color: rgb(169, 175, 175);
 gap: 0.25rem;
 }
 
 .trust-item i {
 font-size: 1.25rem;
-color: var(--primary-color);
+color: #ffa850;
 }
 
 /* ============================================
@@ -403,9 +403,9 @@ text-align: center;
 }
 
 .continue-shopping-btn {
-background: transparent;
+background-color: #4f46e5;
 border: 2px solid var(--primary-color);
-color: var(--primary-color);
+color: white;
 padding: 0.75rem 2rem;
 border-radius: var(--border-radius-md);
 font-weight: 600;
@@ -415,8 +415,8 @@ display: inline-flex;
 align-items: center;
 }
 
-.continue-shopping-btn:hover {
-background: var(--primary-color);
+.continue-shopping-btn:active {
+background: #4e46e5bd;
 color: white;
 }
 

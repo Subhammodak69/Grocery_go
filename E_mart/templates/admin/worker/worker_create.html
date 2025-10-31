@@ -1,11 +1,11 @@
 {% extends 'admin/home.html' %}
 {% load static %}
-{% block title %}Create Admin User {% endblock %}
+{% block title %}Create Admin Worker {% endblock %}
 {% block content %}
-<script src="{%static 'js/admin/user/user_create.js'%}"></script>
+<script src="{%static 'js/admin/worker/worker_create.js'%}"></script>
 <div class="card shadow-sm m-auto mt-4 p-4 rounded" style="max-width: 600px;">
-  <h2 class="mb-4 text-center fw-bold" style="color: #007bff;">Create User</h2>
-  <form class="px-3" id="adminUserForm" onsubmit="return false;" novalidate>
+  <h2 class="mb-4 text-center fw-bold" style="color: #007bff;">Create Worker</h2>
+  <form class="px-3" id="adminWorkerForm" onsubmit="return false;" novalidate>
     
     <div class="mb-3">
       <label for="first_name" class="form-label fw-semibold">First Name*</label>
@@ -32,8 +32,8 @@
       <input type="text"  id="address"  name="address"  class="form-control"  placeholder="Enter address" style="border-radius: 6px;"/>
     </div>
 
-    <button type="submit" onclick="user_create()" class="btn btn-primary fw-bold mt-3 w-100"  style="padding: 12px; font-size: 18px; border-radius: 8px;">
-      Create User
+    <button type="submit" onclick="Worker_create()" class="btn btn-primary fw-bold mt-3 w-100"  style="padding: 12px; font-size: 18px; border-radius: 8px;">
+      Create Worker
     </button>
   </form>
 

@@ -17,6 +17,7 @@ def get_all_cartitems_by_cart(cart):
             'stock':item.product_details.stock,
             'product_image':item.product_details.product.image,
             'quantity':item.quantity,
+            'item_total':item.quantity * item.product_details.price
         }
         for item in items
     ]

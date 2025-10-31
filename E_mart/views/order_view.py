@@ -18,9 +18,14 @@ class ProductOrderSummary(View):
         product_data.update({
             'quantity':quantity
         })
-        total_price = product_data['price']* int(product_data['quantity'])
-        
-        return render(request, 'enduser/singly_order_summary.html', {'total_price':total_price,'data': product_data})
+        total = product_data['price']* int(product_data['quantity'])
+        extra_data = {
+            'delivery_fee': 0 if product_data['price']>=500 else 20,
+            'discount': order_service.get_discount_for_sigle_item(total)
+        }
+        final_price = total+extra_data['delivery_fee']-extra_data['discount']
+        # print(extra_data)
+        return render(request, 'enduser/singly_order_summary.html', {'total_price':final_price,'data': product_data,'extra_data':extra_data})
     
     def post(self, request):
         try:
@@ -66,11 +71,15 @@ class ProductsOrderSummaryByCart(View):
     def get(self,request):
         user_cart = cart_service.get_cart_by_user(request.user.id)
         products_data = cart_service.get_all_cart_products_data(user_cart)
-        total_summary_data = {
-            'total_price': sum(item['product_price'] for item in products_data)
-        }
-        print(user_cart)
-        return render(request, 'enduser/cart_order_summary.html',{'cart_id':user_cart.id,'products_data':products_data, 'total_data':total_summary_data})
+        summary = cart_service.get_cart_summary(user_cart)
+        
+        return render(request, 'enduser/cart_order_summary.html',{
+            'cart_id':user_cart.id,
+            'products_data':products_data, 
+            'total_data':summary,
+            'final_price': summary['total_price']+summary['fee']-summary['discount']
+            }
+        )
     
 @method_decorator(csrf_exempt, name='dispatch')
 @method_decorator(enduser_required, name='dispatch')

@@ -13,16 +13,15 @@ class UserCartDetailsView(View):
         user = request.user
         user_cart = cart_service.get_cart_by_user(user)
         user_cart_data = cartitem_service.get_all_cartitems_by_cart(user_cart)
-        total_summary_data = {
-            "total_price": sum(item["product_price"] for item in user_cart_data)
-        }
+        summary = cart_service.get_cart_summary(user_cart)
         return render(
             request,
             'enduser/cart.html',
             {
                 'cart_id':user_cart.id,
                 'cart_data': user_cart_data,
-                'total_summary': total_summary_data
+                'total_summary': summary,
+                'final_price':summary['total_price']+summary['fee']-summary['discount']
             }
         )
 
@@ -63,3 +62,21 @@ class ApiRemoveCartItem(View):
             # Log the exception (best practice for production)
             print(f'Error removing item from cart: {e}')
             return JsonResponse({'success': False, 'error': 'Internal Server Error.'}, status=500)
+
+
+@method_decorator(csrf_exempt, name='dispatch')
+@method_decorator(enduser_required, name='dispatch')
+class CartItemUpdateView(View):
+    def post(self, request, item_id):
+        data = json.loads(request.body)
+        quantity = data.get('quantity')
+
+        cart_item,summary = cart_service.update_cart_items_quantity(item_id,request.user,quantity)
+
+        return JsonResponse({
+            "cart_item_id": cart_item.id,
+            "quantity": cart_item.quantity,
+            "item_total": cart_service.get_cartitem_total_by_item_id(cart_item.id),
+            "cart_summary": summary,
+            "final_price": summary['total_price']+summary['fee']-summary['discount']
+        })

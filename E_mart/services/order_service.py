@@ -76,3 +76,14 @@ def sigle_order_create(user, product_details_id, address, quantity):
         # Optional: log error, re-raise or handle as needed
         print(f"Error creating order: {e}")
         return None
+
+
+def get_discount_for_sigle_item(total):
+        print(total)
+        if total >= 2000:
+            return total * 0.30
+        elif total >= 1000:
+            return total * 0.20
+        elif total >= 500:
+            return total * 0.10
+        return 0

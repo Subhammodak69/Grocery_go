@@ -159,7 +159,22 @@
                     Delivery Fee
                   </div>
                   <div class="price-value delivery-fee">
+                    {% if total_data.fee != 0 %}
+                    {{total_data.fee}}
+                    {%else%}
                     FREE
+                    {%endif%}
+                  </div>
+                </div>
+
+                <div class="price-row">
+                  <div class="price-label">
+                    <i class="bi bi-truck me-2"></i>
+                    Discount<p class="text-danger mx-1"style="font-weight:200; font-size:12px;margin-bottom:0px !important;">(Only for above ₹500)</p>
+                  </div>
+                  <div class="price-value delivery-fee">
+                    {{total_data.discount}}
+                    
                   </div>
                 </div>
 
@@ -181,7 +196,7 @@
                     Total Amount
                   </div>
                   <div class="price-value total-amount">
-                     ₹{{ total_data.total_price|floatformat:2 }}
+                     ₹{{ final_price|floatformat:2 }}
                   </div>
                 </div>
 

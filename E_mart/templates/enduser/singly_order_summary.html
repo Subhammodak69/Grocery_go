@@ -150,14 +150,29 @@
                   </div>
                 </div>
                 {% endif %}
-
-                <div class="price-row">
+                
+                 <div class="price-row">
                   <div class="price-label">
                     <i class="bi bi-truck me-2"></i>
                     Delivery Fee
                   </div>
                   <div class="price-value delivery-fee">
+                    {% if extra_data.delivery_fee != 0 %}
+                    {{extra_data.delivery_fee}}
+                    {%else%}
                     FREE
+                    {%endif%}
+                  </div>
+                </div>
+
+                <div class="price-row">
+                  <div class="price-label" >
+                    <i class="bi bi-tag"></i>
+                    discount<p class="text-danger mx-1"style="font-weight:200; font-size:12px;margin-bottom:0px !important;">(Only for above ₹500)</p>
+                  </div>
+                  <div class="price-value delivery-fee">
+                    {{extra_data.discount}}
+                    
                   </div>
                 </div>
 

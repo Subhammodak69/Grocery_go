@@ -49,3 +49,28 @@ def remove_item_from_cart(item_id):
 
 def get_all_cart_product_items(user_cart):
     return CartItem.objects.filter(cart = user_cart, is_active = True)
+
+
+def update_cart_items_quantity(item_id,user,quantity):
+    cart_item = CartItem.objects.filter(id = item_id, cart__user = user, is_active = True).first()
+    cart_item.quantity = quantity
+    cart_item.save()
+
+    cart = cart_item.cart
+    summary = get_cart_summary(cart)
+    # print(summary)
+    return cart_item,summary
+
+def get_cart_summary(cart):
+    summary = {
+        "total_price": cart.get_total_price(),
+        "discount": cart.get_discount_price(),
+        "fee": cart.get_fee_price(),
+    }
+    return summary
+
+
+def get_cartitem_total_by_item_id(cart_item_id):
+    cart_item = CartItem.objects.get(id = cart_item_id, is_active = True)
+    total = cart_item.product_details.price * cart_item.quantity
+    return total
