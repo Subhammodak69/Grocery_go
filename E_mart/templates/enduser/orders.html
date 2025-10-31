@@ -126,7 +126,17 @@
       <div class="card-header d-flex justify-content-between align-items-center flex-wrap">
         <div>
           <span class="badge badge-secondary me-2">Order #{{ order.id }}</span>
+          {% if order.status == 'Pending'%}
+          <span class="badge badge-pending">{{ order.status }}</span>
+          {% elif order.status == 'Processing' %}
+          <span class="badge badge-">{{ order.status }}</span>
+            {%elif order.status == 'Out for Delivery'%}
+          <span class="badge badge-secondary">{{ order.status }}</span>
+          {% elif order.status == 'Cancelled' %}
+          <span class="badge badge-canceled">{{ order.status }}</span>
+          {% else %}
           <span class="badge badge-completed">{{ order.status }}</span>
+            {% endif %}
         </div>
         <small class="text-gray">Placed: {{ order.created_at|date:"d M Y, H:i" }}</small>
       </div>
@@ -137,7 +147,7 @@
             <p class="mb-1"><strong>Delivery Address:</strong> <span class="text-gray">{{ order.address }}</span></p>
           </div>
           <div class="col-md-4 text-md-end">
-            <p class="mb-1"><strong>Total:</strong> <span class="fw-bold">₹{{ order.total }}</span></p>
+            <p class="mb-1 text-success"><strong>Total:</strong> <span class="fw-bold">₹{{ order.total }}</span></p>
           </div>
         </div>
         <h6 class="mb-3">Order Items</h6>

@@ -1,5 +1,6 @@
 from django.db import models
 from E_mart.models import User,productdetails_model
+from decimal import Decimal
 
 class Cart(models.Model):
     user = models.OneToOneField(User,related_name= 'cart', on_delete=models.CASCADE)
@@ -19,14 +20,15 @@ class Cart(models.Model):
 
     def get_discount_price(self):
         total = self.get_total_price()
-        # Example: 10% discount for orders above 1000 rupees
-        if total >= 2000:
-            return total * 0.30
-        elif total >= 1000:
-            return total * 0.20
-        elif total >= 500:
-            return total * 0.10
-        return 0
+        # Example: 30% discount for orders above 2000 rupees, etc.
+        if total >= Decimal('2000'):
+            return total * Decimal('0.30')
+        elif total >= Decimal('1000'):
+            return total * Decimal('0.20')
+        elif total >= Decimal('500'):
+            return total * Decimal('0.10')
+        return Decimal('0')
+
 
     def get_fee_price(self):
         total = self.get_total_price()
