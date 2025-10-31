@@ -1,0 +1,195 @@
+{% extends 'enduser/base.html'%}
+{% load static %}
+{% block title %} Your Orders | Grocery_Go {% endblock %}
+
+{% block extra_css %}
+  <link rel="stylesheet" href="{% static 'css/enduser/cart.css' %}">
+  <style>
+    .order-card {
+      background: #232946 !important; /* rich dark blue */
+      border-radius: 16px;
+      box-shadow: 0 2px 12px rgba(34,48,92,0.09), 0 1.5px 4.5px rgba(24,28,45,0.12);
+      border: 1px solid #273256 !important;
+      margin-bottom: 20px;
+      padding: 1rem;
+      color: #fff;
+      max-width:100%;
+      width:100%;
+    }
+    .card-header, .card-footer, .card-body {
+      background: transparent !important; /* keeps all sections with dark card bg */
+      border: none;
+      color: #fff;
+    }
+    .text-success {
+      color: #26C485 !important; /* vibrant green accent */
+    }
+    .badge-secondary {
+      background: #393e59 !important; /* muted purple/blue */
+      color: #fff;
+      border-radius: 6px;
+    }
+    .badge-pending {
+      background: #5774eb !important;
+      color: #fff;
+      border-radius: 6px;
+    }
+    .badge-completed {
+      background: #26C485 !important;
+      color: #fff;
+      border-radius: 6px;
+    }
+    .badge-cancelled {
+      background: #ff4e4e !important;
+      color: #fff;
+      border-radius: 6px;
+    }
+    .product-img {
+      background: #181f35 !important;
+      border: 2px solid #393e59;
+      border-radius: 12px;
+      width: 90px;
+      height: 90px;
+      object-fit: cover;
+      margin-right: 18px;
+    }
+
+    .btn-success {
+      background: linear-gradient(90deg, #1bdf8b 0%, #15a076 100%);
+      border: none;
+      color: #fff;
+      font-weight: 600;
+      border-radius: 6px;
+      box-shadow: none;
+      transition: background 0.2s;
+    }
+    .btn-success:hover, .btn-success:focus {
+      background: #13b678;
+    }
+    .btn-outline-danger {
+      border: 1.5px solid #fa5252;
+      color: #fa5252;
+      background: transparent;
+      font-weight: 600;
+      border-radius: 6px;
+    }
+    .btn-outline-danger:hover, .btn-outline-danger:focus {
+      background: #fa5252;
+      color: #fff;
+    }
+    /* Modal matching dark theme */
+    .modal-content {
+      background: #21263c;
+      color: #fff;
+      border-radius: 14px;
+    }
+    .modal-header.bg-danger {
+      background: #ff4e4e !important;
+    }
+    .btn-close-white {
+      filter: invert(1);
+    }
+    /* Responsive adjustments */
+    @media (max-width: 575px) {
+      .modal-dialog {
+        width: 90%;
+      }
+      .order-card {
+        padding: 0.6rem;
+      }
+    }
+  </style>
+{% endblock %}
+
+{% block extra_js %}
+  <script src="{% static 'js/enduser/cartitem_remove.js' %}"></script>
+{% endblock %}
+
+{% block content %}
+<div class="container py-4 px-4" style="min-height: 100vh; margin-top:80px; background:white;">
+  <div class="cart-header mb-4">
+      <h2 class="cart-title">
+        <i class="bi bi-cart-check-fill me-2"></i>
+        Your Orders
+      </h2>
+      <p class="cart-subtitle text-gray">
+        {% if orders %}
+          {{ orders|length }} item{{ orders|length|pluralize }} in your orders
+        {% else %}
+          Your cart is empty
+        {% endif %}
+      </p>
+    </div>
+  {% if orders %}
+    {% for order in orders %}
+    <div class="card shadow-sm border-0 order-card" id="order-card-{{ order.id }}">
+      <div class="card-header d-flex justify-content-between align-items-center flex-wrap">
+        <div>
+          <span class="badge badge-secondary me-2">Order #{{ order.id }}</span>
+          <span class="badge badge-completed">{{ order.status }}</span>
+        </div>
+        <small class="text-gray">Placed: {{ order.created_at|date:"d M Y, H:i" }}</small>
+      </div>
+
+      <div class="card-body">
+        <div class="row mb-3">
+          <div class="col-md-8">
+            <p class="mb-1"><strong>Delivery Address:</strong> <span class="text-gray">{{ order.address }}</span></p>
+          </div>
+          <div class="col-md-4 text-md-end">
+            <p class="mb-1"><strong>Total:</strong> <span class="fw-bold">₹{{ order.total }}</span></p>
+          </div>
+        </div>
+        <h6 class="mb-3">Order Items</h6>
+        <div class="row g-3">
+          {% for item in order.orderitems %}
+          <div class="col-12 col-sm-6 col-lg-4">
+            <div class="d-flex align-items-center rounded shadow-sm p-3 h-100" style="background:#181f35;">
+              <img
+                src="{% if item.product_details.product.image %}{% static item.product_details.product.image %}{% else %}{% static 'no_image.png' %}{% endif %}"
+                alt="Product Image"
+                class="product-img">
+              <div>
+                <p class="fw-semibold mb-1">{{ item.product_details.product.name }}</p>
+                <p class="mb-1"><small>Qty: <strong>{{ item.quantity }}</strong></small></p>
+                <p class="mb-1"><small>Size: {{ item.product_details.size }}</small></p>
+                <p class="mb-0 text-primary fw-semibold">Price: ₹{{ item.product_details.price }}</p>
+              </div>
+            </div>
+          </div>
+          {% endfor %}
+        </div>
+      </div>
+
+      <div class="card-footer d-flex justify-content-end gap-2">
+        <a href="#" class="btn btn-success btn-sm">Track Order</a>
+        <button class="btn btn-outline-danger btn-sm" onclick="confirmDelete('{{ order.id }}')">
+          <i class="bi bi-x-circle"></i> Cancel Order
+        </button>
+      </div>
+    </div>
+    {% endfor %}
+  {% else %}
+    <div class="alert alert-info mt-4">You have no orders yet.</div>
+  {% endif %}
+</div>
+
+<!-- Modal -->
+<div class="modal fade" id="deleteConfirmModal" tabindex="-1" aria-labelledby="deleteConfirmModalLabel" aria-hidden="true">
+  <div class="modal-dialog" style="margin:auto; top: 30%;">
+    <div class="modal-content">
+      <div class="modal-header bg-danger text-white">
+        <h5 class="modal-title" id="deleteConfirmModalLabel">Confirm Cancellation</h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        Are you sure you want to cancel this order? This action cannot be undone.
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">No, Keep Order</button>
+        <button type="button" class="btn btn-danger" id="confirmDeleteBtn">Yes, Cancel Order</button>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

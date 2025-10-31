@@ -44,6 +44,7 @@ urlpatterns = [
     path('cart-product-order/summary/',ProductsOrderSummaryByCart.as_view(), name='cart_product_order_summary'),
     path('user/cart/',UserCartDetailsView.as_view(), name='user_cart'),
     path('order/create/',OrderCreateView.as_view(),name='order_create'),
+    path('orders/',OrderListView.as_view(),name='order_list'),
     path('user/cart/create-data/',UserCartCreateDataView.as_view(), name='user_cart_create_data'),
     path('api/cart/remove-item/<int:cart_id>/',ApiRemoveCartItem.as_view(), name='cart_remove_item'),
     path("api/product-quantity/update/<int:item_id>/", CartItemUpdateView.as_view(), name="cartitem-update"),

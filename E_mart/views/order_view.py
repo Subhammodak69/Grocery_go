@@ -116,3 +116,12 @@ class OrderCreateView(View):
                 'message': str(e)
             })
         
+@method_decorator(enduser_required, name='dispatch')
+class OrderListView(View):
+    def get(self, request):
+        orders = order_service.get_all_orders_by_user(request.user)
+
+        context = {
+            'orders': orders
+        }
+        return render(request, 'enduser/orders.html', context)   
