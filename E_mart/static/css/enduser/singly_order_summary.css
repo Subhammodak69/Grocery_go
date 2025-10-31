@@ -220,7 +220,6 @@
   position: relative;
   border-radius: var(--border-radius-md);
   overflow: hidden;
-  background: var(--bg-secondary);
   aspect-ratio: 1;
 }
 

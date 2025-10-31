@@ -50,7 +50,7 @@ class ProductOrderSummary(View):
             quantity = int(quantity)
             
             # Create order using your service function
-            order = order_service.sigle_order_create(user, product_details_id, address, quantity)
+            order = order_service.sigle_order_create(user,product_details_id, address, quantity)
             
             if order:
                 return redirect(f'/order/{order.id}')
@@ -115,4 +115,4 @@ class OrderCreateView(View):
                 'success': False,
                 'message': str(e)
             })
-
+        

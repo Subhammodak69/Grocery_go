@@ -53,12 +53,13 @@ def sigle_order_create(user, product_details_id, address, quantity):
 
         # Calculate total price (consider discount/quantity if required)
         total_price = product_details.price * int(quantity)  # Basic total calculation
+        final_price = get_final_price(total_price, quantity)
 
         # Create order
         order = Order.objects.create(
             user=user,
             status='pending',  # Default status
-            total_price=total_price,
+            total_price=final_price,
             delivery_address=address
         )
 
@@ -79,7 +80,6 @@ def sigle_order_create(user, product_details_id, address, quantity):
 
 
 def get_discount_for_sigle_item(total):
-        print(total)
         if total >= 2000:
             return total * 0.30
         elif total >= 1000:
@@ -87,3 +87,8 @@ def get_discount_for_sigle_item(total):
         elif total >= 500:
             return total * 0.10
         return 0
+
+def get_final_price(total_price, quantity):
+    discount = get_discount_for_sigle_item(total_price)
+    delivery_fee = 0 if total_price >=500 else 20
+    return total_price+delivery_fee-discount
