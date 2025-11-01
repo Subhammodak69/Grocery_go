@@ -4,9 +4,6 @@
 {% block extra_css %}
   <link rel="stylesheet" href="{% static 'css/enduser/singly_order_summary.css'%}"/>
 {% endblock %}
-{% block extra_js %}
-  <script src = "{% static 'js/enduser/geolocation_collector.js' %}"></script>
-{% endblock %}
 {% block content %}
 <div class="order-container">
   <div class="container-fluid m-auto px-md-4 py-4">
@@ -17,8 +14,8 @@
         <div class="header-icon">
           <i class="bi bi-clipboard-check-fill"></i>
         </div>
-        <h1 class="order-title">Order Summary</h1>
-        <p class="order-subtitle">Review your order details before placing</p>
+        <h5 class="order-title">Order Details</h5>
+        <p class="order-subtitle">Review your order details after order</p>
       </div>
       <div class="progress-bar"style="flex-direction:row;">
         <div class="progress-step active">
@@ -38,82 +35,64 @@
       </div>
     </div>
 
-    <form id="order-summary-form" method="post" class="order-form">
-      <div class="row g-4">
-        
-        <!-- Product Details Section -->
-        <div class="col-12 col-lg-5">
-          <div class="product-card">
-            
-            <!-- Product Card Header -->
-            <div class="product-card-header">
-              <h3 class="section-title">
-                <i class="bi bi-box-seam me-2"></i>
-                Product Details
-              </h3>
-              <span class="item-badge">1 Item</span>
-            </div>
-
-            <!-- Product Image -->
-            <div class="product-image-container">
-              <div class="product-image-wrapper">
-                <img 
-                  src="{% static data.image %}" 
-                  alt="{{ data.name }}" 
-                  class="product-image"
-                  loading="eager"
-                >
-                <div class="image-overlay">
-                  <button type="button" class="image-zoom-btn">
-                    <i class="bi bi-zoom-in"></i>
-                  </button>
+    <form id="order-summary-form"  class="order-form">
+      <div class="row g-4"> 
+        <!-- Product Details Section (Multiple Products) -->
+        <div class="col-12 col-lg-5" style=" max-height:116vh;border-radius: 16px;border: 2px solid gray;background:#1e293b;padding: 16px;">
+          <div class="products-group overflow-auto  h-100" style="scrollbar-width:none;">
+            <h3 class="px-2 section-title mb-3 d-flex align-items-center">
+              <i class="bi bi-box-seam me-2"></i>
+              Product Details
+              <span class="item-badge ms-2">{{ products_data|length }} Items</span>
+            </h3>
+            <div>
+              {% if not order_data %}
+                <p class="text-danger text-center mt-5">No Products Found Yet.</p>
+              {% endif %}
+              {% for item in order_data.orderitems %}
+              <div class="col m-2 cart-item" data-item-id="{{ item.id }}">
+                <div class="product-card h-100 flex flex-row" style="background:#475569;">
+                  <div class="product-image-container">
+                    <img 
+                      src="{% static item.product_details.product.image %}" 
+                      alt="{{ item.product_details.product.name }}"
+                      class="product-image img-fluid"
+                      loading="eager"
+                    >
+                  </div>
+                  <div class="product-info py-2">
+                    <h4 class="product-name fs-6 mb-1">{{ item.product_details.product.name }}</h4>
+                    <p class="product-description small mb-1">Premium quality product with excellent features</p>
+                    <div class="product-attributes d-flex flex-wrap mb-2" style="gap: 6px;!important;">
+                      <span class="attribute me-2 text-center" style="font-size: 12px; background: #1e293b;padding: 2px;border: 2px solid #9d9ed5;border-radius: 6px;color: whitesmoke;">
+                        <i class="bi bi-box me-1"></i>
+                        Qty: <span class="attribute-value" style="font-size: 10px;">{{ item.quantity }}</span>
+                      </span>
+                      <span class="attribute me-2 text-center" style="font-size: 12px; background: #1e293b;padding: 2px;border: 2px solid #9d9ed5;border-radius: 6px;color: whitesmoke;">
+                        <i class="bi bi-rulers me-1"></i>
+                        Size: <span class="attribute-value"style="font-size: 10px;">{{ item.product_details.size }}</span>
+                      </span>
+                      <span class="attribute me-2 text-center" style="font-size: 12px; background: #1e293b;padding: 2px;border: 2px solid #9d9ed5;border-radius: 6px;color: whitesmoke;">
+                        <i class="bi bi-tag-fill me-1"></i>
+                        Price: <span class="attribute-value" style="font-size: 10px;">₹{{ item.product_details.price|floatformat:2 }}</span>
+                      </span>
+                      {% if item.discount_amount > 0 %}
+                      <span class="attribute text-success me-2">
+                        <i class="bi bi-percent me-1"></i>
+                        Discount: <span class="attribute-value">-₹{{ item.discount_amount|floatformat:2 }}</span>
+                      </span>
+                      {% endif %}
+                    </div>
+                  </div>
+                  <input type="hidden" name="product_ids" value="{{ item.id }}">
                 </div>
               </div>
+              {% endfor %}
             </div>
-
-            <!-- Product Info -->
-            <div class="product-info">
-              <h4 class="product-name">{{ data.name }}</h4>
-              <p class="product-description">Premium quality product with excellent features</p>
-              
-              <!-- Product Attributes -->
-              <div class="product-attributes">
-                <div class="attribute-item">
-                  <div class="attribute-icon">
-                    <i class="bi bi-box"></i>
-                  </div>
-                  <div class="attribute-details">
-                    <span class="attribute-label">Quantity</span>
-                    <input type="hidden"  name="quantity" value="{{ data.quantity }}">
-                    <span class="attribute-value">{{ data.quantity }}</span>
-                  </div>
-                </div>
-
-                <div class="attribute-item">
-                  <div class="attribute-icon">
-                    <i class="bi bi-rulers"></i>
-                  </div>
-                  <div class="attribute-details">
-                    <span class="attribute-label">Size</span>
-                    <span class="attribute-value">{{ data.size }}</span>
-                  </div>
-                </div>
-
-                <div class="attribute-item">
-                  <div class="attribute-icon">
-                    <i class="bi bi-tag-fill"></i>
-                  </div>
-                  <div class="attribute-details">
-                    <span class="attribute-label">Unit Price</span>
-                    <span class="attribute-value"> ₹{{ data.price|floatformat:2 }}</span>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <input type="hidden" id="product_details_id" name="product_details_id" value="{{ data.id }}">
           </div>
         </div>
+
+        <input type="hidden" id="cartId" value="{{cart_id}}">
 
         <!-- Order Details Section -->
         <div class="col-12 col-lg-7">
@@ -134,36 +113,32 @@
                     <i class="bi bi-tag me-2"></i>
                     Listing Price
                   </div>
-                  <input type="hidden" name="listing_price" value ={{extra_data.total|floatformat:2}} >
-
                   <div class="price-value original-price">
-                     ₹{{ extra_data.total|floatformat:2 }}
-                  </div>
-                </div>
-                
-                 <div class="price-row">
-                  <div class="price-label">
-                    <i class="bi bi-truck me-2"></i>
-                    Delivery Fee
-                  </div>
-                  <input type="hidden" name="delivery_fee" value ={{extra_data.delivery_fee|floatformat:2}} >
-                  <div class="price-value delivery-fee">
-                    {% if extra_data.delivery_fee != 0 %}
-                    {{extra_data.delivery_fee|floatformat:2}}
-                    {%else%}
-                    FREE
-                    {%endif%}
+                     ₹{{ summary.listing_price|floatformat:2 }}
                   </div>
                 </div>
 
                 <div class="price-row">
-                  <div class="price-label" >
-                    <i class="bi bi-tag"></i>
-                    discount<p class="text-danger mx-1"style="font-weight:200; font-size:12px;margin-bottom:0px !important;">(Only for above ₹500)</p>
+                  <div class="price-label">
+                    <i class="bi bi-truck me-2"></i>
+                    Delivery Fee
                   </div>
                   <div class="price-value delivery-fee">
-                    {{extra_data.discount|floatformat:2}}
-                  <input type="hidden" name="discount" value ={{extra_data.discount|floatformat:2}} >
+                    {% if summary.delivery_fee == 0 %}
+                    FREE
+                    {% else %}
+                    {{summary.delivery_fee}}
+                    {% endif %}
+                  </div>
+                </div>
+
+                <div class="price-row">
+                  <div class="price-label">
+                    <i class="bi bi-truck me-2"></i>
+                    Discount<p class="text-danger mx-1"style="font-weight:200; font-size:12px;margin-bottom:0px !important;">(Only for above ₹500)</p>
+                  </div>
+                  <div class="price-value delivery-fee">
+                    {{summary.discount|floatformat:2}}
                     
                   </div>
                 </div>
@@ -186,14 +161,14 @@
                     Total Amount
                   </div>
                   <div class="price-value total-amount">
-                     ₹{{ total_price|floatformat:2 }}
+                     ₹{{ summary.total_price|floatformat:2 }}
                   </div>
                 </div>
 
-                {% if product_item.discount_amount > 0 %}
+                {% if summary.discount > 0 %}
                 <div class="savings-highlight">
                   <i class="bi bi-piggy-bank me-2"></i>
-                  You're saving  ₹{{ product_item.discount_amount|floatformat:2 }}!
+                  You're saving  ₹{{summary.discount|floatformat:2 }}!
                 </div>
                 {% endif %}
               </div>
@@ -206,10 +181,6 @@
                   <i class="bi bi-person-circle me-2"></i>
                   Account Information
                 </h3>
-                <button type="button" class="edit-btn">
-                  <i class="bi bi-pencil-square"></i>
-                  Edit
-                </button>
               </div>
               
               <div class="user-info-grid">
@@ -244,18 +215,6 @@
                   </div>
                 </div>
                 {% endif %}
-
-                {% if user.address %}
-                <div class="info-item full-width">
-                  <div class="info-icon">
-                    <i class="bi bi-house-fill"></i>
-                  </div>
-                  <div class="info-content">
-                    <span class="info-label">Saved Address</span>
-                    <span class="info-value">{{ user.address }}</span>
-                  </div>
-                </div>
-                {% endif %}
               </div>
             </div>
 
@@ -269,25 +228,7 @@
               </div>
               
               <div class="address-input-container">
-                <textarea 
-                  id="delivery-address" 
-                  name="address" 
-                  class="address-textarea" 
-                  placeholder="Enter your complete delivery address..."
-                  required
-                  rows="4"
-                ></textarea>
-                
-                <div class="address-actions">
-                  <button type="button" class="location-btn" onclick="getCurrentLocation()">
-                    <i class="bi bi-geo-alt me-2"></i>
-                    Use Current Location
-                  </button>
-                  <button type="button" class="saved-address-btn">
-                    <i class="bi bi-bookmark me-2"></i>
-                    Saved Addresses
-                  </button>
-                </div>
+                {{order_data.address}}
               </div>
             </div>
 
@@ -296,18 +237,6 @@
               <button type="button" class="back-btn" onclick="window.history.back()">
                 <i class="bi bi-arrow-left me-2"></i>
                 Back
-              </button>
-              
-              <button type="submit" class="place-order-btn">
-                <span class="btn-content">
-                  <i class="bi bi-check-circle me-2"></i>
-                  <span class="btn-text">Place Order</span>
-                  <span class="btn-price"> ₹{{ total_price|floatformat:2 }}</span>
-                </span>
-                <div class="btn-loader" style="display: none;">
-                  <i class="bi bi-arrow-repeat spin"></i>
-                  Processing...
-                </div>
               </button>
             </div>
           </div>

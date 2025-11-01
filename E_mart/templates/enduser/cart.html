@@ -135,7 +135,7 @@
                 <span class="summary-label">
                   <i class="bi bi-tag-fill me-1"></i>Discount
                 </span>
-                <span class="summary-value text-success">-₹{{ total_summary.discount }}</span>
+                <span class="summary-value text-success">-₹{{ total_summary.discount|floatformat:2  }}</span>
               </div>
 
               <div class="summary-row">
@@ -151,7 +151,7 @@
               <div class="summary-row total">
                 <span class="summary-label">Total Amount</span>
                 {% if total_summary.total_price %}
-                <span class="summary-value">₹{{ final_price }}</span>
+                <span class="summary-value">₹{{ final_price|floatformat:2  }}</span>
                 {% endif %}
               </div>
 
@@ -159,7 +159,7 @@
               {% if total_summary.discount > 0 %}
               <div class="savings-badge">
                 <i class="bi bi-piggy-bank me-2"></i>
-                You're saving ₹{{ total_summary.discount }}!
+                You're saving ₹{{ total_summary.discount|floatformat:2  }}!
               </div>
               {% endif %}
 

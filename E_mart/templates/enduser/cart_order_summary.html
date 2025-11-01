@@ -142,26 +142,15 @@
                   </div>
                 </div>
 
-                {% if product_item.discount_amount > 0 %}
-                <div class="price-row discount">
-                  <div class="price-label">
-                    <i class="bi bi-percent me-2"></i>
-                    Discount Applied
-                  </div>
-                  <div class="price-value discount-value">
-                    - ₹{{ product_item.discount_amount|floatformat:2 }}
-                  </div>
-                </div>
-                {% endif %}
-
                 <div class="price-row">
                   <div class="price-label">
                     <i class="bi bi-truck me-2"></i>
                     Delivery Fee
                   </div>
                   <div class="price-value delivery-fee">
+                    <input type="hidden" id="delivery_fee" value="{{total_data.fee|floatformat:2}}">
                     {% if total_data.fee != 0 %}
-                    {{total_data.fee}}
+                    {{total_data.fee|floatformat:2}}
                     {%else%}
                     FREE
                     {%endif%}
@@ -170,11 +159,13 @@
 
                 <div class="price-row">
                   <div class="price-label">
+                    <input type="hidden" id="discount" value="{{total_data.discount|floatformat:2}}">
+
                     <i class="bi bi-truck me-2"></i>
                     Discount<p class="text-danger mx-1"style="font-weight:200; font-size:12px;margin-bottom:0px !important;">(Only for above ₹500)</p>
                   </div>
                   <div class="price-value delivery-fee">
-                    {{total_data.discount}}
+                    -{{total_data.discount|floatformat:2}}
                     
                   </div>
                 </div>
@@ -196,6 +187,7 @@
                     <i class="bi bi-cash-coin me-2"></i>
                     Total Amount
                   </div>
+                  <input type="hidden" id="final_price" value="{{final_price|floatformat:2}}">
                   <div class="price-value total-amount">
                      ₹{{ final_price|floatformat:2 }}
                   </div>

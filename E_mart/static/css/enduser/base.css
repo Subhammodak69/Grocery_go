@@ -106,6 +106,10 @@ body {
       .cat-err{
         font-size: smaller;
       }
+      .container-9 {
+        padding-right: 0px!important; 
+        padding-left:0px!important;
+      }
     }
 
 @media (min-width: 1400px) {

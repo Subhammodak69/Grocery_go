@@ -1,205 +1,163 @@
-{% extends 'enduser/base.html'%}
+{% extends 'enduser/base.html' %}
 {% load static %}
 {% block title %} Your Orders | Grocery_Go {% endblock %}
 
 {% block extra_css %}
-  <link rel="stylesheet" href="{% static 'css/enduser/cart.css' %}">
-  <style>
-    .order-card {
-      background: #232946 !important; /* rich dark blue */
-      border-radius: 16px;
-      box-shadow: 0 2px 12px rgba(34,48,92,0.09), 0 1.5px 4.5px rgba(24,28,45,0.12);
-      border: 1px solid #273256 !important;
-      margin-bottom: 20px;
-      padding: 1rem;
-      color: #fff;
-      max-width:100%;
-      width:100%;
-    }
-    .card-header, .card-footer, .card-body {
-      background: transparent !important; /* keeps all sections with dark card bg */
-      border: none;
-      color: #fff;
-    }
-    .text-success {
-      color: #26C485 !important; /* vibrant green accent */
-    }
-    .badge-secondary {
-      background: #393e59 !important; /* muted purple/blue */
-      color: #fff;
-      border-radius: 6px;
-    }
-    .badge-pending {
-      background: #5774eb !important;
-      color: #fff;
-      border-radius: 6px;
-    }
-    .badge-completed {
-      background: #26C485 !important;
-      color: #fff;
-      border-radius: 6px;
-    }
-    .badge-cancelled {
-      background: #ff4e4e !important;
-      color: #fff;
-      border-radius: 6px;
-    }
-    .product-img {
-      background: #181f35 !important;
-      border: 2px solid #393e59;
-      border-radius: 12px;
-      width: 90px;
-      height: 90px;
-      object-fit: cover;
-      margin-right: 18px;
-    }
+<link rel="stylesheet" href="{% static 'css/enduser/cart.css' %}">
+<style>
+.orders-list { display: flex; flex-direction: column; gap: 18px;scrollbar-width: none;
+    overflow: auto;
+    height: 100vh;
+    padding: 10px;
+    background: #0c2a44;}
+.order-card-horiz {
+  overflow: hidden;
+  max-height: 120px;
+  display: flex; align-items: center; padding: 22px;
+  background: #fff; border-radius: 10px; box-shadow: 0 1px 4px rgba(20,40,50,0.03);
+  border: 1px solid #e0e6f0; position: relative; min-height: 100px; gap: 22px;
+}
+.order-card-left { display: flex; align-items: center; gap: 18px; flex: 2; min-width:0; }
+.order-photo-block { display:flex; gap:2px; position:relative; width:80px; height:80px; min-width:80px; min-height:80px;}
+.order-img-single { width:80px; height:80px; object-fit: contain; border-radius:7px; border:1px solid #e0e6f0; background: #f1f3f7;}
+.order-img-grid { object-fit:cover; border-radius:4px; border:1px solid #e0e6f0; background: #f1f3f7;}
+.order-img-grid-2, .order-img-grid-3, .order-img-grid-4 {position:absolute;}
+.order-img-grid-2 {width:50%; height:100%;}
+.order-img-grid-3, .order-img-grid-4 {width:50%; height:50%;}
+.order-img-pos-1 {top:0;left:0;}
+.order-img-pos-2 {top:0;right:0;}
+.order-img-pos-3 {bottom:0;left:0;}
+.order-img-pos-4 {bottom:0;right:0;}
+.order-img-more-overlay {
+  position: absolute; bottom: 0; right:0; width: 50%; height: 50%;
+  background: rgba(22,26,30,0.70); color: #fff; font-size:1.2rem; font-weight:600; display: flex; align-items: center; justify-content:center; border-radius:0 0 4px 0;
+}
+.order-main-info { min-width:0;}
+.order-title {font-size:17px; font-weight:600; margin-bottom:3px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:300px;}
+.order-variant, .order-address { color: #888ea8; font-size: 13px;}
+.order-card-price { font-size:18px; font-weight:500; color: #222b36; min-width:80px; text-align:right;}
+.order-card-status { display:flex; align-items:center; gap:7px; min-width:150px; font-size:10px; font-weight:400;}
+.order-card-status .status-dot { display:inline-block; width:13px; height:13px; margin-right:1px; border-radius:50%; background:#e74a3b;}
+.order-card-status.delivered { color:#2db847;} .order-card-status.delivered .status-dot {background:#2db847;}
+.order-card-status.cancelled { color:#e74a3b;} .order-card-status.cancelled .status-dot {background:#e74a3b;}
+@media (max-width:700px) {
+  .order-title{max-width:120px; font-size:13px;}
+  .order-card-price{ font-size:15px;left: 0px;
+        position: absolute;
+        bottom: 2px;}
+  .order-photo-block{width:54px; height:54px; min-width:54px; min-height:54px;}
+  .order-img-single{width:54px; height:54px;}
+}
+@media (min-width:992px) {
+  .orders-list{
+    margin: auto;
+    max-width: 80%;
+  }
 
-    .btn-success {
-      background: linear-gradient(90deg, #1bdf8b 0%, #15a076 100%);
-      border: none;
-      color: #fff;
-      font-weight: 600;
-      border-radius: 6px;
-      box-shadow: none;
-      transition: background 0.2s;
-    }
-    .btn-success:hover, .btn-success:focus {
-      background: #13b678;
-    }
-    .btn-outline-danger {
-      border: 1.5px solid #fa5252;
-      color: #fa5252;
-      background: transparent;
-      font-weight: 600;
-      border-radius: 6px;
-    }
-    .btn-outline-danger:hover, .btn-outline-danger:focus {
-      background: #fa5252;
-      color: #fff;
-    }
-    /* Modal matching dark theme */
-    .modal-content {
-      background: #21263c;
-      color: #fff;
-      border-radius: 14px;
-    }
-    .modal-header.bg-danger {
-      background: #ff4e4e !important;
-    }
-    .btn-close-white {
-      filter: invert(1);
-    }
-    /* Responsive adjustments */
-    @media (max-width: 575px) {
-      .modal-dialog {
-        width: 90%;
-      }
-      .order-card {
-        padding: 0.6rem;
-      }
-    }
-  </style>
-{% endblock %}
+}
 
-{% block extra_js %}
-  <script src="{% static 'js/enduser/cartitem_remove.js' %}"></script>
+@media (max-width:992px){
+  .order-card-status{
+    position: absolute;
+    right: 5px;
+    top: 5px;
+  }
+  .container{
+    padding:10px!important;
+  }
+}
+</style>
 {% endblock %}
 
 {% block content %}
 <div class="container py-4 px-4" style="min-height: 100vh; margin-top:80px; background:white;">
   <div class="cart-header mb-4">
-      <h2 class="cart-title">
-        <i class="bi bi-cart-check-fill me-2"></i>
-        Your Orders
-      </h2>
-      <p class="cart-subtitle text-gray">
-        {% if orders %}
-          {{ orders|length }} item{{ orders|length|pluralize }} in your orders
-        {% else %}
-          Your cart is empty
-        {% endif %}
-      </p>
-    </div>
+    <h2 class="cart-title"><i class="bi bi-cart-check-fill me-2"></i>Your Orders</h2>
+    <p class="cart-subtitle text-gray">
+      {% if orders %}{{ orders|length }} item{{ orders|length|pluralize }} in your orders
+      {% else %}Your cart is empty{% endif %}
+    </p>
+  </div>
   {% if orders %}
+    <div class="orders-list">
     {% for order in orders %}
-    <div class="card shadow-sm border-0 order-card" id="order-card-{{ order.id }}">
-      <div class="card-header d-flex justify-content-between align-items-center flex-wrap">
-        <div>
-          <span class="badge badge-secondary me-2">Order #{{ order.id }}</span>
-          {% if order.status == 'Pending'%}
-          <span class="badge badge-pending">{{ order.status }}</span>
-          {% elif order.status == 'Processing' %}
-          <span class="badge badge-">{{ order.status }}</span>
-            {%elif order.status == 'Out for Delivery'%}
-          <span class="badge badge-secondary">{{ order.status }}</span>
-          {% elif order.status == 'Cancelled' %}
-          <span class="badge badge-canceled">{{ order.status }}</span>
-          {% else %}
-          <span class="badge badge-completed">{{ order.status }}</span>
-            {% endif %}
-        </div>
-        <small class="text-gray">Placed: {{ order.created_at|date:"d M Y, H:i" }}</small>
-      </div>
-
-      <div class="card-body">
-        <div class="row mb-3">
-          <div class="col-md-8">
-            <p class="mb-1"><strong>Delivery Address:</strong> <span class="text-gray">{{ order.address }}</span></p>
-          </div>
-          <div class="col-md-4 text-md-end">
-            <p class="mb-1 text-success"><strong>Total:</strong> <span class="fw-bold">₹{{ order.total }}</span></p>
-          </div>
-        </div>
-        <h6 class="mb-3">Order Items</h6>
-        <div class="row g-3">
-          {% for item in order.orderitems %}
-          <div class="col-12 col-sm-6 col-lg-4">
-            <div class="d-flex align-items-center rounded shadow-sm p-3 h-100" style="background:#181f35;">
+      <div class="order-card-horiz" onclick="window.location.href = '/order/{{order.id}}/'">
+        <div class="order-card-left">
+          <!-- PHOTO FIELD -->
+          <div class="order-photo-block">
+            {# Get length once #}
+            {% with order.orderitems|length as item_count %}
+            {% if item_count == 1 %}
+              <!-- Single image, fill -->
               <img
-                src="{% if item.product_details.product.image %}{% static item.product_details.product.image %}{% else %}{% static 'no_image.png' %}{% endif %}"
-                alt="Product Image"
-                class="product-img">
-              <div>
-                <p class="fw-semibold mb-1">{{ item.product_details.product.name }}</p>
-                <p class="mb-1"><small>Qty: <strong>{{ item.quantity }}</strong></small></p>
-                <p class="mb-1"><small>Size: {{ item.product_details.size }}</small></p>
-                <p class="mb-0 text-primary fw-semibold">Price: ₹{{ item.product_details.price }}</p>
-              </div>
-            </div>
+                src="{% if order.orderitems.0.product_details.product.image %}{% static order.orderitems.0.product_details.product.image %}{% else %}{% static 'no_image.png' %}{% endif %}"
+                class="order-img-single"
+                alt="Product">
+            {% elif item_count == 2 %}
+              {% for item in order.orderitems %}
+                <img
+                  src="{% if item.product_details.product.image %}{% static item.product_details.product.image %}{% else %}{% static 'no_image.png' %}{% endif %}"
+                  class="order-img-grid order-img-grid-2 order-img-pos-{{forloop.counter}}"
+                  alt="Product">
+              {% endfor %}
+            {% elif item_count == 3 %}
+              {% for item in order.orderitems|slice:":2" %}
+                <img
+                  src="{% if item.product_details.product.image %}{% static item.product_details.product.image %}{% else %}{% static 'no_image.png' %}{% endif %}"
+                  class="order-img-grid order-img-grid-2 order-img-pos-{{forloop.counter}}"
+                  alt="Product">
+              {% endfor %}
+              <img
+                src="{% if order.orderitems.2.product_details.product.image %}{% static order.orderitems.2.product_details.product.image %}{% else %}{% static 'no_image.png' %}{% endif %}"
+                class="order-img-grid order-img-grid-3 order-img-pos-3"
+                alt="Product">
+            {% elif item_count == 4 %}
+              {% for item in order.orderitems|slice:":4" %}
+                <img
+                  src="{% if item.product_details.product.image %}{% static item.product_details.product.image %}{% else %}{% static 'no_image.png' %}{% endif %}"
+                  class="order-img-grid order-img-grid-4 order-img-pos-{{forloop.counter}}"
+                  alt="Product">
+              {% endfor %}
+            {% elif item_count > 4 %}
+              {% for item in order.orderitems|slice:":3" %}
+                <img
+                  src="{% if item.product_details.product.image %}{% static item.product_details.product.image %}{% else %}{% static 'no_image.png' %}{% endif %}"
+                  class="order-img-grid order-img-grid-4 order-img-pos-{{forloop.counter}}"
+                  alt="Product">
+              {% endfor %}
+                <img
+                  src="{% if order.orderitems.3.product_details.product.image %}{% static order.orderitems.3.product_details.product.image %}{% else %}{% static 'no_image.png' %}{% endif %}"
+                  class="order-img-grid order-img-grid-4 order-img-pos-4"
+                  alt="Product">
+                <div class="order-img-more-overlay">
+                  +{{ item_count|add:'-4' }}
+                </div>
+            {% endif %}
+            {% endwith %}
           </div>
-          {% endfor %}
+
+          <!-- INFO FIELD -->
+          <div class="order-main-info">
+            <div class="order-title">
+              {% for item in order.orderitems %}
+              {{item.product_details.product.name}},
+              {% endfor %}
+            </div>
+            <div class="order-address"><strong style="white-space: nowrap;">Delivery Address:</strong> <p style="white-space: nowrap;overflow: hidden;text-overflow: ellipsis;">{{ order.address }}</p></div>
+          </div>
+        </div>
+        <div class="order-card-price">
+          ₹{{ order.total|floatformat:2 }}
+        </div>
+        <div class="order-card-status {% if order.status == 'Delivered' %}delivered{% elif order.status == 'Cancelled' %}cancelled{% endif %}">
+          <span class="status-dot"></span>
+          {{ order.status }} on {{ order.updated_at|date:"M d, Y" }}
         </div>
       </div>
-
-      <div class="card-footer d-flex justify-content-end gap-2">
-        <a href="#" class="btn btn-success btn-sm">Track Order</a>
-        <button class="btn btn-outline-danger btn-sm" onclick="confirmDelete('{{ order.id }}')">
-          <i class="bi bi-x-circle"></i> Cancel Order
-        </button>
-      </div>
-    </div>
     {% endfor %}
+    </div>
   {% else %}
     <div class="alert alert-info mt-4">You have no orders yet.</div>
   {% endif %}
-</div>
-
-<!-- Modal -->
-<div class="modal fade" id="deleteConfirmModal" tabindex="-1" aria-labelledby="deleteConfirmModalLabel" aria-hidden="true">
-  <div class="modal-dialog" style="margin:auto; top: 30%;">
-    <div class="modal-content">
-      <div class="modal-header bg-danger text-white">
-        <h5 class="modal-title" id="deleteConfirmModalLabel">Confirm Cancellation</h5>
-        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
-      </div>
-      <div class="modal-body">
-        Are you sure you want to cancel this order? This action cannot be undone.
-      </div>
-      <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">No, Keep Order</button>
-        <button type="button" class="btn btn-danger" id="confirmDeleteBtn">Yes, Cancel Order</button>
-      </div>
-    </div>
-  </div>
 </div>
 {% endblock %}
