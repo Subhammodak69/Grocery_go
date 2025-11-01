@@ -49,6 +49,7 @@ urlpatterns = [
     path('user/cart/create-data/',UserCartCreateDataView.as_view(), name='user_cart_create_data'),
     path('api/cart/remove-item/<int:cart_id>/',ApiRemoveCartItem.as_view(), name='cart_remove_item'),
     path("api/product-quantity/update/<int:item_id>/", CartItemUpdateView.as_view(), name="cartitem-update"),
+    path("wishlist/", WishlistListView.as_view(), name="user_wishlist"),
 
     path('wishlist/toggle/<int:product_id>/',ToggleWishlistCreateDelete.as_view(), name='wishlist_toggler'),
     path('wishlist/check/<int:product_id>/', CheckWishlistStatus.as_view(), name='check_wishlist'),

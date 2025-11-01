@@ -1,5 +1,6 @@
 from django.views import View
 from django.http import JsonResponse
+from django.shortcuts import render
 from django.views.decorators.csrf import csrf_exempt
 from django.utils.decorators import method_decorator
 from E_mart.services import wishlist_service
@@ -23,3 +24,9 @@ class CheckWishlistStatus(View):
             in_wishlist = wishlist_service.is_in_wishlist(product_id, user)
             return JsonResponse({'in_wishlist': in_wishlist})
         return JsonResponse({'in_wishlist': in_wishlist})
+    
+
+class WishlistListView(View):
+    def get(self,request):
+        products = wishlist_service.get_wishlist_products_data(request.user)
+        return render(request, 'enduser/wishlist.html',{'products':products})

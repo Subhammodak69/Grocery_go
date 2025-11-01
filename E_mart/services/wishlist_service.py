@@ -1,5 +1,6 @@
 from E_mart.models import Wishlist
 from E_mart.services import product_service
+from E_mart.services import product_details_service
 
 def toggle_wishlist_create_delete(product_id, user):
     product = product_service.get_product_by_id(product_id)
@@ -23,3 +24,17 @@ def is_in_wishlist(product_id, user):
     if not user.is_authenticated:
         return False
     return Wishlist.objects.filter(product=product, created_by=user, is_active=True).exists()
+
+def get_wishlist_products_data(user):
+    items = Wishlist.objects.filter(created_by=user,is_active = True)
+
+    products_data = [
+        {
+            'id':i.id,
+            'name':i.product.name,
+            'image':i.product.image,
+            'product_options':product_details_service.get_product_details_options_by_id(i.product.id),
+        }
+        for i in items
+    ] 
+    return products_data
