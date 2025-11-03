@@ -7,7 +7,7 @@
   <!-- Category Catalog -->
   <div class="d-flex bg-light p-2 mb-5 mt-2 rounded w-100 overflow-auto" style="gap: 1rem; white-space: nowrap; scrollbar-width:none;">
     {% for category in categories %}
-      <div class="text-center border-0 m-0 p-0 flex-shrink-0 cat-img-div" style="width: 120px;">
+      <div class="text-center border-0 m-0 p-0 flex-shrink-0 cat-img-div" style="width: 120px;cursor:pointer;" onclick="window.location.href='/products/{{category.id}}/'">
         <img class="cat-img" src="{% static category.image %}" alt="{{ category.name }}" class="mx-auto mt-3" style="height: 60px; width: 100px; object-fit: cover;">
         <div class="card-body p-2">
           <h5 class="card-title mb-0 text-truncate" style="font-size: small; max-width: 100px;">
@@ -49,6 +49,7 @@
   <div class="products-grid mt-4 bg-light p-4">
     {% for product in products %}
       <div class="product-card">
+        
         <span class="wishlist-icon" 
                 data-product-id="{{ product.id }}"
                 onclick="toggleWishlist(this)">
@@ -70,9 +71,13 @@
               {% if product.product_options %}
                 {% for item in product.product_options %}
                   <option value="{{ item.id }}" {% if forloop.first %}selected{% endif %}>
+                    {% if item.stock == 0 %}
+                    <p>Out of stock</p>
+                    {% else %}
                     ₹{{ item.price }} {{ item.size }}
+                    {% endif %}
                   </option>
-                {% endfor %}
+                {% endfor %} 
               {% else %}
                 <option disabled>Not available options</option>
               {% endif %}

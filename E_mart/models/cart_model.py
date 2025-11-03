@@ -1,10 +1,11 @@
 from django.db import models
-from E_mart.models import User,productdetails_model
+from E_mart.models import User,product
 from decimal import Decimal
 
 class Cart(models.Model):
-    user = models.OneToOneField(User,related_name= 'cart', on_delete=models.CASCADE)
+    user = models.OneToOneField(User,related_name= 'carts', on_delete=models.CASCADE)
     is_active = models.BooleanField(default=True)
+    product = models.ForeignKey(product, on_delete=models.CASCADE, related_name='products') 
     
     class Meta:
         db_table = 'carts'
@@ -15,7 +16,7 @@ class Cart(models.Model):
     def get_total_price(self):
         # Correctly reference product price and quantity from each item
         return sum(
-            item.product_details.price * item.quantity for item in self.items.filter(is_active = True)
+            item.product.price * item.quantity for item in self.items.filter(is_active = True)
         )
 
     def get_discount_price(self):
@@ -39,7 +40,7 @@ class CartItem(models.Model):
     cart = models.ForeignKey(Cart, related_name='items', on_delete=models.CASCADE)
     quantity = models.PositiveIntegerField(default=1)
     is_active = models.BooleanField(default=True)
-    product_details = models.ForeignKey(productdetails_model.ProductDetails, on_delete=models.CASCADE, related_name='items')
+    product = models.ForeignKey(product, on_delete=models.CASCADE, related_name='items')
     class Meta:
         db_table = 'cartitems'
         

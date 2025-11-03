@@ -5,7 +5,8 @@ class Wishlist(models.Model):
     created_by = models.ForeignKey(User, on_delete=models.CASCADE, related_name='wishlists')
     product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name='wishlists')
     is_active = models.BooleanField(default=True)
-    
+    created_at = models.DateTimeField(auto_now_add=True)    
+
     class Meta:
         db_table = 'wishlists'
 

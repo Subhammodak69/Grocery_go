@@ -12,6 +12,7 @@ class User(AbstractUser):
     email = models.EmailField(unique=True, blank=True)
     phone_number = models.CharField(max_length=15, blank=True, null=True)
     address = models.TextField(blank=True, null=True)
+    optional_address = models.TextField(blank=True, null=True)
     role = models.IntegerField(choices=ROLES, default=2)
     is_active = models.BooleanField(default=True)
     

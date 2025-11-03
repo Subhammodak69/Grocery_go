@@ -11,5 +11,4 @@ from .auth_service import *
 from .poster_service import *
 from .category_service import *
 from .wishlist_service import *
-from .product_details_service import *
 from .worker_service import *
