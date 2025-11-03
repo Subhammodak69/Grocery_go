@@ -1,11 +1,10 @@
-from E_mart.models import Product,ProductDetails
+from E_mart.models import Product
 from E_mart.services import category_service
 import os
 from django.conf import settings
 from django.core.files.storage import FileSystemStorage
 from django.utils.crypto import get_random_string
 import random
-from E_mart.services import product_details_service
 
 
 
@@ -13,7 +12,7 @@ def get_all_products():
     return Product.objects.all().order_by('id')
 
 def get_random_product_by_id(product_id):
-    products = list(ProductDetails.objects.filter(product=product_id, is_active=True).values('price','size'))
+    products = list(Product.objects.filter(product=product_id, is_active=True).values('price','size'))
     if products:
         return random.choice(products)
     return None
@@ -96,7 +95,7 @@ def get_products_by_category(category_id):
     return products_data
 
 def product_all_data_by_details_id(product_details_id):
-    item = ProductDetails.objects.filter(id = product_details_id, is_active = True).first()
+    item = Product.objects.filter(id = product_details_id, is_active = True).first()
     data = {
         'id':item.id,
         'name':item.product.name,

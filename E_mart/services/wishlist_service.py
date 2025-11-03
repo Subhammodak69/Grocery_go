@@ -1,6 +1,5 @@
 from E_mart.models import Wishlist
 from E_mart.services import product_service
-from E_mart.services import product_details_service
 
 def toggle_wishlist_create_delete(product_id, user):
     product = product_service.get_product_by_id(product_id)

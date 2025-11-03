@@ -1,27 +1,24 @@
 from django.db import models
-from E_mart.models import User,product
+from E_mart.models import User,Product
 from decimal import Decimal
 
 class Cart(models.Model):
-    user = models.OneToOneField(User,related_name= 'carts', on_delete=models.CASCADE)
+    user = models.OneToOneField(User, related_name='cart', on_delete=models.CASCADE)
     is_active = models.BooleanField(default=True)
-    product = models.ForeignKey(product, on_delete=models.CASCADE, related_name='products') 
-    
+
     class Meta:
         db_table = 'carts'
 
     def __str__(self):
         return f"{self.user.username}'s cart"
-    
+
     def get_total_price(self):
-        # Correctly reference product price and quantity from each item
         return sum(
-            item.product.price * item.quantity for item in self.items.filter(is_active = True)
+            item.product.price * item.quantity for item in self.items.filter(is_active=True)
         )
 
     def get_discount_price(self):
         total = self.get_total_price()
-        # Example: 30% discount for orders above 2000 rupees, etc.
         if total >= Decimal('2000'):
             return total * Decimal('0.30')
         elif total >= Decimal('1000'):
@@ -30,19 +27,18 @@ class Cart(models.Model):
             return total * Decimal('0.10')
         return Decimal('0')
 
-
     def get_fee_price(self):
         total = self.get_total_price()
-        # Example: Free delivery above 500; else, ₹40 delivery charge
-        return 0 if total >= 500 else 20
+        return Decimal('0') if total >= Decimal('500') else Decimal('40')  # delivery charge corrected to 40
 
 class CartItem(models.Model):
     cart = models.ForeignKey(Cart, related_name='items', on_delete=models.CASCADE)
+    product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name='cart_items')
     quantity = models.PositiveIntegerField(default=1)
     is_active = models.BooleanField(default=True)
-    product = models.ForeignKey(product, on_delete=models.CASCADE, related_name='items')
+
     class Meta:
         db_table = 'cartitems'
-        
+
     def __str__(self):
         return f"{self.quantity} x {self.product.name}"

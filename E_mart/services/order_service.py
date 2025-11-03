@@ -1,4 +1,4 @@
-from E_mart.models import Order,OrderItem,CartItem,ProductDetails
+from E_mart.models import Order,OrderItem,CartItem
 from E_mart.services import cart_service
 from decimal import Decimal
 
@@ -53,7 +53,7 @@ def create_order(user, address,final_price,delivery_fee,discount):
 def sigle_order_create(user, product_details_id, address, quantity,listing_price,delivery_fee,discount):
     try:
         # Get active product details
-        product_details = ProductDetails.objects.get(id=product_details_id, is_active=True)
+        product_details = Product.objects.get(id=product_details_id, is_active=True)
 
         # Calculate total price (consider discount/quantity if required)
         total_price = product_details.price * int(quantity)  # Basic total calculation

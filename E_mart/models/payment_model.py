@@ -19,7 +19,7 @@ class Payment(models.Model):
     ]
 
     order = models.OneToOneField(Order, on_delete=models.CASCADE)
-    payment_method = models.CharField(max_length=10, choices=PAYMENT_METHODS)
+    payment_method = models.CharField(max_length=15, choices=PAYMENT_METHODS)
     status = models.CharField(max_length=10, choices=STATUS_CHOICES, default='PENDING')
     card_details = models.CharField(max_length=100, null=True, blank=True)
     bank_details = models.CharField(max_length=100, null=True, blank=True)
