@@ -32,11 +32,10 @@ class UserCartCreateDataView(View):
     def post(self, request, *args, **kwargs):
         user = request.user
         data = json.loads(request.body)
-        product_details_id = data.get('product_details_id')
+        product_id = data.get('product_id')
         quantity = data.get('quantity')
         user_cart = cart_service.get_cart_by_user(user)
-        product_detail = cartitem_service.create_cartitem(user_cart,product_details_id,quantity)
-
+        cartitem_service.create_cartitem(user_cart,product_id,quantity)
         return JsonResponse({'status': 'success'})
     
 

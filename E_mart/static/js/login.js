@@ -137,7 +137,7 @@ document.addEventListener('DOMContentLoaded', () => {
         resTrue.style.display = "flex";
         resTrue.innerHTML = data.message;
         setTimeout(()=>{
-           window.location.href='/';
+           window.location.back();
         },1000)
        
       } else {

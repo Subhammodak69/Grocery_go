@@ -1,5 +1,5 @@
 from E_mart.models import CartItem
-
+from E_mart.services import product_service
 
 def get_all_cartitems():
     return CartItem.objects.all()

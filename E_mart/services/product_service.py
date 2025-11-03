@@ -18,41 +18,55 @@ def get_random_product_by_id(product_id):
     return None
 
 def get_all_active_products():
-    products = Product.objects.filter(is_active = True)
-    products_data = [
-        {
-            'id':p.id,
-            'name':p.name,
-            'image':p.image,
-            'product_options':product_details_service.get_product_details_options_by_id(p.id),
-        }
-        for p in products
-    ] 
-    return products_data
+    return list(Product.objects.filter(is_active = True))
+   
 
 def get_product_by_id(product_id):
     return Product.objects.filter(id=product_id).first()
 
-def product_create(category_id ,name,description,image_file):
+def get_product_data_by_id(product_id):
+    product = Product.objects.filter(id=product_id).first()
+    product_data = {
+        'id':product.id,
+        'image':product.image,
+        'price':product.price,
+        'stock':product.stock,
+        'size':product.size,
+        'name':product.name,
+        'description':product.description
+        
+    }
+    return product_data
+
+def product_create(category_id ,name,size,price,stock,description,image_file):
     category = category_service.get_category_by_id(category_id)
     return Product.objects.create(
         category = category,
         name = name,
+        size = size,
+        price = price,
+        stock = stock,
         description = description,
         image = get_relative_url_of_product(image_file)
     )
 
 
-def product_update(product_id,category_id ,name,description,image_file):
+def product_update(product_id,category_id ,name,size,price,stock,description,image_file):
     category = category_service.get_category_by_id(category_id)
     product = get_product_by_id(product_id)
     if image_file == None:
         product.category = category
         product.name = name
+        product.size = size
+        product.price = price
+        product.stock = stock
         product.description = description
     else:
         product.category = category
         product.name = name
+        product.size = size
+        product.price = price
+        product.stock = stock
         product.description = description
         product.image = get_relative_url_of_product(image_file)
     return product
@@ -82,28 +96,6 @@ def toggle_active_product(product_id,is_active):
 
 
 def get_products_by_category(category_id):
-    products = Product.objects.filter(category = category_id, is_active = True)
-    products_data = [
-        {
-            'id':p.id,
-            'name':p.name,
-            'image':p.image,
-            'product_options':product_details_service.get_product_details_options_by_id(p.id),
-        }
-        for p in products
-    ] 
-    return products_data
-
-def product_all_data_by_details_id(product_details_id):
-    item = Product.objects.filter(id = product_details_id, is_active = True).first()
-    data = {
-        'id':item.id,
-        'name':item.product.name,
-        'size':item.size,
-        'price':item.price,
-        'stock':item.stock,
-        'image':item.product.image,
-        'description':item.product.description
-    }
-    return data
+    return list(Product.objects.filter(category = category_id, is_active = True))
+    
     

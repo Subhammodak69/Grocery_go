@@ -14,6 +14,9 @@
                 <th>ID</th>
                 <th>Category Id</th>
                 <th>Name</th>
+                <th>Size</th>
+                <th>Price</th>
+                <th>Stock</th>
                 <th>Description</th>
                 <th>Image</th>
                 <th>Is Active</th>
@@ -26,6 +29,9 @@
                 <td>{{ product.id }}</td>
                 <td>{{ product.category.id }}</td>
                 <td>{{ product.name }}</td>
+                <td>{{ product.size }}</td>
+                <td>{{ product.price }}</td>
+                <td>{{ product.stock }}</td>
                 <td>{{ product.description }}</td>
                 <td>
                     <img src="{% static product.image %}" height="40px" width="60px" >

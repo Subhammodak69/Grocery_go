@@ -11,13 +11,14 @@ from django.http import JsonResponse
 @method_decorator(enduser_required, name= 'dispatch')
 class ProductOrderSummary(View):
     def get(self, request):
-        product_details_id = request.GET.get('product_details_id')
+        product_id = request.GET.get('product_id')
         quantity = request.GET.get('quantity')
-        product_data = product_service.product_all_data_by_details_id(product_details_id)
-        product_data.update({
+        product = product_service.get_product_data_by_id(product_id)
+        print(product)
+        product.update({
             'quantity':quantity
         })
-        total = product_data['price']* int(product_data['quantity'])
+        total = product['price']* int(product['quantity'])
         extra_data = {
             'total':total,
             'delivery_fee': order_service.get_delivery_fee(total),
@@ -25,7 +26,7 @@ class ProductOrderSummary(View):
         }
         final_price = total+extra_data['delivery_fee']-extra_data['discount']
         # print(extra_data)
-        return render(request, 'enduser/singly_order_summary.html', {'total_price':final_price,'data': product_data,'extra_data':extra_data})
+        return render(request, 'enduser/singly_order_summary.html', {'total_price':final_price,'data': product,'extra_data':extra_data})
     
     def post(self, request):
         try:

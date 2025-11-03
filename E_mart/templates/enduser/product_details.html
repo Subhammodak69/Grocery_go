@@ -1,0 +1,139 @@
+{% extends 'enduser/base.html' %}
+{% load static %}
+{% block title %} Product Details | Grocery_Go {% endblock %}
+{% block content %}
+<script src="{% static 'js/enduser/product_details.js' %}"></script>
+<div class="container bg-white rounded shadow p-4" style="margin-top:80px;">
+  <div class="row g-4">
+    <!-- Product Image -->
+    <div class="col-12 col-md-6">
+        <span id="wishlist-{{ product.id }}" class="icon-love"
+            data-product-id="{{ product.id }}" 
+            onclick="toggleWishlist(this)">
+            {% if product.is_in_wishlist %}
+            <i class="bi bi-heart-fill" style="color:red"></i>
+            {% else %}
+            <i class="bi bi-heart"></i>
+            {% endif %}
+        </span>
+
+        <img src="{% static product.image %}" alt="Product Image" class="img-fluid rounded" />
+        </div>
+
+    <!-- Product Details -->
+    <div class="col-12 col-md-6 d-flex flex-column justify-content-between">
+      <div>
+        <input type="hidden" id="product_id" value="{{product.id}}">
+        <h1 class="h3 fw-bold mb-3 text-dark">{{product.name}}</h1>
+        <p class="h4 fw-semibold text-primary mb-3">₹{{product.price}}/{{product.size}}</p>
+        <div class="d-flex align-items-center mb-3">
+          <div class="text-warning d-flex">
+            <!-- 5 star icons for rating (Bootstrap doesn't have built-in SVG, so using inline SVG as is) -->
+            <svg class="me-1" width="20" height="20" fill="currentColor" viewBox="0 0 20 20">
+              <path d="M10 15l-5.878 3.09 1.123-6.545L.49 6.91l6.564-.955L10 0l2.946 5.955 6.564.955-4.755 4.635 1.123 6.545z"/>
+            </svg>
+            <svg class="me-1" width="20" height="20" fill="currentColor" viewBox="0 0 20 20">
+              <path d="M10 15l-5.878 3.09 1.123-6.545L.49 6.91l6.564-.955L10 0l2.946 5.955 6.564.955-4.755 4.635 1.123 6.545z"/>
+            </svg>
+            <svg class="me-1" width="20" height="20" fill="currentColor" viewBox="0 0 20 20">
+              <path d="M10 15l-5.878 3.09 1.123-6.545L.49 6.91l6.564-.955L10 0l2.946 5.955 6.564.955-4.755 4.635 1.123 6.545z"/>
+            </svg>
+            <svg class="me-1" width="20" height="20" fill="currentColor" viewBox="0 0 20 20">
+              <path d="M10 15l-5.878 3.09 1.123-6.545L.49 6.91l6.564-.955L10 0l2.946 5.955 6.564.955-4.755 4.635 1.123 6.545z"/>
+            </svg>
+            <svg width="20" height="20" fill="#d1d5db" viewBox="0 0 20 20">
+              <path d="M10 15l-5.878 3.09 1.123-6.545L.49 6.91l6.564-.955L10 0l2.946 5.955 6.564.955-4.755 4.635 1.123 6.545z"/>
+            </svg>
+          </div>
+          <span class="ms-2 text-muted small">(45 reviews)</span>
+        </div>
+        <p class="text-secondary mb-4">
+            {{product.description}}
+        </p>
+        <h6>Category:</h6>
+        <p class="mb-4">
+            {{product.category.name}}
+        </p>
+        <p class="text-secondary mb-4">
+            {{product.category.description}}
+        </p>
+        {% if product.stock == 0%}
+        <p class="text-danger fw-semibold mb-4">Out of Stock</p>
+        {% elif product.stock <= 50%}
+        <p class="text-warning fw-semibold mb-4">Hurry up {{product.stock}} in Stock</p>
+        {% else %}
+        <p class="text-success fw-semibold mb-4">In Stock</p>
+        {% endif %}
+      </div>
+      <div class="bg-gray-200" style="display: flex; align-items: center;border:2px solid gray; width:30%;border-radius:5px;">
+        <button type="button" onclick="changeQuantity(-1)" style="font-size:20px;border: none;">-</button>
+        <input 
+            type="number" 
+            id="quantity" 
+            min="1" 
+            max="{{product.stock}}" 
+            value="1" 
+            class="form-control text-center" 
+            style="border:none;" 
+            readonly
+        />
+        <button type="button" onclick="changeQuantity(1)" style="font-size:20px;border: none;">+</button>
+    </div>
+    <script>
+        function changeQuantity(delta) {
+            const input = document.getElementById('quantity');
+            let currentValue = parseInt(input.value, 10);
+            const maxStock = {{product.stock}};
+            const minValue = 1;
+
+            let newValue = currentValue + delta;
+            if (newValue > maxStock) newValue = maxStock;
+            if (newValue < minValue) newValue = minValue;
+
+            input.value = newValue;
+        }
+    </script>
+        <div class="mt-4 d-flex align-items-center gap-4">
+            <button class="btn btn-primary px-4"onclick="buy_now()">
+            Buy now
+            </button>
+            <button class="btn btn-secondary px-4" onclick="add_to_cart()">
+            Add to Cart
+            </button>
+        </div>
+    </div>
+  </div>
+
+  <div class="mt-5 pt-4 border-top">
+    <h2 class="h5 fw-semibold mb-3">Additional Information</h2>
+    <ul class="list-unstyled text-secondary mb-0">
+      <li>Delivery charges: Free shipping on orders over ₹500</li>
+      <li>Discount: 4% off over ₹500 ,5% off over ₹1000 and 7% off over ₹3000 </li>
+      <li>Exchange and Refund is available.</li>
+    </ul>
+  </div>
+  <div class="mt-5 pt-4 border-top">
+    <h2 class="h5 fw-semibold mb-3">Reviews</h2>
+    {% if reviews %}
+    {% else %}
+    <p class="text-center text-danger">No reviews found yet on this product. </p>
+    {% endif %}
+  </div>
+</div>
+<style>
+.icon-love{
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    background: aliceblue;
+    padding: 10px;
+    justify-content: center;
+    align-items: center;
+    display: flex;
+    font-size: 25px;
+    margin-top: 10px;
+    margin-left: 10px;
+    position: absolute;
+    }
+</style>
+{% endblock %}

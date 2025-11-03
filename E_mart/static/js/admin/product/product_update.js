@@ -6,10 +6,14 @@ async function product_update() {
     const productId = document.getElementById('product_id').value;
     const category_id = document.getElementById('category').value;
     const name = document.getElementById('name').value.trim();
+    const size = document.getElementById('size').value.trim();
+    const price = document.getElementById('price').value.trim();
+    const stock = document.getElementById('stock').value.trim();
     const description = document.getElementById('description').value.trim();
     
 
-    if (!category_id || !name || !description || !file) {
+    if (!category_id || !name || !size || !price || !stock || !description || !file ) {
+
         messageEl.textContent = 'Please fill all required fields.';
         messageEl.classList.add('error');
         return;
@@ -18,6 +22,9 @@ async function product_update() {
     const formData = new FormData();
     formData.append('category_id',category_id);
     formData.append('name', name);
+    formData.append('size', size);
+    formData.append('price', price);
+    formData.append('stock', stock);
     formData.append('description', description);
     if (file !== undefined) {
         formData.append('image', file);
