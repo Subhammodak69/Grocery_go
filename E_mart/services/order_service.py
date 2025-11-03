@@ -1,4 +1,4 @@
-from E_mart.models import Order,OrderItem,CartItem
+from E_mart.models import Order,OrderItem,CartItem,Product
 from E_mart.services import cart_service
 from decimal import Decimal
 
@@ -18,7 +18,7 @@ def create_order(user, address,final_price,delivery_fee,discount):
         # Calculate total price correctly
         total = 0
         for item in cart_items:
-            item_total = (item.product_details.price) * item.quantity
+            item_total = (item.product.price) * item.quantity
             total += item_total
         
         # Create the order
@@ -36,7 +36,7 @@ def create_order(user, address,final_price,delivery_fee,discount):
         for cart_item in cart_items:
             OrderItem.objects.create(
                 order=order,
-                product_details=cart_item.product_details,
+                product=cart_item.product,
             )
         
         # Clear cart after order creation
@@ -50,14 +50,14 @@ def create_order(user, address,final_price,delivery_fee,discount):
 
 
 
-def sigle_order_create(user, product_details_id, address, quantity,listing_price,delivery_fee,discount):
+def sigle_order_create(user, product_id, address, quantity,listing_price,delivery_fee,discount):
     try:
         # Get active product details
-        product_details = Product.objects.get(id=product_details_id, is_active=True)
+        product = Product.objects.get(id=product_id, is_active=True)
 
         # Calculate total price (consider discount/quantity if required)
-        total_price = product_details.price * int(quantity)  # Basic total calculation
-        final_price = get_final_price(total_price, quantity)
+        total_price = product.price * int(quantity)  # Basic total calculation
+        final_price = get_final_price(total_price)
 
         # Create order
         order = Order.objects.create(
@@ -73,7 +73,7 @@ def sigle_order_create(user, product_details_id, address, quantity,listing_price
         # Create order item
         order_item = OrderItem.objects.create(
             order=order,
-            product_details=product_details,
+            product=product,
             quantity=quantity
         )
 
@@ -95,7 +95,7 @@ def get_discount_for_sigle_item(total):
             return total * Decimal('0.10')
         return Decimal('0')
 
-def get_final_price(total_price, quantity):
+def get_final_price(total_price):
     discount = get_discount_for_sigle_item(total_price)
     delivery_fee = 0 if total_price >=500 else 20
     return total_price+delivery_fee-discount
@@ -121,7 +121,10 @@ def get_order_items_data(order):
         {
             'id':item.id,
             'quantity':item.quantity,
-            'product_details':item.product_details
+            'image':item.product.image,
+            'name':item.product.name,
+            'size':item.product.size,
+            'price':item.product.price
         }
         for item in order_items
     ]

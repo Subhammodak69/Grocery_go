@@ -129,6 +129,7 @@ class OrderCreateView(View):
 class OrderListView(View):
     def get(self, request):
         orders = order_service.get_all_orders_by_user(request.user)
+        print(orders)
         context = {
             'orders': orders
         }
@@ -139,8 +140,10 @@ class OrderDetailsView(View):
     def get(self, request,order_id):
         order_data = order_service.get_order_full_data(order_id)
         summary = order_service.get_order_price_summary(order_id) 
+
         context = {
             'order_data': order_data,
             'summary':summary
         }
+        print(order_data)
         return render(request, 'enduser/order_details.html', context)   

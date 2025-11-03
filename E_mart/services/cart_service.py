@@ -24,12 +24,12 @@ def get_all_cart_products_data(user_cart):
     data = [
         {
             'id':item.id,
-            'product_details':item.product_details,
-            'product_id':item.product_details.product.id,
-            'product_size':item.product_details.size,
+            'product_name':item.product.name,
+            'product_id':item.product.id,
+            'product_size':item.product.size,
             'product_quantity':item.quantity,
-            'product_price':item.product_details.price,
-            'product_image':item.product_details.product.image,
+            'product_price':item.product.price,
+            'product_image':item.product.image,
         }
         for item in cart_items
     ]
@@ -58,7 +58,6 @@ def update_cart_items_quantity(item_id,user,quantity):
 
     cart = cart_item.cart
     summary = get_cart_summary(cart)
-    # print(summary)
     return cart_item,summary
 
 def get_cart_summary(cart):
@@ -72,5 +71,5 @@ def get_cart_summary(cart):
 
 def get_cartitem_total_by_item_id(cart_item_id):
     cart_item = CartItem.objects.get(id = cart_item_id, is_active = True)
-    total = cart_item.product_details.price * cart_item.quantity
+    total = cart_item.product.price * cart_item.quantity
     return total

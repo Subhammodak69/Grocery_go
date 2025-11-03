@@ -131,18 +131,25 @@
                 <span class="summary-value">₹{{ total_summary.total_price }}</span>
               </div>
 
-              <div class="summary-row discount">
-                <span class="summary-label">
-                  <i class="bi bi-tag-fill me-1"></i>Discount
-                </span>
-                <span class="summary-value text-success">-₹{{ total_summary.discount|floatformat:2  }}</span>
-              </div>
-
               <div class="summary-row">
                 <span class="summary-label">Delivery Fee</span>
                 {% if total_summary.total_price %}
                   <span class="summary-value">₹{{ total_summary.fee }}</span>
                 {% endif %}
+              </div>
+
+              <div class="summary-row discount">
+                <span class="summary-label">
+                  <i class="bi bi-tag-fill me-1"></i>Discount
+                </span>
+                <span class="summary-value text-danger">-₹{{ total_summary.discount|floatformat:2  }}</span>
+              </div>
+
+              <div class="summary-row discount">
+                <span class="summary-label">
+                  <i class="bi bi-tag-fill me-1"></i>Taxes & Fees
+                </span>
+                <span class="summary-value text-gray">Included</span>
               </div>
 
               <div class="summary-divider"></div>

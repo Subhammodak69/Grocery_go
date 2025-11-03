@@ -54,27 +54,26 @@
                 <div class="product-card h-100 flex flex-row" style="background:#475569;">
                   <div class="product-image-container">
                     <img 
-                      src="{% static item.product_details.product.image %}" 
-                      alt="{{ item.product_details.product.name }}"
+                      src="{% static item.image %}" 
+                      alt="{{ item.name }}"
                       class="product-image img-fluid"
                       loading="eager"
                     >
                   </div>
                   <div class="product-info py-2">
-                    <h4 class="product-name fs-6 mb-1">{{ item.product_details.product.name }}</h4>
-                    <p class="product-description small mb-1">Premium quality product with excellent features</p>
+                    <h4 class="product-name fs-6 mb-1"style="color:aliceblue;">{{ item.name }}</h4>
                     <div class="product-attributes d-flex flex-wrap mb-2" style="gap: 6px;!important;">
                       <span class="attribute me-2 text-center" style="font-size: 12px; background: #1e293b;padding: 2px;border: 2px solid #9d9ed5;border-radius: 6px;color: whitesmoke;">
                         <i class="bi bi-box me-1"></i>
-                        Qty: <span class="attribute-value" style="font-size: 10px;">{{ item.quantity }}</span>
+                        Qty: <span class="attribute-value" style="font-size: 10px;color:#fff;">{{ item.quantity }}</span>
                       </span>
                       <span class="attribute me-2 text-center" style="font-size: 12px; background: #1e293b;padding: 2px;border: 2px solid #9d9ed5;border-radius: 6px;color: whitesmoke;">
                         <i class="bi bi-rulers me-1"></i>
-                        Size: <span class="attribute-value"style="font-size: 10px;">{{ item.product_details.size }}</span>
+                        Size: <span class="attribute-value"style="font-size: 10px;color:#fff;">{{ item.size }}</span>
                       </span>
                       <span class="attribute me-2 text-center" style="font-size: 12px; background: #1e293b;padding: 2px;border: 2px solid #9d9ed5;border-radius: 6px;color: whitesmoke;">
                         <i class="bi bi-tag-fill me-1"></i>
-                        Price: <span class="attribute-value" style="font-size: 10px;">₹{{ item.product_details.price|floatformat:2 }}</span>
+                        Price: <span class="attribute-value" style="font-size: 10px;color:#fff;">₹{{ item.price|floatformat:2 }}</span>
                       </span>
                       {% if item.discount_amount > 0 %}
                       <span class="attribute text-success me-2">

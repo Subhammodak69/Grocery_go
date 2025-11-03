@@ -81,29 +81,28 @@
                     >
                     <!-- Delete Button -->
                     <button class="delete-btn" aria-label="Remove item">
-                      <i class="bi bi-trash3"></i>
+                      <i class="bi bi-trash3 text-danger"></i>
                     </button>
                   </div>
                   <div class="product-info py-2">
-                    <h4 class="product-name fs-6 mb-1">{{ item.product_name }}</h4>
-                    <p class="product-description small mb-1">Premium quality product with excellent features</p>
+                    <h4 class="product-name fs-6 mb-2 text-white">{{ item.product_name }}</h4>
                     <div class="product-attributes d-flex flex-wrap mb-2" style="gap: 6px;!important;">
                       <span class="attribute me-2 text-center" style="font-size: 12px; background: #1e293b;padding: 2px;border: 2px solid #9d9ed5;border-radius: 6px;color: whitesmoke;">
                         <i class="bi bi-box me-1"></i>
-                        Qty: <span class="attribute-value" style="font-size: 10px;">{{ item.product_quantity }}</span>
+                        Qty: <span class="attribute-value text-white" style="font-size: 10px;">{{ item.product_quantity }}</span>
                       </span>
                       <span class="attribute me-2 text-center" style="font-size: 12px; background: #1e293b;padding: 2px;border: 2px solid #9d9ed5;border-radius: 6px;color: whitesmoke;">
                         <i class="bi bi-rulers me-1"></i>
-                        Size: <span class="attribute-value"style="font-size: 10px;">{{ item.product_size }}</span>
+                        Size: <span class="attribute-value text-white"style="font-size: 10px;">{{ item.product_size }}</span>
                       </span>
                       <span class="attribute me-2 text-center" style="font-size: 12px; background: #1e293b;padding: 2px;border: 2px solid #9d9ed5;border-radius: 6px;color: whitesmoke;">
                         <i class="bi bi-tag-fill me-1"></i>
-                        Price: <span class="attribute-value" style="font-size: 10px;">₹{{ item.product_price|floatformat:2 }}</span>
+                        Price: <span class="attribute-value text-white" style="font-size: 10px;">₹{{ item.product_price|floatformat:2 }}</span>
                       </span>
                       {% if item.discount_amount > 0 %}
                       <span class="attribute text-success me-2">
                         <i class="bi bi-percent me-1"></i>
-                        Discount: <span class="attribute-value">-₹{{ item.discount_amount|floatformat:2 }}</span>
+                        Discount: <span class="attribute-value text-white">-₹{{ item.discount_amount|floatformat:2 }}</span>
                       </span>
                       {% endif %}
                     </div>

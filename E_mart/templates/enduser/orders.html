@@ -90,43 +90,43 @@
             {% if item_count == 1 %}
               <!-- Single image, fill -->
               <img
-                src="{% if order.orderitems.0.product_details.product.image %}{% static order.orderitems.0.product_details.product.image %}{% else %}{% static 'no_image.png' %}{% endif %}"
+                src="{% if order.orderitems.0.image %}{% static order.orderitems.0.image %}{% else %}{% static 'no_image.png' %}{% endif %}"
                 class="order-img-single"
                 alt="Product">
             {% elif item_count == 2 %}
               {% for item in order.orderitems %}
                 <img
-                  src="{% if item.product_details.product.image %}{% static item.product_details.product.image %}{% else %}{% static 'no_image.png' %}{% endif %}"
+                  src="{% if item.image %}{% static item.image %}{% else %}{% static 'no_image.png' %}{% endif %}"
                   class="order-img-grid order-img-grid-2 order-img-pos-{{forloop.counter}}"
                   alt="Product">
               {% endfor %}
             {% elif item_count == 3 %}
               {% for item in order.orderitems|slice:":2" %}
                 <img
-                  src="{% if item.product_details.product.image %}{% static item.product_details.product.image %}{% else %}{% static 'no_image.png' %}{% endif %}"
+                  src="{% if item.image %}{% static item.image %}{% else %}{% static 'no_image.png' %}{% endif %}"
                   class="order-img-grid order-img-grid-2 order-img-pos-{{forloop.counter}}"
                   alt="Product">
               {% endfor %}
               <img
-                src="{% if order.orderitems.2.product_details.product.image %}{% static order.orderitems.2.product_details.product.image %}{% else %}{% static 'no_image.png' %}{% endif %}"
+                src="{% if order.orderitems.2.image %}{% static order.orderitems.2.image %}{% else %}{% static 'no_image.png' %}{% endif %}"
                 class="order-img-grid order-img-grid-3 order-img-pos-3"
                 alt="Product">
             {% elif item_count == 4 %}
               {% for item in order.orderitems|slice:":4" %}
                 <img
-                  src="{% if item.product_details.product.image %}{% static item.product_details.product.image %}{% else %}{% static 'no_image.png' %}{% endif %}"
+                  src="{% if item.image %}{% static item.image %}{% else %}{% static 'no_image.png' %}{% endif %}"
                   class="order-img-grid order-img-grid-4 order-img-pos-{{forloop.counter}}"
                   alt="Product">
               {% endfor %}
             {% elif item_count > 4 %}
               {% for item in order.orderitems|slice:":3" %}
                 <img
-                  src="{% if item.product_details.product.image %}{% static item.product_details.product.image %}{% else %}{% static 'no_image.png' %}{% endif %}"
+                  src="{% if item.image %}{% static item.image %}{% else %}{% static 'no_image.png' %}{% endif %}"
                   class="order-img-grid order-img-grid-4 order-img-pos-{{forloop.counter}}"
                   alt="Product">
               {% endfor %}
                 <img
-                  src="{% if order.orderitems.3.product_details.product.image %}{% static order.orderitems.3.product_details.product.image %}{% else %}{% static 'no_image.png' %}{% endif %}"
+                  src="{% if order.orderitems.3.image %}{% static order.orderitems.3.image %}{% else %}{% static 'no_image.png' %}{% endif %}"
                   class="order-img-grid order-img-grid-4 order-img-pos-4"
                   alt="Product">
                 <div class="order-img-more-overlay">
@@ -140,7 +140,7 @@
           <div class="order-main-info">
             <div class="order-title">
               {% for item in order.orderitems %}
-              {{item.product_details.product.name}},
+              {{item.name}},
               {% endfor %}
             </div>
             <div class="order-address"><strong style="white-space: nowrap;">Delivery Address:</strong> <p style="white-space: nowrap;overflow: hidden;text-overflow: ellipsis;">{{ order.address }}</p></div>
