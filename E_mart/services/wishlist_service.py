@@ -32,7 +32,9 @@ def get_wishlist_products_data(user):
             'id':i.id,
             'name':i.product.name,
             'image':i.product.image,
-            'product_options':product_details_service.get_product_details_options_by_id(i.product.id),
+            'size':i.product.size,
+            'price':i.product.price,
+            'product_id':i.product.id
         }
         for i in items
     ] 
