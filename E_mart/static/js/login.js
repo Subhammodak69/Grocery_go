@@ -33,6 +33,7 @@ document.addEventListener('DOMContentLoaded', () => {
         resTrue.innerHTML = data.message;
         document.getElementById('otpSection').classList.remove('d-none');
         document.getElementById('sendOtpBtn').classList.add('d-none');
+        document.getElementById('email').disabled = true;
       } else {
         loader.style.display = 'none ';
         resTrue.style.display = "none";
@@ -137,7 +138,7 @@ document.addEventListener('DOMContentLoaded', () => {
         resTrue.style.display = "flex";
         resTrue.innerHTML = data.message;
         setTimeout(()=>{
-           window.location.back();
+           window.location.href="/";
         },1000)
        
       } else {

@@ -3,32 +3,31 @@
 {% block title %}Products{% endblock %}
 {% block content %}
 <script src="{% static 'js/enduser/product_list.js' %}"></script>
-<div class="container-9 py-4" style="padding-right: 2px;padding-left: 2px; margin-top: 60px;">
-  <div class="container-9 py-4 px-4 bg-light">
-    <div class="row g-4">
-      {% for product in products %}
-      <!-- Product Card -->
-      <div class="col-sm-6 col-md-4 col-lg-3">
-        <div class="card product-card h-100">
-          <span class="wishlist-icon" 
-                data-product-id="{{ product.id }}"
-                onclick="toggleWishlist(this)">
-            {% if product.is_in_wishlist %}
-              <i class="bi bi-heart-fill" style="color:red"></i>
-            {% else %}
-              <i class="bi bi-heart"></i>
-            {% endif %}
-          </span>
-          <img src="{% static product.image %}" class="product-img" alt="Product">
-          <div class="product-info w-100">
-            <h5 class="product-title text-center"style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">{{product.name}}</h5>
-            <p class="product-price text-center">₹{{product.price}}/{{product.size}}</p>
-            <p class="text-center cursor-pointer" onclick="window.location.href='/product/{{product.id}}/'"style="color:blue;margin-top:10px;margin-bottom:0px;">View Details-></p>
-          </div>
+<div class="container-9 py-4" style="padding-right: 2px;padding-left: 2px; margin-top: 50px;">
+  <div class="container-9 bg-light" style="padding-bottom:20px; min-height:80vh">
+  <div class="row g-4 m-auto">
+    {% for product in products %}
+    <div class="col-sm-6 col-md-4 col-lg-3 custom-col">
+      <div class="card product-card h-100 mb-3"> <!-- Added mb-3 for spacing -->
+        <span class="wishlist-icon"
+              data-product-id="{{ product.id }}"
+              onclick="toggleWishlist(this)">
+          {% if product.is_in_wishlist %}
+            <i class="bi bi-heart-fill" style="color:red"></i>
+          {% else %}
+            <i class="bi bi-heart"></i>
+          {% endif %}
+        </span>
+        <img src="{% static product.image %}" class="product-img" alt="Product">
+        <div class="product-info">
+          <h5 class="product-title">{{product.name}}</h5>
+          <p class="para product-price">₹{{product.price}}/{{product.size}}</p>
+          <button class="para text-center view-btn" onclick="window.location.href='/product/{{product.id}}/'">View Details-></button>
         </div>
       </div>
-      {% endfor %}
     </div>
+    {% endfor %}
   </div>
+</div>
 </div>
 {% endblock %}

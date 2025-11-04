@@ -5,6 +5,7 @@
 }
 
 .product-card {
+  width:100%;
   position: relative;
   background: #fff;
   border-radius: 10px;
@@ -101,6 +102,13 @@
   color: #333;
   margin-bottom: 0.5rem;
 }
+.view-btn{
+  background: transparent;border: none;cursor: pointer;color: blue;
+}
+.view-btn:active{
+  text-decoration: underline;
+  color: #00c8ffe5;
+}
 .product-price {
   color: #0072ff;
   font-weight: 600;
@@ -118,6 +126,26 @@
 @media (max-width: 576px) {
   .product-img {
     height: 180px;
+  }
+
+}
+
+/* For screen between 330px and 575px, force cols to be 50% width */
+@media (max-width: 575px) and (min-width: 330px) {
+  .custom-col {
+    flex: 0 0 50%;
+    max-width: 50%;
+  }
+  .para{
+    font-size: small;
+  }
+}
+
+/* Below 330px width, show single card (100%) */
+@media (max-width: 329px) {
+  .custom-col {
+    flex: 0 0 100%;
+    max-width: 100%;
   }
 }
 

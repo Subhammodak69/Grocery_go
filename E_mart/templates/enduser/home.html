@@ -47,10 +47,10 @@
 
 
   <div class="container-9 py-4 bg-light" style="padding: 20px;margin-top: 20px;">
-    <div class="row g-4">
+    <div class="row g-4 m-auto">
       {% for product in products %}
       <!-- Product Card -->
-      <div class="col-sm-6 col-md-4 col-lg-3">
+      <div class="col-sm-6 col-md-4 col-lg-3 custom-col">
         <div class="card product-card h-100">
           <span class="wishlist-icon" 
                 data-product-id="{{ product.id }}"
@@ -64,9 +64,8 @@
           <img src="{% static product.image %}" class="product-img" alt="Product">
           <div class="product-info">
             <h5 class="product-title">{{product.name}}</h5>
-            <p class="product-price">₹{{product.price}}/{{product.size}}</p>
-            <p class="text-center cursor-pointer" onclick="window.location.href='/product/{{product.id}}/'" style="color:blue;">View Details-></p>
-            {% comment %} <button class="btn btn-add w-100 mt-2" onclick="add_to_cart(this)" >Add to Cart</button> {% endcomment %}
+            <p class="product-price para">₹{{product.price}}/{{product.size}}</p>
+            <p class="para text-center view-btn" onclick="window.location.href='/product/{{product.id}}/'">View Details-></p>
           </div>
         </div>
       </div>
@@ -77,16 +76,16 @@
 
   <!-- Header -->
   <header class="catalog-header shadow-sm mb-4">
-    <h1 class="fw-bold mb-2">🛒 Gromart Product Catalog</h1>
+    <h1 class="fw-bold mb-2"><i class="bi bi-cart"></i> Products catalog</h1>
     <p class="lead">Explore our curated selection of fresh groceries & everyday essentials</p>
   </header>
 
   <!-- Product Grid -->
   <div class="container-9 py-4 bg-light" style="padding: 20px;margin-top: 20px;">
-    <div class="row g-4">
+    <div class="row g-4 m-auto">
       {% for product in products %}
       <!-- Product Card -->
-      <div class="col-sm-6 col-md-4 col-lg-3">
+      <div class="col-sm-6 col-md-4 col-lg-3 custom-col">
         <div class="card product-card h-100">
           <span class="wishlist-icon" 
               data-product-id="{{ product.id }}"
@@ -100,9 +99,8 @@
           <img src="{% static product.image %}" class="product-img" alt="Product">
           <div class="product-info">
             <h5 class="product-title">{{product.name}}</h5>
-            <p class="product-price">₹{{product.price}}/{{product.size}}</p>
-            <p class="text-center cursor-pointer" onclick="window.location.href='/product/{{product.id}}/'"style="color:blue;">View Details-></p>
-            {% comment %} <button class="btn btn-add w-100 mt-2" onclick="add_to_cart(this)" >Add to Cart</button> {% endcomment %}
+            <p class="para product-price">₹{{product.price}}/{{product.size}}</p>
+            <button class="para text-center view-btn" onclick="window.location.href='/product/{{product.id}}/'">View Details-></button>
           </div>
         </div>
       </div>
