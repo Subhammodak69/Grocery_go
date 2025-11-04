@@ -6,6 +6,7 @@
 {% endblock %}
 {% block extra_js %}
   <script src = "{% static 'js/enduser/cartitem_remove.js' %}"></script>
+  <script src = "{% static 'js/enduser/cart.js' %}"></script>
 {% endblock %}
 {% block content %}
 
@@ -119,7 +120,7 @@
             
             <div class="summary-header">
               <h5 class="summary-title">
-                <i class="bi bi-receipt me-2"></i>Order Summary
+                <i class="bi bi-receipt me-2"></i>Cart Summary
               </h5>
             </div>
 
@@ -128,21 +129,17 @@
               <!-- Price Breakdown -->
               <div class="summary-row">
                 <span class="summary-label">Listing Price</span>
-                <span class="summary-value">₹{{ total_summary.total_price }}</span>
+                <span class="summary-value" id="summary-total-price">₹{{ total_summary.total_price }}</span>
               </div>
 
               <div class="summary-row">
                 <span class="summary-label">Delivery Fee</span>
-                {% if total_summary.total_price %}
-                  <span class="summary-value">₹{{ total_summary.fee }}</span>
-                {% endif %}
+                <span class="summary-value" id="summary-fee">₹{{ total_summary.fee }}</span>
               </div>
 
               <div class="summary-row discount">
-                <span class="summary-label">
-                  <i class="bi bi-tag-fill me-1"></i>Discount
-                </span>
-                <span class="summary-value text-danger">-₹{{ total_summary.discount|floatformat:2  }}</span>
+                <span class="summary-label"><i class="bi bi-tag-fill me-1"></i>Discount</span>
+                <span class="summary-value text-danger" id="summary-discount">-₹{{ total_summary.discount|floatformat:2 }}</span>
               </div>
 
               <div class="summary-row discount">
@@ -157,14 +154,14 @@
               <!-- Total -->
               <div class="summary-row total">
                 <span class="summary-label">Total Amount</span>
-                {% if total_summary.total_price %}
-                <span class="summary-value">₹{{ final_price|floatformat:2  }}</span>
+                {% if final_price %}
+                <span class="summary-value" id="summary-final-price">₹{{ final_price|floatformat:2 }}</span>
                 {% endif %}
               </div>
 
               <!-- Savings Badge -->
               {% if total_summary.discount > 0 %}
-              <div class="savings-badge">
+              <div class="savings-badge" id="savings">
                 <i class="bi bi-piggy-bank me-2"></i>
                 You're saving ₹{{ total_summary.discount|floatformat:2  }}!
               </div>
@@ -217,75 +214,5 @@
 
   </div>
 </div>
-
-
-<script>
-  function go_back() {
-    window.history.back();
-  }
-
-  // Quantity controls (add your AJAX logic here)
-  document.querySelectorAll('.cart-item').forEach(itemElem => {
-    const itemId = itemElem.getAttribute('data-item-id');
-    // Elements
-    const qtyMinusBtn = itemElem.querySelector('.qty-minus');
-    const qtyPlusBtn = itemElem.querySelector('.qty-plus');
-    const qtyDisplay = itemElem.querySelector('.qty-display');
-    const itemTotalElem = itemElem.querySelector('.item-total');
-    const priceBadge = itemElem.querySelector('.price-badge');
-
-    qtyMinusBtn.addEventListener('click', function () {
-      let qty = parseInt(qtyDisplay.textContent);
-      if (qty > 1) {
-        const newQty = qty - 1;
-        updateQuantity(itemId, newQty, qtyDisplay, itemTotalElem, priceBadge);
-      }
-    });
-
-    qtyPlusBtn.addEventListener('click', function () {
-      let qty = parseInt(qtyDisplay.textContent);
-      const newQty = qty + 1;
-      updateQuantity(itemId, newQty, qtyDisplay, itemTotalElem, priceBadge);
-    });
-  });
-
-  // API update function
-  async function updateQuantity(itemId, newQty, qtyDisplay, itemTotalElem, priceBadge) {
-    console.log('item_id=> '+itemId );
-
-    try {
-      const response = await fetch(`/api/product-quantity/update/${itemId}/`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          quantity: newQty
-        }),
-      });
-      if (response.ok) {
-        const data = await response.json();
-        qtyDisplay.textContent = data.quantity;
-        itemTotalElem.textContent = "Total: ₹" + Number(data.item_total).toFixed(2);
-        // Also update summary fields
-        updateSummaryFields(data.cart_summary,data.final_price);
-      } else {
-        alert('Could not update quantity.');
-      }
-    } catch (err) {
-      alert('Error updating cart.');
-    }
-  }
-
-  function updateSummaryFields(summary,final_price) {
-    document.querySelector('.summary-value').textContent = "₹" + Number(summary.total_price).toFixed(2);
-    document.querySelector('.summary-row.discount .summary-value').textContent = "-₹" + Number(summary.discount).toFixed(2);
-    document.querySelectorAll('.summary-row')[2].querySelector('.summary-value').textContent = "₹" + Number(summary.fee).toFixed(2);
-    // Update total
-    document.querySelector('.summary-row.total .summary-value').textContent = "₹" + Number(final_price).toFixed(2);
-  }
-
-</script>
-
 
 {% endblock %}

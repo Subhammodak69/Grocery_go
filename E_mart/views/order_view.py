@@ -14,7 +14,6 @@ class ProductOrderSummary(View):
         product_id = request.GET.get('product_id')
         quantity = request.GET.get('quantity')
         product = product_service.get_product_data_by_id(product_id)
-        print(product)
         product.update({
             'quantity':quantity
         })
@@ -25,7 +24,6 @@ class ProductOrderSummary(View):
             'discount': order_service.get_discount_for_sigle_item(total)
         }
         final_price = total+extra_data['delivery_fee']-extra_data['discount']
-        # print(extra_data)
         return render(request, 'enduser/singly_order_summary.html', {'total_price':final_price,'data': product,'extra_data':extra_data})
     
     def post(self, request):
@@ -129,7 +127,6 @@ class OrderCreateView(View):
 class OrderListView(View):
     def get(self, request):
         orders = order_service.get_all_orders_by_user(request.user)
-        print(orders)
         context = {
             'orders': orders
         }
@@ -145,5 +142,4 @@ class OrderDetailsView(View):
             'order_data': order_data,
             'summary':summary
         }
-        print(order_data)
         return render(request, 'enduser/order_details.html', context)   

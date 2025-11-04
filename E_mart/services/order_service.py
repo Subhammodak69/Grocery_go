@@ -155,5 +155,4 @@ def get_delivery_fee(total):
         fee = Decimal('0')
     else:
         fee = Decimal('20')
-    print(fee)
     return fee

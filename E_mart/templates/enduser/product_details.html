@@ -79,20 +79,6 @@
         />
         <button type="button" onclick="changeQuantity(1)" style="font-size:20px;border: none;">+</button>
     </div>
-    <script>
-        function changeQuantity(delta) {
-            const input = document.getElementById('quantity');
-            let currentValue = parseInt(input.value, 10);
-            const maxStock = {{product.stock}};
-            const minValue = 1;
-
-            let newValue = currentValue + delta;
-            if (newValue > maxStock) newValue = maxStock;
-            if (newValue < minValue) newValue = minValue;
-
-            input.value = newValue;
-        }
-    </script>
         <div class="mt-4 d-flex align-items-center gap-4">
             <button class="btn btn-danger px-4"onclick="buy_now()">
               <i class="bi bi-bag"></i> Buy now
@@ -135,5 +121,23 @@
     margin-left: 10px;
     position: absolute;
     }
+input:focus, textarea:focus, select:focus {
+  outline: none;
+  box-shadow: none!important;
+}
 </style>
+<script>
+  function changeQuantity(delta) {
+      const input = document.getElementById('quantity');
+      let currentValue = parseInt(input.value, 10);
+      const maxStock = {{product.stock}};
+      const minValue = 1;
+
+      let newValue = currentValue + delta;
+      if (newValue > maxStock) newValue = maxStock;
+      if (newValue < minValue) newValue = minValue;
+
+      input.value = newValue;
+  }
+</script>
 {% endblock %}

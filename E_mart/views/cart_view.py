@@ -50,9 +50,7 @@ class ApiRemoveCartItem(View):
                 return JsonResponse({'error': 'No itemId provided.'}, status=400)
 
             # Assume cart_service.remove_item_from_cart(item_id) returns True on success, False otherwise
-            print("hello world")
             res = cart_service.remove_item_from_cart(item_id)
-            print(res,"output for remove")
             if res:
                 return JsonResponse({'success': True, 'message': 'Item removed from cart.'}, status=200)
             else:
@@ -71,7 +69,7 @@ class CartItemUpdateView(View):
         quantity = data.get('quantity')
 
         cart_item,summary = cart_service.update_cart_items_quantity(item_id,request.user,quantity)
-
+        print(summary)
         return JsonResponse({
             "cart_item_id": cart_item.id,
             "quantity": cart_item.quantity,
