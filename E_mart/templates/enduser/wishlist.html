@@ -1,37 +1,207 @@
-{% extends 'enduser/base.html' %}
+{% extends "enduser/base.html" %}
 {% load static %}
-{% block title %}Wishlist | Products{% endblock %}
+
+{% block title %}My Wishlist{% endblock %}
+
 {% block content %}
-<script src="{% static 'js/enduser/product_list.js'%}"></script>
-<div class="container-9 py-4" style="padding-right: 2px;padding-left: 2px;">
-  <div class="products-main-card bg-light p-4" style="margin-top:50px;min-height:90vh;">
-    <!--products-->
-    <div class="container-9 py-4 bg-light" style="padding: 10px;">
-    <div class="row g-4 m-auto">
-      {% for product in products %}
-      <!-- Product Card -->
-      <div class="col-sm-6 col-md-4 col-lg-3 custom-col">
-        <div class="card product-card h-100">
-          <span class="wishlist-icon" 
-              data-product-id="{{ product.id }}"
-              onclick="toggleWishlist(this)">
-            {% if product.is_in_wishlist %}
-              <i class="bi bi-heart-fill" style="color:red"></i>
-            {% else %}
-              <i class="bi bi-heart"></i>
-            {% endif %}
-          </span>
-          <img src="{% static product.image %}" class="product-img" alt="Product">
-          <div class="product-info">
-            <h5 class="product-title">{{product.name}}</h5>
-            <p class="para product-price">₹{{product.price}}/{{product.size}}</p>
-            <button class="para text-center view-btn" onclick="window.location.href='/product/{{product.id}}/'">View Details-></button>
-          </div>
+<div class="container-9"style="padding:10px !important;height: 100%; ">
+  <div class="container-9 d-flex justify-content-between  bg-white rounded shadow py-4 px-4" style="min-height:80vh;margin-top:80px;">
+    <!-- Sidebar -->
+    <div class="col-md-4 mb-4">
+      <div class="card-1 bg-white rounded shadow-sm border-0 mb-4" style="width: 100%;">
+        <div class="card-body text-center py-4 px-2">
+        
+          <i class="bi bi-person-fill me-2" style="font-size:25px;"></i>
+
+          <div class="fw-bold fs-5 mb-1">Hello,<br>{{ user.get_full_name }}</div>
         </div>
       </div>
-      {% endfor %}
+      <div class="list-group shadow-sm">
+        <div class="list-group-item bg-light fw-semibold" onclick="window.location.href='/orders/'">
+          <i class="bi bi-bag-check-fill me-2 text-primary"></i> MY ORDERS
+          <span class="float-end">
+            <i class="bi bi-arrow-right" style="font-size: 20px; color: #333;"></i>
+          </span>
+        </div>
+
+        <div class="list-group-item bg-light fw-semibold" onclick="window.location.href='/user/cart/'">
+          <i class="bi bi-cart-fill me-2 text-primary"></i> My Cart
+          <span class="float-end">
+            <i class="bi bi-arrow-right" style="font-size: 20px; color: #333;"></i>
+          </span>
+        </div>
+        <div class="list-group-item bg-light fw-semibold">
+          <i class="bi bi-person-fill me-2 text-primary"></i> ACCOUNT SETTINGS
+        </div>
+        <div class="list-group-item bg-light fw-semibold">
+          <i class="bi bi-credit-card-2-back-fill me-2 text-primary"></i> PAYMENTS
+        </div>
+      </div>
+    </div>
+
+    <!-- Wishlist Main Content -->
+    <div class="col-md-7">
+      <div class="bg-white rounded-3 shadow-sm p-3 mb-4">
+        <h4 class="fw-semibold mb-0">My Wishlist <span class="text-muted fs-6">({{ wishlist_items_data|length }})</span></h4>
+      </div>
+      {% if wishlist_items_data %}
+        <div class="list-group list-group-flush">
+          {% for item in wishlist_items_data %}
+            <div class="list-group-item py-3 d-flex align-items-center" data-item-id="{{ item.id }}" style=" border: 1px solid #ececec; gap: 1.25rem; min-height: 100px;">
+              <!-- Image -->
+              <div class="flex-shrink-0" style="width:64px;">
+                <a href="{% url 'product_details' item.id %}">
+                  <img src="{% static item.image %}" alt="{{ item.name }}" class="img-fluid" style="width:60px; height:60px; object-fit:contain;">
+                </a>
+                {% if item.stock <= 5 %}
+                  <div class="text-danger small mt-1 text-center fw-semibold">Harry!({{item.stock}} stocks available)</div>
+                {% endif %}
+              </div>
+              <!-- Details -->
+              <div class="flex-grow-1">
+                <div>
+                  <a href="{% url 'product_details' item.id %}" class="fw-semibold text-decoration-none fs-6" style="color:#1976d2;">{{ item.name }}</a>
+                  {% if item.assured %}
+                    <span class="ms-2" style="color:#2874f0; font-size:0.93em;">
+                      <i class="bi bi-shield-fill-check"></i> Assured
+                    </span>
+                  {% endif %}
+                </div>
+                <div class="small mt-1 text-muted">{{ item.description|truncatewords:17 }}</div>
+              
+                <div class="mt-2">
+                  ₹{{item.price}}/{{item.size}}
+                </div>
+              </div>
+              <!-- Action -->
+              <div class="dlt-btn" onclick="delete_wishlist({{ item.id }})" style="cursor:pointer;">
+                <i class="bi bi-trash text-danger" style="font-size:1rem;"></i>
+              </div>
+            </div>
+          {% endfor %}
+        </div>
+      {% else %}
+      <p class="p-2  rounded" style="color:#0000ff87;;background: #c8ffff; border: 1px solid #03A9F4;">No Wishlist items found yet.</p>
+        <div class="alert alert-warning text-center py-5 rounded-3 shadow-sm">
+          <i class="bi bi-heartbreak fs-1 text-danger mb-3"></i>
+          <h4 class="fw-semibold mb-2">Your wishlist is empty</h4>
+          <p class="mb-0">Start adding products you love!</p>
+          <a href="{% url 'home' %}" class="btn btn-primary my-3 px-4 ">Shop Now</a>
+        </div>
+      {% endif %}
     </div>
   </div>
 </div>
 
+<script>
+  function delete_wishlist(wishlist_id) {
+    fetch(`/wishlist/delete-item/${wishlist_id}/`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+    })
+    .then(response => response.json())
+    .then(data => {
+      if (data.success) {
+        const itemRow = document.querySelector(`[data-item-id="${wishlist_id}"]`);
+        if (itemRow) {
+          itemRow.remove(); // Remove the deleted item from the DOM
+        }
+      } else {
+        alert(data.error || "Failed to remove from wishlist.");
+      }
+    })
+    .catch(() => alert("Server error."));
+  }
+</script>
+
+
+<style>
+  .dlt-btn{
+    top: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 30px;
+    height: 30px;
+    position: absolute;
+    right: 6px;
+    background: aliceblue;
+    border-radius: 50%;
+  }
+
+
+  @media (max-width: 767px) {
+  /* Container padding and margin adjustments */
+  .container-9 {
+    padding: 8px !important;
+    margin-top: 60px !important;
+  }
+
+  /* Stack the main layout blocks vertically instead of side by side */
+  .d-flex.justify-content-between {
+    flex-direction: column !important;
+  }
+
+  /* Sidebar full width and margin */
+  .col-md-4 {
+    width: 100% !important;
+    margin-bottom: 20px !important;
+  }
+
+  /* Main content full width */
+  .col-md-7 {
+    width: 100% !important;
+  }
+
+  /* Reduce icon sizes */
+  i.bi-person-fill, 
+  i.bi-bag-check-fill, 
+  i.bi-cart-fill, 
+  i.bi-arrow-right {
+    font-size: 20px !important;
+  }
+
+  /* Adjust font sizes */
+  .fw-bold.fs-5 {
+    font-size: 1.1rem !important;
+  }
+  h4.fw-semibold.mb-0 {
+    font-size: 1.3rem !important;
+  }
+
+  /* Wishlist item layout alterations */
+  .list-group-item.d-flex {
+    flex-direction: column !important;
+    align-items: flex-start !important;
+    gap: 0.5rem !important;
+  }
+  .list-group-item.d-flex > div.flex-shrink-0 {
+    width: 100% !important;
+    text-align: center;
+  }
+  .list-group-item.d-flex > div.flex-grow-1 {
+    width: 100% !important;
+  }
+  
+  /* Image resizing */
+  .img-fluid {
+    width: 80px !important;
+    height: 80px !important;
+  }
+
+  /* Button and link touch friendliness */
+  button.btn.btn-link {
+    font-size: 1.1rem !important;
+    padding: 0.3rem 0.6rem !important;
+  }
+
+  /* General spacing */
+  .py-4, .px-4 {
+    padding: 0.75rem !important;
+  }
+}
+
+</style>
 {% endblock %}

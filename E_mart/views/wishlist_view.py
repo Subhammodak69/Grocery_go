@@ -29,4 +29,14 @@ class CheckWishlistStatus(View):
 class WishlistListView(View):
     def get(self,request):
         products = wishlist_service.get_wishlist_products_data(request.user)
-        return render(request, 'enduser/wishlist.html',{'products':products})
+        return render(request, 'enduser/wishlist.html',{'wishlist_items_data':products})
+    
+@method_decorator(csrf_exempt, name='dispatch')
+@method_decorator(enduser_required, name='dispatch')
+class WishlistItemDeleteView(View):
+    def post(self, request, wishlist_id):
+        try:
+            wishlist_service.delete_wishlist_item(wishlist_id, request.user)
+            return JsonResponse({'success': True, 'message': 'Item removed from wishlist.'})
+        except Exception as e:
+            return JsonResponse({'success': False, 'error': 'Failed to remove item.'}, status=400)

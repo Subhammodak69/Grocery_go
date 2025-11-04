@@ -34,8 +34,14 @@ def get_wishlist_products_data(user):
             'image':i.product.image,
             'size':i.product.size,
             'price':i.product.price,
-            'product_id':i.product.id
+            'product_id':i.product.id,
+            'description':i.product.description
         }
         for i in items
     ] 
     return products_data
+
+def delete_wishlist_item(wishlist_id,user):
+    item = Wishlist.objects.get(id=wishlist_id,created_by=user, is_active = True)
+    item.is_active = False
+    item.save()

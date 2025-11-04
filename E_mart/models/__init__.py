@@ -8,3 +8,5 @@ from .poster_model import *
 from .wishlist_model import *
 from .help_model import *
 from .review_model import *
+from .refund_model import *
+from .exchange_model import *
