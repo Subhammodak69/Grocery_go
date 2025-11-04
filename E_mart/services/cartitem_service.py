@@ -14,6 +14,7 @@ def get_all_cartitems_by_cart(cart):
             'product_description':item.product.description,
             'product_size':item.product.size,
             'product_price':item.product.price,
+            'product_original_price':item.product.original_price,
             'stock':item.product.stock,
             'product_image':item.product.image,
             'quantity':item.quantity,

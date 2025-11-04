@@ -5,24 +5,11 @@
   <link rel="stylesheet" href="{% static 'css/enduser/singly_order_summary.css'%}"/>
 {% endblock %}
 {% block extra_js %}
-  <script src = "{% static 'js/enduser/cartitem_remove.js' %}"></script>
   <script src = "{% static 'js/enduser/geolocation_collector.js' %}"></script>
   <script src = "{% static 'js/enduser/order_create.js' %}"></script>
 {% endblock %}
 {% block content %}
 
-<!-- Modal: Hidden by default -->
-<div id="remove-modal" style="display:none; position:fixed; z-index:9999; top:0; left:0; width:100vw; height:100vh; background:rgba(10,12,30,0.36); align-items:center; justify-content:center;">
- <div style="max-width:350px; margin:auto; background:#fff; border-radius:12px; box-shadow:0 2px 24px rgba(30,30,140,.10); padding:2rem; position:relative;">
-  <p class="text-center fs-sm mb-3" id="remove-modal-msg">
-   Do you want to remove <span id="remove-item-name" style="font-weight:bold;"></span> from your cart?
-  </p>
-  <div class="d-flex gap-3 justify-content-center">
-   <button id="modal-remove-btn" class="btn btn-danger px-3">Remove</button>
-   <button id="modal-cancel-btn" class="btn btn-secondary px-3">Cancel</button>
-  </div>
- </div>
-</div>
 
 
 <div class="order-container">
@@ -58,9 +45,9 @@
     <form id="order-summary-form"  class="order-form">
       <div class="row g-4"> 
         <!-- Product Details Section (Multiple Products) -->
-        <div class="col-12 col-lg-5" style=" max-height:116vh;border-radius: 16px;border: 2px solid gray;background:#1e293b;padding: 16px;">
-          <div class="products-group overflow-auto  h-100" style="scrollbar-width:none;">
-            <h3 class="section-title mb-3 d-flex align-items-center">
+        <div class="col-12 col-lg-5" style=" max-height:116vh;padding: 16px;">
+          <div class="products-group overflow-auto  h-100" style="scrollbar-width:none;border-radius: 10px;padding: 20px 5px;background: aliceblue;">
+            <h3 class="px-2 section-title mb-3 d-flex align-items-center">
               <i class="bi bi-box-seam me-2"></i>
               Product Details
               <span class="item-badge ms-2">{{ products_data|length }} Items</span>
@@ -71,7 +58,7 @@
               {% endif %}
               {% for item in products_data %}
               <div class="col m-2 cart-item" data-item-id="{{ item.id }}">
-                <div class="product-card h-100 flex flex-row" style="background:#475569;">
+                <div class="product-card h-100 flex flex-row">
                   <div class="product-image-container">
                     <img 
                       src="{% static item.product_image %}" 
@@ -79,33 +66,34 @@
                       class="product-image img-fluid"
                       loading="eager"
                     >
-                    <!-- Delete Button -->
-                    <button class="delete-btn" aria-label="Remove item">
-                      <i class="bi bi-trash3 text-danger"></i>
-                    </button>
+                    
                   </div>
                   <div class="product-info py-2">
-                    <h4 class="product-name fs-6 mb-2 text-white">{{ item.product_name }}</h4>
-                    <div class="product-attributes d-flex flex-wrap mb-2" style="gap: 6px;!important;">
-                      <span class="attribute me-2 text-center" style="font-size: 12px; background: #1e293b;padding: 2px;border: 2px solid #9d9ed5;border-radius: 6px;color: whitesmoke;">
+                    <h4 class="product-name fs-6 mb-1" >{{ item.product_name }}</h4>
+                    
+                    <div class="product-attributes d-flex flex-wrap mb-2" style="gap: 6px !important;">
+                      <span class="attribute me-2 text-center" >
                         <i class="bi bi-box me-1"></i>
-                        Qty: <span class="attribute-value text-white" style="font-size: 10px;">{{ item.product_quantity }}</span>
+                        Qty: <span class="attribute-value" >{{ item.product_quantity }}</span>
                       </span>
-                      <span class="attribute me-2 text-center" style="font-size: 12px; background: #1e293b;padding: 2px;border: 2px solid #9d9ed5;border-radius: 6px;color: whitesmoke;">
-                        <i class="bi bi-rulers me-1"></i>
-                        Size: <span class="attribute-value text-white"style="font-size: 10px;">{{ item.product_size }}</span>
-                      </span>
-                      <span class="attribute me-2 text-center" style="font-size: 12px; background: #1e293b;padding: 2px;border: 2px solid #9d9ed5;border-radius: 6px;color: whitesmoke;">
-                        <i class="bi bi-tag-fill me-1"></i>
-                        Price: <span class="attribute-value text-white" style="font-size: 10px;">₹{{ item.product_price|floatformat:2 }}</span>
-                      </span>
-                      {% if item.discount_amount > 0 %}
-                      <span class="attribute text-success me-2">
-                        <i class="bi bi-percent me-1"></i>
-                        Discount: <span class="attribute-value text-white">-₹{{ item.discount_amount|floatformat:2 }}</span>
-                      </span>
-                      {% endif %}
                     </div>
+                    
+                    <div class="price-stack mb-2">
+                      <div class="d-flex align-items-center flex-column justify-content-between gap-2">
+                        <span class="original-price" style="text-decoration: line-through; color: #d00; font-weight: 500;">
+                          ₹{{ item.product_original_price|floatformat:2 }}/{{ item.product_size }}
+                        </span>
+                        {% if item.product_discount > 0 %}
+                        <p class="discount-label mb-0" style="color: #1c7c1c; font-weight: 500;">
+                          {{ item.product_discount|floatformat:2 }}% Off
+                        </p>
+                        {% endif %}
+                      </div>
+                      <span class="discounted-price" style="font-weight: 600; font-size: 1.1em; color: #222;">
+                        ₹{{ item.product_price|floatformat:2 }}/{{ item.product_size }}
+                      </span>
+                    </div>
+
                   </div>
                   <input type="hidden" name="product_ids" value="{{ item.id }}">
                 </div>
@@ -136,8 +124,8 @@
                     <i class="bi bi-tag me-2"></i>
                     Listing Price
                   </div>
-                  <div class="price-value original-price">
-                     ₹{{ total_data.total_price|floatformat:2 }}
+                  <div class="price-value">
+                     ₹{{ total_data.list_price|floatformat:2 }}
                   </div>
                 </div>
 
@@ -161,7 +149,7 @@
                     <input type="hidden" id="discount" value="{{total_data.discount|floatformat:2}}">
 
                     <i class="bi bi-truck me-2"></i>
-                    Discount<p class="text-danger mx-1"style="font-weight:200; font-size:12px;margin-bottom:0px !important;">(Only for above ₹500)</p>
+                    Discount<p class="text-danger mx-1"style="font-weight:200; font-size:12px;margin-bottom:0px !important;"></p>
                   </div>
                   <div class="price-value delivery-fee">
                     -{{total_data.discount|floatformat:2}}
@@ -186,16 +174,16 @@
                     <i class="bi bi-cash-coin me-2"></i>
                     Total Amount
                   </div>
-                  <input type="hidden" id="final_price" value="{{final_price|floatformat:2}}">
+                  <input type="hidden" id="final_price" value="{{total_data.total_price|floatformat:2}}">
                   <div class="price-value total-amount">
-                     ₹{{ final_price|floatformat:2 }}
+                     ₹{{ total_data.total_price|floatformat:2 }}
                   </div>
                 </div>
 
-                {% if product_item.discount_amount > 0 %}
+                {% if total_data.discount > 0 %}
                 <div class="savings-highlight">
                   <i class="bi bi-piggy-bank me-2"></i>
-                  You're saving  ₹{{ product_item.discount_amount|floatformat:2 }}!
+                  You're saving  ₹{{ total_data.discount|floatformat:2 }}!
                 </div>
                 {% endif %}
               </div>
@@ -295,7 +283,7 @@
 
             <!-- Order Actions -->
             <div class="order-actions">
-              <button type="button" class="back-btn" onclick="window.history.back()">
+              <button type="button" class="btn btn-primary px-5 py-3" onclick="window.history.back()">
                 <i class="bi bi-arrow-left me-2"></i>
                 Back
               </button>

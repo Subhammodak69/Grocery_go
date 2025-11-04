@@ -17,13 +17,14 @@ class ProductOrderSummary(View):
         product.update({
             'quantity':quantity
         })
-        total = product['price']* int(product['quantity'])
+        total = product['original_price']* int(product['quantity'])
+        total_discount = (product['original_price']-product['price'])*int(product['quantity'])
         extra_data = {
             'total':total,
             'delivery_fee': order_service.get_delivery_fee(total),
-            'discount': order_service.get_discount_for_sigle_item(total)
+            'discount': total_discount
         }
-        final_price = total+extra_data['delivery_fee']-extra_data['discount']
+        final_price = (total-total_discount)+extra_data['delivery_fee']
         return render(request, 'enduser/singly_order_summary.html', {'total_price':final_price,'data': product,'extra_data':extra_data})
     
     def post(self, request):
@@ -81,7 +82,6 @@ class ProductsOrderSummaryByCart(View):
             'cart_id':user_cart.id,
             'products_data':products_data, 
             'total_data':summary,
-            'final_price': summary['total_price']+summary['fee']-summary['discount']
             }
         )
     

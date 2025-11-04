@@ -1,4 +1,5 @@
 from E_mart.models import Cart,CartItem
+from E_mart.services import product_service
 
 def get_all_carts():
     return Cart.objects.all()
@@ -29,6 +30,8 @@ def get_all_cart_products_data(user_cart):
             'product_size':item.product.size,
             'product_quantity':item.quantity,
             'product_price':item.product.price,
+            'product_original_price':item.product.original_price,
+            'product_discount':product_service.get_product_offer_by_id(item.product.id),
             'product_image':item.product.image,
         }
         for item in cart_items
@@ -62,7 +65,8 @@ def update_cart_items_quantity(item_id,user,quantity):
 
 def get_cart_summary(cart):
     summary = {
-        "total_price": cart.get_total_price(),
+        "list_price": cart.get_list_price(),
+        "total_price":(cart.get_total_price())+(cart.get_fee_price()),
         "discount": cart.get_discount_price(),
         "fee": cart.get_fee_price(),
     }

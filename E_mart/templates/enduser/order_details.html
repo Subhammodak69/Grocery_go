@@ -19,18 +19,15 @@
       </div>
       <div class="progress-bar"style="flex-direction:row;">
         <div class="progress-step active">
-          <i class="bi bi-cart-check"></i>
-          <span>Cart</span>
+          <span>Pending</span>
         </div>
         <div class="progress-line active"></div>
         <div class="progress-step active">
-          <i class="bi bi-clipboard-check"></i>
-          <span>Review</span>
+          <span>Out For Delivery</span>
         </div>
         <div class="progress-line"></div>
         <div class="progress-step">
-          <i class="bi bi-credit-card"></i>
-          <span>Payment</span>
+          <span>Delivered</span>
         </div>
       </div>
     </div>
@@ -38,8 +35,8 @@
     <form id="order-summary-form"  class="order-form">
       <div class="row g-4"> 
         <!-- Product Details Section (Multiple Products) -->
-        <div class="col-12 col-lg-5" style=" max-height:116vh;border-radius: 16px;border: 2px solid gray;background:#1e293b;padding: 16px;">
-          <div class="products-group overflow-auto  h-100" style="scrollbar-width:none;">
+        <div class="col-12 col-lg-5" style=" max-height:116vh;padding: 16px;">
+          <div class="products-group overflow-auto  h-100" style="scrollbar-width:none;border-radius: 10px;padding: 20px 5px;background: aliceblue;">
             <h3 class="px-2 section-title mb-3 d-flex align-items-center">
               <i class="bi bi-box-seam me-2"></i>
               Product Details
@@ -51,7 +48,7 @@
               {% endif %}
               {% for item in order_data.orderitems %}
               <div class="col m-2 cart-item" data-item-id="{{ item.id }}">
-                <div class="product-card h-100 flex flex-row" style="background:#475569;">
+                <div class="product-card h-100 flex flex-row">
                   <div class="product-image-container">
                     <img 
                       src="{% static item.image %}" 
@@ -61,35 +58,39 @@
                     >
                   </div>
                   <div class="product-info py-2">
-                    <h4 class="product-name fs-6 mb-1"style="color:aliceblue;">{{ item.name }}</h4>
-                    <div class="product-attributes d-flex flex-wrap mb-2" style="gap: 6px;!important;">
-                      <span class="attribute me-2 text-center" style="font-size: 12px; background: #1e293b;padding: 2px;border: 2px solid #9d9ed5;border-radius: 6px;color: whitesmoke;">
+                    <h4 class="product-name fs-6 mb-1" >{{ item.name }}</h4>
+                    
+                    <div class="product-attributes d-flex flex-wrap mb-2" style="gap: 6px !important;">
+                      <span class="attribute me-2 text-center" >
                         <i class="bi bi-box me-1"></i>
-                        Qty: <span class="attribute-value" style="font-size: 10px;color:#fff;">{{ item.quantity }}</span>
+                        Qty: <span class="attribute-value" >{{ item.quantity }}</span>
                       </span>
-                      <span class="attribute me-2 text-center" style="font-size: 12px; background: #1e293b;padding: 2px;border: 2px solid #9d9ed5;border-radius: 6px;color: whitesmoke;">
-                        <i class="bi bi-rulers me-1"></i>
-                        Size: <span class="attribute-value"style="font-size: 10px;color:#fff;">{{ item.size }}</span>
-                      </span>
-                      <span class="attribute me-2 text-center" style="font-size: 12px; background: #1e293b;padding: 2px;border: 2px solid #9d9ed5;border-radius: 6px;color: whitesmoke;">
-                        <i class="bi bi-tag-fill me-1"></i>
-                        Price: <span class="attribute-value" style="font-size: 10px;color:#fff;">₹{{ item.price|floatformat:2 }}</span>
-                      </span>
-                      {% if item.discount_amount > 0 %}
-                      <span class="attribute text-success me-2">
-                        <i class="bi bi-percent me-1"></i>
-                        Discount: <span class="attribute-value">-₹{{ item.discount_amount|floatformat:2 }}</span>
-                      </span>
-                      {% endif %}
                     </div>
+                    
+                    <div class="price-stack mb-2">
+                      <div class="d-flex align-items-center justify-content-between gap-2">
+                        <span class="original-price" style="text-decoration: line-through; color: #d00; font-weight: 500;">
+                          ₹{{ item.original_price|floatformat:2 }}/{{ item.size }}
+                        </span>
+                        {% if item.discount_amount > 0 %}
+                        <p class="discount-label mb-0" style="color: #1c7c1c; font-weight: 500;">
+                          {{ item.discount|floatformat:2 }}% Off
+                        </p>
+                        {% endif %}
+                      </div>
+                      <span class="discounted-price" style="font-weight: 600; font-size: 1.1em; color: #222;">
+                        ₹{{ item.price|floatformat:2 }}/{{ item.size }}
+                      </span>
+                    </div>
+
                   </div>
-                  <input type="hidden" name="product_ids" value="{{ item.id }}">
+                    <input type="hidden" name="product_ids" value="{{ item.id }}">
+                  </div>
                 </div>
+                {% endfor %}
               </div>
-              {% endfor %}
             </div>
           </div>
-        </div>
 
         <input type="hidden" id="cartId" value="{{cart_id}}">
 
@@ -112,7 +113,7 @@
                     <i class="bi bi-tag me-2"></i>
                     Listing Price
                   </div>
-                  <div class="price-value original-price">
+                  <div class="price-value">
                      ₹{{ summary.listing_price|floatformat:2 }}
                   </div>
                 </div>
@@ -134,7 +135,7 @@
                 <div class="price-row">
                   <div class="price-label">
                     <i class="bi bi-truck me-2"></i>
-                    Discount<p class="text-danger mx-1"style="font-weight:200; font-size:12px;margin-bottom:0px !important;">(Only for above ₹500)</p>
+                    Discount<p class="text-danger mx-1"style="font-weight:200; font-size:12px;margin-bottom:0px !important;"></p>
                   </div>
                   <div class="price-value delivery-fee">
                     {{summary.discount|floatformat:2}}
@@ -233,7 +234,7 @@
 
             <!-- Order Actions -->
             <div class="order-actions">
-              <button type="button" class="back-btn" onclick="window.history.back()">
+              <button type="button" class="btn btn-primary px-4" onclick="window.history.back()">
                 <i class="bi bi-arrow-left me-2"></i>
                 Back
               </button>

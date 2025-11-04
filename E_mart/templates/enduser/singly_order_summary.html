@@ -105,7 +105,16 @@
                   </div>
                   <div class="attribute-details">
                     <span class="attribute-label">Unit Price</span>
-                    <span class="attribute-value"> ₹{{ data.price|floatformat:2 }}</span>
+
+                    <span class="inline-discount-price">
+                      <span class="original-price">
+                        ₹{{ data.original_price|floatformat:2 }}
+                      </span>
+                      <span class="discounted-price">
+                        ₹{{ data.price|floatformat:2 }}
+                      </span>
+                    </span>
+
                   </div>
                 </div>
               </div>
@@ -132,12 +141,24 @@
                 <div class="price-row">
                   <div class="price-label">
                     <i class="bi bi-tag me-2"></i>
-                    Listing Price
+                    Product Price({{data.quantity}} items)
                   </div>
                   <input type="hidden" name="listing_price" value ={{extra_data.total|floatformat:2}} >
 
-                  <div class="price-value original-price">
+                  <div class="price-value">
                      ₹{{ extra_data.total|floatformat:2 }}
+                  </div>
+                </div>
+
+                <div class="price-row">
+                  <div class="price-label" >
+                    <i class="bi bi-tag"></i>
+                    Discount<p class="text-danger mx-1"style="font-weight:200; font-size:12px;margin-bottom:0px !important;"></p>
+                  </div>
+                  <div class="price-value delivery-fee">
+                    -{{extra_data.discount|floatformat:2}}
+                  <input type="hidden" name="discount" value ={{extra_data.discount|floatformat:2}} >
+                    
                   </div>
                 </div>
                 
@@ -156,17 +177,7 @@
                   </div>
                 </div>
 
-                <div class="price-row">
-                  <div class="price-label" >
-                    <i class="bi bi-tag"></i>
-                    discount<p class="text-danger mx-1"style="font-weight:200; font-size:12px;margin-bottom:0px !important;">(Only for above ₹500)</p>
-                  </div>
-                  <div class="price-value delivery-fee">
-                    {{extra_data.discount|floatformat:2}}
-                  <input type="hidden" name="discount" value ={{extra_data.discount|floatformat:2}} >
-                    
-                  </div>
-                </div>
+      
 
                 <div class="price-row">
                   <div class="price-label">

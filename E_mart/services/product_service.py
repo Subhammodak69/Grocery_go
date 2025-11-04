@@ -142,3 +142,4 @@ def get_product_offer_by_id(product_id):
     product = Product.objects.get(id=product_id,is_active = True)
     discount = ((product.original_price - product.price)/product.original_price)*100
     return discount    
+

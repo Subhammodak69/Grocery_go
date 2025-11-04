@@ -55,16 +55,16 @@ def sigle_order_create(user, product_id, address, quantity,listing_price,deliver
         # Get active product details
         product = Product.objects.get(id=product_id, is_active=True)
 
-        # Calculate total price (consider discount/quantity if required)
-        total_price = product.price * int(quantity)  # Basic total calculation
-        final_price = get_final_price(total_price)
+        listing_price = product.original_price * int(quantity) 
+        total_price = (product.price * int(quantity) )+ Decimal(delivery_fee)
+        
 
         # Create order
         order = Order.objects.create(
             user=user,
             status='pending',  # Default status
             listing_price=listing_price,
-            total_price = final_price,
+            total_price = total_price,
             delivery_fee = delivery_fee,
             delivery_address=address,
             discount = discount
@@ -86,17 +86,9 @@ def sigle_order_create(user, product_id, address, quantity,listing_price,deliver
         return None
 
 
-def get_discount_for_sigle_item(total):
-        if total >= Decimal('2000'):
-            return total * Decimal('0.30')
-        elif total >= Decimal('1000'):
-            return total * Decimal('0.20')
-        elif total >= Decimal('500'):
-            return total * Decimal('0.10')
-        return Decimal('0')
 
 def get_final_price(total_price):
-    discount = get_discount_for_sigle_item(total_price)
+    discount = (())
     delivery_fee = 0 if total_price >=500 else 20
     return total_price+delivery_fee-discount
 
@@ -124,7 +116,8 @@ def get_order_items_data(order):
             'image':item.product.image,
             'name':item.product.name,
             'size':item.product.size,
-            'price':item.product.price
+            'price':item.product.price,
+            'original_price':item.product.original_price
         }
         for item in order_items
     ]

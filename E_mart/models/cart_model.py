@@ -12,20 +12,22 @@ class Cart(models.Model):
     def __str__(self):
         return f"{self.user.username}'s cart"
 
+    def get_list_price(self):
+        return sum(
+            item.product.original_price * item.quantity for item in self.items.filter(is_active=True)
+        )
     def get_total_price(self):
         return sum(
             item.product.price * item.quantity for item in self.items.filter(is_active=True)
         )
 
     def get_discount_price(self):
-        total = self.get_total_price()
-        if total >= Decimal('2000'):
-            return total * Decimal('0.30')
-        elif total >= Decimal('1000'):
-            return total * Decimal('0.20')
-        elif total >= Decimal('500'):
-            return total * Decimal('0.10')
-        return Decimal('0')
+        total_discount = sum(
+            (item.product.original_price - item.product.price) * item.quantity
+            for item in self.items.filter(is_active=True)
+        )
+        return total_discount
+
 
     def get_fee_price(self):
         total = self.get_total_price()

@@ -21,7 +21,6 @@ class UserCartDetailsView(View):
                 'cart_id':user_cart.id,
                 'cart_data': user_cart_data,
                 'total_summary': summary,
-                'final_price':summary['total_price']+summary['fee']-summary['discount']
             }
         )
 
@@ -75,5 +74,4 @@ class CartItemUpdateView(View):
             "quantity": cart_item.quantity,
             "item_total": cart_service.get_cartitem_total_by_item_id(cart_item.id),
             "cart_summary": summary,
-            "final_price": summary['total_price']+summary['fee']-summary['discount']
         })

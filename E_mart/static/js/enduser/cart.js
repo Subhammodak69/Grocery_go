@@ -54,10 +54,10 @@ document.addEventListener('DOMContentLoaded', function() {
   }
 
   function updateSummaryFields(summary, final_price) {
-    document.getElementById('summary-total-price').textContent = "₹" + Number(summary.total_price).toFixed(2);
+    document.getElementById('summary-total-price').textContent = "₹" + Number(summary.list_price).toFixed(2);
     document.getElementById('summary-fee').textContent = "₹" + Number(summary.fee).toFixed(2);
     document.getElementById('summary-discount').textContent = "-₹" + Number(summary.discount).toFixed(2);
-    document.getElementById('summary-final-price').textContent = "₹" + Number(final_price).toFixed(2);
+    document.getElementById('summary-final-price').textContent = "₹" + Number(summary.total_price).toFixed(2);
 
     const savingsBadge = document.getElementById('savings');
     if (summary.discount > 0) {
