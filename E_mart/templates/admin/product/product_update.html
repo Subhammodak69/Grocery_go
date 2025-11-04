@@ -10,37 +10,44 @@
     <input id="product_id" value="{{product.id}}" hidden>
     <div class="mb-3">
       <label for="category" class="form-label fw-semibold">Category*</label>
-      <select id="category" value="{{product.category.name}}" name="category" class="form-select" required>
-        <option value=''>Select Category</option>
-        {% for category in categories %}
-        <option value="{{ category.id }}">{{ category.name }}</option>
-        {% endfor %}
-      </select>
+     <select id="category" name="category" class="form-select" required>
+      {% for category in categories %}
+      <option value="{{ category.id }}" {% if category.id == product.category.id %}selected{% endif %}>
+        {{ category.name }}
+      </option>
+      {% endfor %}
+    </select>
+
     </div>
 
     <div class="mb-3">
       <label for="name" class="form-label fw-semibold">Name*</label>
-      <input type="text" id="name" value= "{{product.name}}" name="name" class="form-control" placeholder="Enter Product name" required style="border-radius: 6px;">
+      <input type="text" id="name" value="{{product.name}}" name="name" class="form-control" placeholder="Enter Product name" required style="border-radius: 6px;">
     </div>
 
         <div class="mb-3">
       <label for="size" class="form-label fw-semibold">Size*</label>
-      <input type="text" id="size" name="size" class="form-control" placeholder="Type Product size" required style="border-radius: 6px;">
+      <input type="text" id="size" value="{{product.size}}" name="size" class="form-control" placeholder="Type Product size" required style="border-radius: 6px;">
     </div>
 
     <div class="mb-3">
-      <label for="price" class="form-label fw-semibold">Price*</label>
-      <input type="text" id="price" name="price" class="form-control" placeholder="Price e.g., 100/-" required style="border-radius: 6px;">
+      <label for="price" class="form-label fw-semibold">Sale Price*</label>
+      <input type="text" id="price" value="{{product.price}}" name="price" class="form-control" placeholder="Sale Price e.g., 100/-" required style="border-radius: 6px;">
+    </div>
+
+    <div class="mb-3">
+      <label for="original_price" class="form-label fw-semibold">Original Price*</label>
+      <input type="text" id="original_price" value="{{product.original_price}}" name="original_price" class="form-control" placeholder="Orignal Price e.g., 100/-" required style="border-radius: 6px;">
     </div>
 
     <div class="mb-3">
       <label for="stock" class="form-label fw-semibold">Stock*</label>
-      <input type="text" id="stock" name="stock" class="form-control" placeholder="stock" required style="border-radius: 6px;">
+      <input type="text" id="stock" value="{{product.stock}}" name="stock" class="form-control" placeholder="stock" required style="border-radius: 6px;">
     </div>
 
     <div class="mb-3">
       <label for="description" class="form-label fw-semibold">Description</label>
-      <textarea id="description" value= "{{product.description}}" name="description" class="form-control" placeholder="Enter Description" style="border-radius: 6px;"></textarea>
+      <textarea id="description"  name="description" class="form-control" placeholder="Enter Description" style="border-radius: 6px;">{{product.description}}</textarea>
     </div>
 
     <div class="mb-3">
@@ -78,25 +85,22 @@
   const chooseFileBtn = document.getElementById('chooseFileBtn');
   const previewDiv = document.getElementById('preview');
 
-  // When clicking the button, trigger click on hidden file input
-  chooseFileBtn.addEventListener('click', () => {
-    fileInput.click();
-  });
+  chooseFileBtn.addEventListener('click', () => fileInput.click());
 
-  // When file is selected, show preview image
   fileInput.addEventListener('change', (event) => {
-    previewDiv.innerHTML = ''; // Clear previous
+    previewDiv.innerHTML = '';
     const file = event.target.files[0];
     if (file) {
-      const img = document.UpdateElement('img');
+      const img = document.createElement('img');
       img.style.height = '100px';
       img.style.borderRadius = '6px';
       img.style.marginTop = '10px';
-      img.src = URL.UpdateObjectURL(file);
+      img.src = URL.createObjectURL(file);
       previewDiv.appendChild(img);
     }
   });
 </script>
+
 
 <style>
   #message.error {

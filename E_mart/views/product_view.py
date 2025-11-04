@@ -27,15 +27,16 @@ class AdminProductCreateView(View):
             name = request.POST.get('name')
             size = request.POST.get('size')
             price = request.POST.get('price')
+            original_price = request.POST.get('original_price')
             stock = request.POST.get('stock')
             description = request.POST.get('description')
             image_file = request.FILES.get('image')       
 
             
-            if not all([category_id ,name,size,price,stock,description,image_file]):
+            if not all([category_id ,name,size,price,original_price,stock,description,image_file]):
                 return JsonResponse({'error': 'Missing required fields'}, status=400)
 
-            product_service.product_create(category_id ,name,size,price,stock,description,image_file)
+            product_service.product_create(category_id ,name,size,price,original_price,stock,description,image_file)
             return JsonResponse({'message': 'product created successfully!'})
 
         except Exception as e:
@@ -56,14 +57,15 @@ class AdminProductUpdateView(View):
             name = request.POST.get('name')
             size = request.POST.get('size')
             price = request.POST.get('price')
+            original_price = request.POST.get('original_price')
             stock = request.POST.get('stock')
             description = request.POST.get('description')
-            image_file = request.FILES.get('image') 
+            image_file = request.FILES.get('image',None) 
                    
-            if not all([category_id ,name,size,price,stock,description,image_file]):
+            if not all([category_id ,name,size,price,original_price,stock,description]):
                 return JsonResponse({'error': 'Missing required fields'}, status=400)
 
-            product_service.product_update(product_id,category_id ,name,size,price,stock,description,image_file)
+            product_service.product_update(product_id,category_id ,name,size,price,original_price,stock,description,image_file)
             return JsonResponse({'message': 'product created successfully!'})
 
         except Exception as e:
@@ -93,4 +95,5 @@ class CategoryProductList(View):
 class ProductDetailsView(View):
     def get(self,request, product_id):
         product = product_service.get_product_by_id(product_id)
-        return render(request, 'enduser/product_details.html', {'product':product})
+        discount = product_service.get_product_offer_by_id(product.id)
+        return render(request, 'enduser/product_details.html', {'product':product,'discount':discount})

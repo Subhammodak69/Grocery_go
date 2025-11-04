@@ -17,6 +17,7 @@ class Product(models.Model):
     name = models.CharField(max_length=200)
     size = models.CharField(max_length=10)
     price = models.DecimalField(max_digits=10, decimal_places=2, default=0)
+    original_price = models.DecimalField(max_digits=10, decimal_places=2, default=0)
     stock = models.PositiveIntegerField()
     description = models.TextField(blank=True)
     is_active = models.BooleanField(default=True)
