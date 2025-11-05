@@ -10,6 +10,7 @@ class HomeView(View):
         categories = category_service.get_all_active_categories()
         posters = poster_service.get_all_showable_posters()
         products = product_service.get_all_active_products()
+        print(products)
         return render(request,'enduser/home.html',{'posters':posters,'categories':categories, 'products':products})
     
 @method_decorator(admin_required, name='dispatch')

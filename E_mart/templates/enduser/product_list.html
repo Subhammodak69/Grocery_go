@@ -4,7 +4,7 @@
 {% block content %}
 <script src="{% static 'js/enduser/product_list.js' %}"></script>
 <div class="container-9 py-4" style="padding-right: 2px;padding-left: 2px; margin-top: 50px;">
-  <div class="container-9 bg-light" style="padding-bottom:20px; min-height:80vh">
+  <div class="container-9 bg-light" style="padding-bottom:20px; min-height:90vh">
     <h5 class="text-center py-2">{{category.name}}</h5>
   <div class="row g-4 mx-auto ">
     {% for product in products %}
@@ -20,8 +20,28 @@
           {% endif %}
         </span>
         <img src="{% static product.image %}" class="product-img" alt="Product">
-        <div class="product-info">
-            <h5 class="product-title">{{ product.name }}</h5>
+          <div class="product-info">
+            <div style="height: 40px;overflow: hidden; ">
+              <h5 class="product-title">{{ product.name }}</h5>
+              <div class="d-flex align-items-center mb-3">
+                <div class="text-warning d-flex">
+                  <!-- 5 star icons for review (Bootstrap doesn't have built-in SVG, so using inline SVG as is) -->
+                  {% if product.rating %}
+                  {% for i in product.rating.rated_stars%}
+                  <svg class="me-1" width="12" height="12" fill="currentColor" viewBox="0 0 20 20">
+                    <path d="M10 15l-5.878 3.09 1.123-6.545L.49 6.91l6.564-.955L10 0l2.946 5.955 6.564.955-4.755 4.635 1.123 6.545z"/>
+                  </svg>
+                  {% endfor %}
+                  {% for i in product.rating.unrated_stars%}
+                  <svg width="12" height="12" fill="#d1d5db" viewBox="0 0 20 20">
+                    <path d="M10 15l-5.878 3.09 1.123-6.545L.49 6.91l6.564-.955L10 0l2.946 5.955 6.564.955-4.755 4.635 1.123 6.545z"/>
+                  </svg>
+                  {% endfor %}
+                  {% endif %}
+                </div>
+                <span class="ms-2 text-muted small">({{product.rating.ratings}})</span>
+              </div>
+            </div>
             <div class="price-stack mb-2">
               <div class="d-flex align-items-center justify-content-between gap-2">
               <span class="original-price">₹{{ product.original_price }} </span>

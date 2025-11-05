@@ -26,7 +26,10 @@ def get_product_review_data(product_id):
 def get_rating_by_product_id(product_id):
     reviews = get_all_reviews_by_product_id(product_id)
     total_review_star = sum(review.review_stars for review in reviews)
-    rated_stars =round(total_review_star/len(reviews))
+    if not len(reviews) == 0:
+        rated_stars =round(total_review_star/len(reviews))
+    else:
+        rated_stars = 0
     rating_data = {
         'rated_stars':range(rated_stars),
         'ratings':len(reviews),

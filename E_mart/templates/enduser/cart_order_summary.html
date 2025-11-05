@@ -47,7 +47,7 @@
         <!-- Product Details Section (Multiple Products) -->
         <div class="col-12 col-lg-5" style=" max-height:116vh;padding: 16px;">
           <div class="products-group overflow-auto  h-100" style="scrollbar-width:none;border-radius: 10px;padding: 20px 5px;background: aliceblue;">
-            <h3 class="px-2 section-title mb-3 d-flex align-items-center">
+            <h3 class="px-2  mb-3 d-flex align-items-center" style="font-size:16px; font-weight:600;">
               <i class="bi bi-box-seam me-2"></i>
               Product Details
               <span class="item-badge ms-2">{{ products_data|length }} Items</span>
@@ -72,28 +72,17 @@
                     <h4 class="product-name fs-6 mb-1" >{{ item.product_name }}</h4>
                     
                     <div class="product-attributes d-flex flex-wrap mb-2" style="gap: 6px !important;">
-                      <span class="attribute me-2 text-center" >
+                      <span class="attribute me-2 px-4" >
                         <i class="bi bi-box me-1"></i>
                         Qty: <span class="attribute-value" >{{ item.product_quantity }}</span>
                       </span>
                     </div>
                     
-                    <div class="price-stack mb-2">
-                      <div class="d-flex align-items-center flex-column justify-content-between gap-2">
-                        <span class="original-price" style="text-decoration: line-through; color: #d00; font-weight: 500;">
-                          ₹{{ item.product_original_price|floatformat:2 }}/{{ item.product_size }}
-                        </span>
-                        {% if item.product_discount > 0 %}
-                        <p class="discount-label mb-0" style="color: #1c7c1c; font-weight: 500;">
-                          {{ item.product_discount|floatformat:2 }}% Off
-                        </p>
-                        {% endif %}
-                      </div>
-                      <span class="discounted-price" style="font-weight: 600; font-size: 1.1em; color: #222;">
-                        ₹{{ item.product_price|floatformat:2 }}/{{ item.product_size }}
-                      </span>
+                    <div class="d-flex align-items-center gap-2">
+                      <span class="original-price">₹{{ item.product_original_price|floatformat:2 }} </span>
+                      <p class="discount-label mb-0">{{ item.product_discount|floatformat:2 }}%</p>
                     </div>
-
+                    <span class="discounted-price">₹{{ item.product_price }}/{{ item.product_size }}</span>
                   </div>
                   <input type="hidden" name="product_ids" value="{{ item.id }}">
                 </div>
@@ -129,20 +118,6 @@
                   </div>
                 </div>
 
-                <div class="price-row">
-                  <div class="price-label">
-                    <i class="bi bi-truck me-2"></i>
-                    Delivery Fee
-                  </div>
-                  <div class="price-value delivery-fee">
-                    <input type="hidden" id="delivery_fee" value="{{total_data.fee|floatformat:2}}">
-                    {% if total_data.fee != 0 %}
-                    {{total_data.fee|floatformat:2}}
-                    {%else%}
-                    FREE
-                    {%endif%}
-                  </div>
-                </div>
 
                 <div class="price-row">
                   <div class="price-label">
@@ -156,6 +131,23 @@
                     
                   </div>
                 </div>
+
+                <div class="price-row">
+                  <div class="price-label">
+                    <i class="bi bi-truck me-2"></i>
+                    Delivery Fee
+                  </div>
+                  <div class="price-value delivery-fee">
+                    <input type="hidden" id="delivery_fee" value="{{total_data.fee|floatformat:2}}">
+                    {% if total_data.fee != 0 %}
+                      <p class="mb-0 text-danger">{{total_data.fee|floatformat:2}}</p>
+                    {%else%}
+                      <p class="mb-0 text-success">FREE</p>
+                    {%endif%}
+                  </div>
+                </div>
+
+                
 
                 <div class="price-row">
                   <div class="price-label">

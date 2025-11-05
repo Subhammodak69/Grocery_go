@@ -2,7 +2,7 @@
     overflow: auto;
     height: 100vh;
     padding: 10px;
-    background: #0c2a44;}
+    }
 .order-card-horiz {
   overflow: hidden;
   max-height: 120px;

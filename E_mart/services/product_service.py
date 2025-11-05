@@ -1,5 +1,5 @@
 from E_mart.models import Product
-from E_mart.services import category_service
+from E_mart.services import category_service,review_service
 import os
 from django.conf import settings
 from django.core.files.storage import FileSystemStorage
@@ -29,7 +29,8 @@ def get_all_active_products():
             'original_price':product.original_price,
             'description':product.description,
             'discount':get_product_offer_by_id(product.id),
-            'stock':product.stock
+            'stock':product.stock,
+            'rating':review_service.get_rating_by_product_id(product.id)
         }
         for product in products
     ]
@@ -131,7 +132,8 @@ def get_products_by_category(category_id):
             'original_price':product.original_price,
             'description':product.description,
             'discount':get_product_offer_by_id(product.id),
-            'stock':product.stock
+            'stock':product.stock,
+            'rating':review_service.get_rating_by_product_id(product.id)
         }
         for product in products
     ]

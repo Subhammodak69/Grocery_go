@@ -37,10 +37,10 @@
         <!-- Product Details Section (Multiple Products) -->
         <div class="col-12 col-lg-5" style=" max-height:116vh;padding: 16px;">
           <div class="products-group overflow-auto  h-100" style="scrollbar-width:none;border-radius: 10px;padding: 20px 5px;background: aliceblue;">
-            <h3 class="px-2 section-title mb-3 d-flex align-items-center">
+            <h3 class="px-2 mb-3 d-flex align-items-center"style="font-size:16px; font-weight:600;">
               <i class="bi bi-box-seam me-2"></i>
               Product Details
-              <span class="item-badge ms-2">{{ products_data|length }} Items</span>
+              <span class="item-badge ms-2">{{ order_data|length }} Items</span>
             </h3>
             <div>
               {% if not order_data %}
@@ -121,25 +121,25 @@
                 <div class="price-row">
                   <div class="price-label">
                     <i class="bi bi-truck me-2"></i>
-                    Delivery Fee
-                  </div>
-                  <div class="price-value delivery-fee">
-                    {% if summary.delivery_fee == 0 %}
-                    FREE
-                    {% else %}
-                    {{summary.delivery_fee}}
-                    {% endif %}
-                  </div>
-                </div>
-
-                <div class="price-row">
-                  <div class="price-label">
-                    <i class="bi bi-truck me-2"></i>
                     Discount<p class="text-danger mx-1"style="font-weight:200; font-size:12px;margin-bottom:0px !important;"></p>
                   </div>
                   <div class="price-value delivery-fee">
                     {{summary.discount|floatformat:2}}
                     
+                  </div>
+                </div>
+                
+                <div class="price-row">
+                  <div class="price-label">
+                    <i class="bi bi-truck me-2"></i>
+                    Delivery Fee
+                  </div>
+                  <div class="price-value delivery-fee">
+                    {% if summary.delivery_fee == 0 %}
+                    <p class="mb-0 text-success">FREE</p>
+                    {% else %}
+                    <p class="mb-0 text-danger">{{summary.delivery_fee}}</p>
+                    {% endif %}
                   </div>
                 </div>
 

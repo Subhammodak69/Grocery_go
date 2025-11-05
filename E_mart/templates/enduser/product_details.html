@@ -3,8 +3,8 @@
 {% block title %} Product Details | Grocery_Go {% endblock %}
 {% block content %}
 <script src="{% static 'js/enduser/product_details.js' %}"></script>
-<div class="container bg-white rounded shadow p-4" style="margin-top:80px;">
-  <div class="row g-4">
+<div class="container-9 bg-white rounded" style="margin-top:80px;">
+  <div class="row g-4 w-100 m-auto">
     <!-- Product Image -->
     <div class="col-12 col-md-6">
         <span id="wishlist-{{ product.id }}" class="icon-love"
@@ -149,7 +149,7 @@
             <div class="d-flex justify-content-between items-center justify-between">
               <div class=" d-flex w-100 align-items-center justify-content-between gap-2 font-bold">
                 <p class="review_header" style=" font-weight:700;color:gray; margin:0px!important;">
-                  <i class="bi bi-person-fill me-2"></i>
+                  <i class="bi bi-person-fill "></i>
                   {{ review.created_by|default:"Anonymous" }}
                 </p>
                 <div class="review_time">
@@ -188,42 +188,7 @@
     <li>Exchange and Refund is available.</li>
   </ul>
 </div>
-<style>
-  @media (max-width: 575px) and (min-width: 300px){
-    .review_header{
-      font-size:14px;
-    }
-    .review_time{
-      font-size:12px;
-    }
-    .star{
-      height: 15px !important;
-      width: 15px !important;
-    }
-  }
-  .star{
-    height:20px;
-    width:20px;
-  }
-  .icon-love{
-      width: 50px;
-      height: 50px;
-      border-radius: 50%;
-      background: aliceblue;
-      padding: 10px;
-      justify-content: center;
-      align-items: center;
-      display: flex;
-      font-size: 25px;
-      margin-top: 10px;
-      margin-left: 10px;
-      position: absolute;
-      }
-  input:focus, textarea:focus, select:focus {
-    outline: none;
-    box-shadow: none!important;
-  }
-</style>
+
 <script>
   function changeQuantity(delta) {
       const input = document.getElementById('quantity');

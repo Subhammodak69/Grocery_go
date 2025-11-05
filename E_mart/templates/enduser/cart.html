@@ -46,7 +46,7 @@
       
       <!-- Product List Section -->
       <div class="col-12 col-lg-8">
-        <div class="products-section">
+        <div class="products-section" style="overflow-y:scroll; scrollbar-width:thin;">
           {% if cart_data %}
             <div class="products-scroll">
               {% for item in cart_data %}
@@ -89,10 +89,10 @@
                   <!-- Price Badge -->
                   <div class="price-wrapper">
                     <span class="inline-discount-price price-badge ">
-                      <span class="original-price text-dark">
+                      <span class="original-price text-light">
                         ₹{{ item.product_original_price|floatformat:2 }}
                       </span>
-                      <span class="discounted-price text-white">
+                      <span class="discounted-price">
                         ₹{{ item.product_price|floatformat:2 }}
                       </span>
                     </span>
