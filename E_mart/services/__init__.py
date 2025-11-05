@@ -12,3 +12,4 @@ from .poster_service import *
 from .category_service import *
 from .wishlist_service import *
 from .worker_service import *
+from .review_service import *

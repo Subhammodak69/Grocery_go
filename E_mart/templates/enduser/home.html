@@ -63,15 +63,18 @@
           </span>
           <img src="{% static product.image %}" class="product-img" alt="Product">
           <div class="product-info">
+            <div style="height: 40px;overflow: hidden; ">
             <h5 class="product-title">{{ product.name }}</h5>
+            </div>
             <div class="price-stack mb-2">
               <div class="d-flex align-items-center justify-content-between gap-2">
-              <span class="original-price">₹{{ product.original_price }}/{{ product.size }} </span>
-              <p class="discount-label mb-0">{{ product.discount|floatformat:2 }}%Off</p>
+              <span class="original-price">₹{{ product.original_price }} </span>
+              <p class="discount-label mb-0">{{ product.discount|floatformat:2 }}%</p>
+              
               </div>
               <span class="discounted-price">₹{{ product.price }}/{{ product.size }}</span>
             </div>
-            <p class="para text-center view-btn" onclick="window.location.href='/product/{{product.id}}/'">View Details-></p>
+            <button class="para text-center view-btn" onclick="window.location.href='/product/{{product.id}}/'">View Details-></button>
           </div>
 
         </div>
@@ -108,12 +111,13 @@
             <h5 class="product-title">{{ product.name }}</h5>
             <div class="price-stack mb-2">
               <div class="d-flex align-items-center justify-content-between gap-2">
-              <span class="original-price">₹{{ product.original_price }}/{{ product.size }} </span>
-              <p class="discount-label mb-0">{{ product.discount|floatformat:2 }}%Off</p>
+              <span class="original-price">₹{{ product.original_price }} </span>
+              <p class="discount-label mb-0">{{ product.discount|floatformat:2 }}%</p>
+              
               </div>
               <span class="discounted-price">₹{{ product.price }}/{{ product.size }}</span>
             </div>
-            <p class="para text-center view-btn" onclick="window.location.href='/product/{{product.id}}/'">View Details-></p>
+            <button class="para text-center view-btn" onclick="window.location.href='/product/{{product.id}}/'">View Details-></button>
           </div>
         </div>
       </div>

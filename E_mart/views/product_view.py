@@ -2,8 +2,8 @@ from django.views import View
 from django.shortcuts import render,redirect
 from django.views.decorators.csrf import csrf_exempt
 from django.utils.decorators import method_decorator
-from E_mart.constants.decorators import admin_required,enduser_required
-from E_mart.services import product_service,category_service
+from E_mart.constants.decorators import admin_required
+from E_mart.services import product_service,category_service,review_service
 from django.http import JsonResponse
 import json
 
@@ -88,12 +88,25 @@ class AdminProductToggleActiveView(View):
     
 class CategoryProductList(View):
     def get(self,request,category_id):
+        category = category_service.get_category_by_id(category_id)
         products = product_service.get_products_by_category(category_id)
-        return render(request, 'enduser/product_list.html',{'products':products})
+        return render(request, 'enduser/product_list.html',{'products':products,'category':category})
 
 
 class ProductDetailsView(View):
     def get(self,request, product_id):
         product = product_service.get_product_by_id(product_id)
+        review_data = review_service.get_product_review_data(product.id)
+        rating = review_service.get_rating_by_product_id(product_id)
+        print(rating)
         discount = product_service.get_product_offer_by_id(product.id)
-        return render(request, 'enduser/product_details.html', {'product':product,'discount':discount})
+        return render(
+            request, 
+            'enduser/product_details.html', 
+                {
+                    'product':product,
+                    'discount':discount,
+                    'reviews':review_data,
+                    'review_len':len(review_data),
+                    'rating':rating
+                })
