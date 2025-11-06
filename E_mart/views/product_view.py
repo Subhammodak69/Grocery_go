@@ -98,7 +98,6 @@ class ProductDetailsView(View):
         product = product_service.get_product_by_id(product_id)
         review_data = review_service.get_product_review_data(product.id)
         rating = review_service.get_rating_by_product_id(product_id)
-        print(rating)
         discount = product_service.get_product_offer_by_id(product.id)
         return render(
             request, 

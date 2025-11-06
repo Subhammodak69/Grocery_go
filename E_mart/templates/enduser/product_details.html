@@ -109,13 +109,24 @@
             <input type="hidden" id="product_id" value="{{ product_item_data.product_id }}" />
 
             <div id="starreview">
-              <span class="star" data-value="1">&#9733;</span>
-              <span class="star" data-value="1">&#9733;</span>
-              <span class="star" data-value="1">&#9733;</span>
-              <span class="star" data-value="1">&#9733;</span>
-              <span class="star" data-value="1">&#9733;</span>
+              <svg class="me-1 star" data-value="1" width="20" height="20" fill="rgb(209, 213, 219)" viewBox="0 0 20 20">
+                <path d="M10 15l-5.878 3.09 1.123-6.545L.49 6.91l6.564-.955L10 0l2.946 5.955 6.564.955-4.755 4.635 1.123 6.545z"/>
+              </svg>
+              <svg class="me-1 star" data-value="1" width="20" height="20" fill="rgb(209, 213, 219)" viewBox="0 0 20 20">
+                <path d="M10 15l-5.878 3.09 1.123-6.545L.49 6.91l6.564-.955L10 0l2.946 5.955 6.564.955-4.755 4.635 1.123 6.545z"/>
+              </svg>
+              <svg class="me-1 star" data-value="1" width="20" height="20" fill="rgb(209, 213, 219)" viewBox="0 0 20 20">
+                <path d="M10 15l-5.878 3.09 1.123-6.545L.49 6.91l6.564-.955L10 0l2.946 5.955 6.564.955-4.755 4.635 1.123 6.545z"/>
+              </svg>
+              <svg class="me-1 star" data-value="1" width="20" height="20" fill="rgb(209, 213, 219)" viewBox="0 0 20 20">
+                <path d="M10 15l-5.878 3.09 1.123-6.545L.49 6.91l6.564-.955L10 0l2.946 5.955 6.564.955-4.755 4.635 1.123 6.545z"/>
+              </svg>
+              <svg class="me-1 star" data-value="1" width="20" height="20" fill="rgb(209, 213, 219)" viewBox="0 0 20 20">
+                <path d="M10 15l-5.878 3.09 1.123-6.545L.49 6.91l6.564-.955L10 0l2.946 5.955 6.564.955-4.755 4.635 1.123 6.545z"/>
+              </svg>
             </div>
-            <input type="hidden" id="review" name="review" />
+
+            <input type="hidden" id="rating" name="rating" />
 
             <div class="px-2">
               <div class="d-flex justify-content-between" style="position: relative;">
@@ -144,6 +155,7 @@
         {% if reviews %}
       <div class="reviews-container space-y-4">
         <div id="reviews-show"></div>
+        </div>
         {% for review in reviews %}
           <div>
             <div class="d-flex justify-content-between items-center justify-between">
@@ -171,7 +183,9 @@
             </span>
             <p class="text-gray-700 mb-2 m-auto" style="width:96%;">{{ review.review_text }}</p>
             {% if review.review_image %}
-              <img src="{{ review.review_image }}" alt="Review photo" class="max-w-xs rounded-md mb-2 shadow" />
+            <div onclick="openPhotoModal('{% static review.review_image %}')">
+              <img src="{% static review.review_image %}" alt="Review photo" class="max-w-xs rounded-md mb-2 shadow" height="50px" width="50px" style="border:2px solid darkgray; margin-left:10px;" />
+            </div>
             {% endif %}
           </div>
         {% endfor %}
@@ -188,8 +202,30 @@
     <li>Exchange and Refund is available.</li>
   </ul>
 </div>
+<!--Show picture-->
+<div id="photo-modal" style="display:none; position:fixed; z-index:9999; top:0; left:0; width:100vw; height:100vh; background:rgba(10,12,30,0.36); align-items:center; justify-content:center;">
+  <div style="max-height:300px;height:60%;max-width:500px;width: 80%; margin:auto; background:#fff; border-radius:12px; box-shadow:0 2px 24px rgba(30,30,140,.10); padding:2rem; position:relative;">
+    <i onclick="closeModal()" class="bi bi-x" style="cursor:pointer; position:absolute; top:10px; right:10px; font-size:1.5rem;"></i>
+    <img id="modal-photo" src="" alt="Review photo" class="max-w-xs rounded-md mb-2 shadow h-100 w-100" />
+  </div>
+</div>
+
 
 <script>
+function openPhotoModal(photoSrc) {
+  const modal = document.getElementById('photo-modal');
+  const modalImg = document.getElementById('modal-photo');
+  modalImg.src = photoSrc;  // set the clicked image src
+  modal.style.display = 'flex';  // show modal with flex for centering
+}
+
+function closeModal() {
+  const modal = document.getElementById('photo-modal');
+  modal.style.display = 'none';
+}
+
+
+
   function changeQuantity(delta) {
       const input = document.getElementById('quantity');
       let currentValue = parseInt(input.value, 10);
