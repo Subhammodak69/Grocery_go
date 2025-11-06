@@ -361,7 +361,7 @@ cursor: not-allowed;
     TRUST BADGES
     ============================================ */
 .trust-badges {
-background: #1e293b;
+background: #ffffff;
 border-radius: var(--border-radius-md);
 padding: 1rem;
 display: grid;

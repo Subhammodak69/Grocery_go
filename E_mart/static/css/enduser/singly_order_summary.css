@@ -51,7 +51,7 @@
 }
 
 .order-container {
-  margin-top:90px;
+  margin-top:60px;
   min-height: 100vh;
   background: white;
   background-attachment: fixed;
@@ -106,7 +106,6 @@
   justify-content: center;
   max-width: 500px;
   margin: 0 auto;
-  background: rgb(51 65 85);
   backdrop-filter: blur(10px);
   padding: 1rem;
   border-radius: var(--border-radius-lg);
@@ -117,12 +116,13 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  color: rgba(255, 255, 255, 0.6);
+  color: rgba(111, 108, 108, 0.6);
   transition: var(--transition);
 }
 
 .progress-step.active {
-  color: var(--text-light);
+    color: var(--text--dark);
+
 }
 
 .progress-step i {
@@ -132,19 +132,18 @@
 
 .progress-step span {
   font-size: 0.75rem;
-  font-weight: 500;
+  font-weight: 700;
 }
 
 .progress-line {
   width: 50px;
   height: 2px;
-  background: rgba(255, 255, 255, 0.3);
   margin: 0 1rem;
   transition: var(--transition);
 }
 
 .progress-line.active {
-  background: var(--text-light);
+  background: #000000;
 }
 
 /* ============================================
@@ -345,9 +344,6 @@
 
 /* Summary Card */
 .summary-card {
-  background: var(--bg-card);
-  border-radius: var(--border-radius-lg);
-  box-shadow: var(--shadow-lg);
   overflow: hidden;
 }
 
@@ -430,9 +426,6 @@
 
 /* User Details Card */
 .user-details-card {
-  background: var(--bg-card);
-  border-radius: var(--border-radius-lg);
-  box-shadow: var(--shadow-lg);
   overflow: hidden;
 }
 
@@ -523,9 +516,6 @@
 
 /* Delivery Address Card */
 .delivery-card {
-  background: var(--bg-card);
-  border-radius: var(--border-radius-lg);
-  box-shadow: var(--shadow-lg);
   overflow: hidden;
 }
 
@@ -697,7 +687,7 @@
 
 /* Trust Section */
 .trust-section {
-  background: rgb(30 41 59);
+  background: #ffffff;
   backdrop-filter: blur(10px);
   border-radius: var(--border-radius-lg);
   padding: 2rem;
@@ -720,6 +710,7 @@
 }
 
 .trust-item span {
+  color: gray;
   font-weight: 500;
   font-size: 0.875rem;
 }
