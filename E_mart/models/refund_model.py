@@ -1,20 +1,14 @@
 from django.db import models
 from E_mart.models import Order,OrderItem,User
+from E_mart.constants.default_values import RefundStatus
 
 class RefundRequest(models.Model):
-    STATUS_CHOICES = [
-        ('PENDING', 'Pending'),
-        ('APPROVED', 'Approved'),
-        ('REJECTED', 'Rejected'),
-        ('PROCESSED', 'Processed'),
-    ]
-
     order = models.ForeignKey(Order, related_name='refund_requests', on_delete=models.CASCADE)
     order_item = models.ForeignKey(OrderItem, related_name='refund_requests', on_delete=models.CASCADE)
     user = models.ForeignKey(User, related_name='refund_requests', on_delete=models.CASCADE)
     reason = models.TextField()
     request_date = models.DateTimeField(auto_now_add=True)
-    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='PENDING')
+    status = models.IntegerField(choices=((rs.value,rs.name)for rs in RefundStatus), default = 1)
     refund_amount = models.DecimalField(max_digits=10, decimal_places=2)
     processed_date = models.DateTimeField(null=True, blank=True)
     admin_note = models.TextField(blank=True, null=True)

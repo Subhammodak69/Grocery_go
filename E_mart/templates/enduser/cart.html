@@ -64,13 +64,14 @@
                     <img 
                       src="{% static item.product_image %}" 
                       alt="{{ item.product_name }}"
-                      class="product-image"
+                      class="product-image cursor-pointer"
                       loading="lazy"
+                      onclick="window.location.href='/product/{{item.product_id}}/'"
                     >
                   </div>
 
                   <!-- Product Details -->
-                  <div class="product-details">
+                  <div class="product-details cursor-pointer"onclick="window.location.href='/product/{{item.product_id}}/'">
                     <h5 class="product-name">{{ item.product_name }}</h5>
                     <p class="product-description">{{ item.product_description }}</p>
                     
@@ -96,7 +97,7 @@
                         ₹{{ item.product_price|floatformat:2 }}
                       </span>
                     </span>
-                    <div class="item-total text-gray-200 small mt-2" style="position: absolute;right: 10px;bottom: 10px;">
+                    <div class="item-total text-gray-200 small mt-2" style="position: absolute;right: 20px;color:#838383; font-weight: 700;bottom: 10px;">
                       Total: ₹{{ item.item_total|floatformat:2 }}
                     </div>
                   </div>

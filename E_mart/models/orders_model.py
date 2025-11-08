@@ -1,23 +1,17 @@
 from django.db import models
 from E_mart.models import User,Product
-class Order(models.Model):
-    STATUS_CHOICES = [
-        ('PENDING', 'Pending'),
-        ('PROCESSING', 'Processing'),
-        ('DELIVERING', 'Out for Delivery'),
-        ('DELIVERED', 'Delivered'),
-        ('CANCELLED', 'Cancelled'),
-    ]
+from E_mart.constants.default_values import OrderStatus
 
+class Order(models.Model):
     user = models.ForeignKey(User,related_name= 'orders', on_delete=models.CASCADE)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
-    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='PENDING')
+    status = models.IntegerField(choices=((o.value,o.name)for o in OrderStatus), default=1)
     total_price = models.DecimalField(max_digits=10, decimal_places=2, blank=False, null=False)
     discount = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
     delivery_fee = models.DecimalField(max_digits=10, decimal_places=2, blank=False, null=False)
     listing_price = models.DecimalField(max_digits=10, decimal_places=2, blank=False, null=False)
-    delivery_address = models.TextField()
+    delivery_address = models.TextField(blank=True,null=True)
     is_active = models.BooleanField(default=True)
     items = models.ManyToManyField(Product, through='OrderItem')
     

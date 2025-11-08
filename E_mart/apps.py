@@ -1,6 +1,7 @@
 from django.apps import AppConfig
 from django.db.models.signals import post_migrate
 from django.contrib.auth import get_user_model
+from E_mart.constants.default_values import Role
 
 class EMartConfig(AppConfig):
     default_auto_field = 'django.db.models.BigAutoField'
@@ -19,5 +20,5 @@ def create_admin(sender, **kwargs):
             last_name="Modak",
             email='modaksubham69@gmail.com',
             password='123456',
-            role=1
+            role= Role.ADMIN.value
         )

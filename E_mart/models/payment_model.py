@@ -1,26 +1,12 @@
 # payments/models.py
 from django.db import models
 from E_mart.models import Order
+from E_mart.constants.default_values import PaymentMethod,PaymentStatus
 
 class Payment(models.Model):
-    PAYMENT_METHODS = [
-        ('UPI', 'UPI'),
-        ('CREDIT_CARD', 'CreditCard'),
-        ('DEBIT_CARD', 'DebitCard'),
-        ('NETBANKING', 'Netbanking'),
-        ('COD', 'Cash on Delivery'),
-    ]
-
-    STATUS_CHOICES = [
-        ('PENDING', 'Pending'),
-        ('COMPLETED', 'Completed'),
-        ('FAILED', 'Failed'),
-        ('REFUNDED', 'Refunded'),
-    ]
-
     order = models.OneToOneField(Order, on_delete=models.CASCADE)
-    payment_method = models.CharField(max_length=15, choices=PAYMENT_METHODS)
-    status = models.CharField(max_length=10, choices=STATUS_CHOICES, default='PENDING')
+    payment_method = models.IntegerField(choices=((pm.value,pm.name)for pm in PaymentMethod))
+    status = models.IntegerField(choices=((ps.value,ps.name) for ps in PaymentStatus), default=1)
     card_details = models.CharField(max_length=100, null=True, blank=True)
     bank_details = models.CharField(max_length=100, null=True, blank=True)
     upi_id = models.CharField(max_length=20, null=True, blank=True)

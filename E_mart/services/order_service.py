@@ -1,6 +1,8 @@
 from E_mart.models import Order,OrderItem,CartItem,Product
 from E_mart.services import cart_service
 from decimal import Decimal
+from E_mart.constants.default_values import OrderStatus
+from django.core.exceptions import PermissionDenied, ObjectDoesNotExist
 
 def create_order(user, address,final_price,delivery_fee,discount):
     """
@@ -24,7 +26,7 @@ def create_order(user, address,final_price,delivery_fee,discount):
         # Create the order
         order = Order.objects.create(
             user=user,
-            status='pending',
+            status=OrderStatus.PENDING.value,
             listing_price=total,
             total_price = final_price,
             delivery_fee = delivery_fee,
@@ -62,7 +64,7 @@ def sigle_order_create(user, product_id, address, quantity,listing_price,deliver
         # Create order
         order = Order.objects.create(
             user=user,
-            status='pending',  # Default status
+            status=OrderStatus.PENDING.value,  # Default status
             listing_price=listing_price,
             total_price = total_price,
             delivery_fee = delivery_fee,
@@ -99,7 +101,8 @@ def get_all_orders_by_user(user):
             'id':order.id,
             'total': order.total_price,
             'updated_at': order.updated_at,
-            'status':order.status,
+            'status':OrderStatus(order.status).name,
+            'status_value':OrderStatus(order.status).value,
             'address':order.delivery_address,
             'orderitems': get_order_items_data(order),
         }
@@ -112,6 +115,7 @@ def get_order_items_data(order):
     order_items_data = [
         {
             'id':item.id,
+            'product_id':item.product.id,
             'quantity':item.quantity,
             'image':item.product.image,
             'name':item.product.name,
@@ -129,6 +133,7 @@ def get_order_full_data(order_id):
         'id':order.id,
         'address':order.delivery_address,
         'status':order.status,
+        'status_value':OrderStatus(order.status).value,
         'orderitems':get_order_items_data(order)
     }
     return order_data
@@ -149,3 +154,15 @@ def get_delivery_fee(total):
     else:
         fee = Decimal('20')
     return fee
+
+def delete_order(order_id, user):
+    try:
+        order = Order.objects.get(id=order_id, is_active=True)
+    except ObjectDoesNotExist:
+        raise Exception("Order not found")
+
+    if order.user != user:
+        raise PermissionDenied("You do not have permission to cancel this order")
+
+    order.status = OrderStatus.CANCELLED.value
+    order.save()

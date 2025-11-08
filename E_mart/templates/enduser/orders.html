@@ -87,7 +87,7 @@
         <div class="order-card-price">
           ₹{{ order.total|floatformat:2 }}
         </div>
-        <div class="order-card-status {% if order.status == 'Delivered' %}delivered{% elif order.status == 'Cancelled' %}cancelled{% endif %}">
+        <div class="order-card-status {% if order.status_value == 4 %}delivered{% elif order.status_value == 5 %}cancelled{% elif order.status_value == 3%}outfordelivery{% elif order.status_value == 2%}processing{%elif order.status_value == 1%}pending{% endif %}">
           <span class="status-dot"></span>
           {{ order.status }} on {{ order.updated_at|date:"M d, Y" }}
         </div>

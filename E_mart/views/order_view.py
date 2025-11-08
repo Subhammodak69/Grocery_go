@@ -5,6 +5,8 @@ from django.utils.decorators import method_decorator
 from E_mart.constants.decorators import enduser_required
 from django.views.decorators.csrf import csrf_exempt
 from django.http import JsonResponse
+import json
+
 
 
 @method_decorator(csrf_exempt, name='dispatch')
@@ -136,6 +138,8 @@ class OrderListView(View):
 class OrderDetailsView(View):
     def get(self, request,order_id):
         order_data = order_service.get_order_full_data(order_id)
+        if not order_data:
+            return redirect('/orders/')
         summary = order_service.get_order_price_summary(order_id) 
 
         context = {
@@ -143,3 +147,20 @@ class OrderDetailsView(View):
             'summary':summary
         }
         return render(request, 'enduser/order_details.html', context)   
+
+@method_decorator(csrf_exempt, name='dispatch')
+@method_decorator(enduser_required, name='dispatch')
+class OrderDeleteView(View):
+    def post(self, request):
+        try:
+            data = json.loads(request.body)
+            order_id = data.get('order_id')
+            if not order_id:
+                return JsonResponse({'error': 'Order ID not provided'}, status=400)
+
+            order_service.delete_order(order_id, request.user)
+
+            return JsonResponse({'message': 'Order cancelled successfully'}, status=200)
+
+        except Exception as e:
+            return JsonResponse({'error': str(e)}, status=500)

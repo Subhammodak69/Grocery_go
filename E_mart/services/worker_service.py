@@ -1,4 +1,5 @@
 from E_mart.models import User
+from E_mart.constants.default_values import Role
 
 def create_user(email,first_name,last_name,phone_number,address):
     return User.objects.create(
@@ -8,5 +9,5 @@ def create_user(email,first_name,last_name,phone_number,address):
         last_name = last_name,
         phone_number = phone_number,
         address = address,
-        role = 3
+        role = Role.DELIVERYWORKER.value
     ) 

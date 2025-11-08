@@ -218,6 +218,7 @@ function sendReviewData(product_id, photo_url, rating, review) {
 
     // Reset form fields FIRST
     const reviewForm = document.getElementById('reviewForm');
+    const noReview = document.getElementById('no-review');
     if (reviewForm) reviewForm.reset();
     
     const ratingField = document.getElementById('rating');
@@ -291,7 +292,7 @@ function sendReviewData(product_id, photo_url, rating, review) {
       // Insert at the top of reviews container
       reviewsContainer.insertBefore(newReviewDiv, reviewsContainer.firstChild);
       
-      console.log('Review added to DOM successfully');
+    noReview.style.display = 'none';
     } else {
       console.error('Reviews container not found');
     }

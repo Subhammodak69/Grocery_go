@@ -18,17 +18,37 @@
         <p class="order-subtitle">Review your order details after order</p>
       </div>
       <div class="progress-bar"style="flex-direction:row;">
-        <div class="progress-step active">
-          <span>Pending</span>
-        </div>
-        <div class="progress-line active"></div>
-        <div class="progress-step active">
-          <span>Out For Delivery</span>
-        </div>
-        <div class="progress-line"></div>
-        <div class="progress-step">
-          <span>Delivered</span>
-        </div>
+        {% if order_data.status_value == 1 or order_data.status_value == 2 or order_data.status_value == 3 or order_data.status_value == 6%}
+          <div class="progress-step active">
+            {% if order_data.status_value == 1 %}
+            <span class="{% if order_data.status_value == 1 %} text-danger {% endif %}">Pending</span>
+            {% elif order_data.status_value == 2 %}
+            <span class="{% if order_data.status_value == 2 %} text-warning {% endif %}">Processing</span>
+            {% else %}
+            <span class="text-success">Order confirmed</span>
+            {% endif %}
+          </div>
+          <div class="progress-line {%if order_data.status_value == 3 %}active{% endif %}"></div>
+          <div class="progress-step {%if order_data.status_value == 3 %}active{% endif %}">
+            <span class="{% if order_data.status_value == 3 %} text-warning {% endif %}">Out For Delivery</span>
+          </div>
+          <div class="progress-line {%if order_data.status_value == 4 %}active{% endif %}"></div>
+          <div class="progress-step {%if order_data.status_value == 4 %}active{% endif %}">
+            <span class="{% if order_data.status_value == 4 %} text-success {% endif %}">Delivered</span>
+          </div>
+        {% else %}
+          <div class="progress-step">
+            <span class="text-success">Order confirmed</span>
+          </div>
+          <div class="progress-line {%if order_data.status_value == 4 or order_data.status_value == 5 %}active{% endif %}"></div>
+          <div class="progress-step {%if order_data.status_value == 4 %}active{% endif %}">
+          {%if order_data.status_value == 4 %}
+            <span class="text-success">Delivered</span>
+          {%elif order_data.status_value == 5 %}
+            <span class="text-danger">Cancelled</span>
+          {% endif %}
+          </div>
+        {% endif %}
       </div>
     </div>
 
@@ -53,12 +73,13 @@
                     <img 
                       src="{% static item.image %}" 
                       alt="{{ item.name }}"
-                      class="product-image img-fluid"
+                      class="product-image img-fluid cursor-pointer"
                       loading="eager"
+                      onclick="window.location.href='/product/{{item.product_id}}/'"
                     >
                   </div>
                   <div class="product-info py-2">
-                    <h4 class="product-name fs-6 mb-1" >{{ item.name }}</h4>
+                    <h4 class="product-name fs-6 mb-1 cursor-pointer"onclick="window.location.href='/product/{{item.product_id}}/'" >{{ item.name }}</h4>
                     
                     <div class="product-attributes d-flex flex-wrap mb-2" style="gap: 6px !important;">
                       <span class="attribute me-2 text-center" >
@@ -227,23 +248,33 @@
                 </h3>
               </div>
               
-              <div class="address-input-container">
+              <div class="address-input-container" style="margin-top: 10px;border-radius: 10px;border: 1px solid gray;">
                 {{order_data.address}}
               </div>
             </div>
 
             <!-- Order Actions -->
-            <div class="order-actions">
-              <button type="button" class="btn btn-primary px-4" onclick="window.history.back()">
-                <i class="bi bi-arrow-left me-2"></i>
+            <div class="order-actions mx-4">
+              <button type="button" class="back-btn btn btn-primary px-4" onclick="window.history.back()">
+                <i class="bi bi-arrow-left"></i>
                 Back
               </button>
+              {% if order_data.status == 1 or order_data.status == 2 %}
+              <button type="button" style="background: transparent;color: black;border: none;border-bottom: 1px solid #000000;" onclick="cancel_order()">
+                <input type = 'hidden' id="order_id" value ="{{order_data.id}}"/>
+                Cancel Order ?
+              </button>
+              {% endif %}
             </div>
           </div>
         </div>
       </div>
     </form>
-
+    <hr>
+      <div class="text-center" onclick="openchat()" style="color:blue;">
+        <i class="bi bi-chat mx-1"></i>Chat us
+      </div>
+    <hr>
     <!-- Trust Indicators -->
     <div class="trust-section mt-5">
       <div class="row g-3">
@@ -275,5 +306,41 @@
     </div>
   </div>
 </div>
+<script>
+  function openchat(){
+    
+  }
 
+  function cancel_order() {
+    const orderId = document.getElementById('order_id').value;
+
+    if (!orderId) {
+        console.error("Please provide order id");
+        return; // stop if no order id
+    }
+
+    fetch('/order/delete/', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ order_id: orderId })
+    })
+    .then(response => {
+        if (response.ok) {
+            return response.json(); // assuming response is JSON
+        } else {
+            throw new Error('Failed to cancel order');
+        }
+    })
+    .then(data => {
+        console.log('Order cancelled successfully:', data);
+        window.location.reload();
+    })
+    .catch(error => {
+        console.error('Error:', error);
+    });
+}
+
+</script>
 {% endblock %}

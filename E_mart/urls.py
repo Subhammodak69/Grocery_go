@@ -40,6 +40,7 @@ urlpatterns = [
     path('cart-product-order/summary/',ProductsOrderSummaryByCart.as_view(), name='cart_product_order_summary'),
     path('user/cart/',UserCartDetailsView.as_view(), name='user_cart'),
     path('order/create/',OrderCreateView.as_view(),name='order_create'),
+    path('order/delete/',OrderDeleteView.as_view(),name='order_delete'),
     path('orders/',OrderListView.as_view(),name='order_list'),
     path('order/<int:order_id>/',OrderDetailsView.as_view(),name='order_details'),
     path('user/cart/create-data/',UserCartCreateDataView.as_view(), name='user_cart_create_data'),

@@ -12,7 +12,7 @@
   <div class="container-fluid m-auto px-md-4">
     
     <!-- Header Section -->
-    <div class="order-header mb-5">
+    <div class="order-header mt-2 mb-2">
       <div class="header-content">
         <div class="header-icon">
           <i class="bi bi-clipboard-check-fill"></i>
@@ -22,13 +22,13 @@
       </div>
       <div class="progress-bar"style="flex-direction:row;">
         <div class="progress-step active">
-          <i class="bi bi-cart-check"></i>
-          <span>Cart</span>
+          <i class="bi bi-box-seam"></i>
+          <span>Choose Product</span>
         </div>
         <div class="progress-line active"></div>
         <div class="progress-step active">
           <i class="bi bi-clipboard-check"></i>
-          <span>Review</span>
+          <span>Chooose Details</span>
         </div>
         <div class="progress-line"></div>
         <div class="progress-step">
@@ -287,7 +287,7 @@
                   placeholder="Enter your complete delivery address..."
                   required
                   rows="4"
-                ></textarea>
+                >{{user.address}}</textarea>
                 
                 <div class="address-actions">
                   <button type="button" class="location-btn" onclick="getCurrentLocation()">
@@ -304,7 +304,7 @@
 
             <!-- Order Actions -->
             <div class="order-actions">
-              <button type="button" class="btn btn-secondary px-4 py-3" onclick="window.history.back()">
+              <button type="button" class="back-btn btn btn-primary px-4 py-3" onclick="window.history.back()">
                 <i class="bi bi-arrow-left me-2"></i>
                 Back
               </button>
