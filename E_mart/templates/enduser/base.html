@@ -114,7 +114,8 @@
       </div>
     </div>
   </nav>
-  <div class="search-div d-flex align-items-center mx-auto" style="margin-top: 60px;max-width:600px;">
+  <div class="search-div navbar-expand-lg fixed-top mx-auto" style="margin-top: 60px;max-width:600px;">
+    <div class="d-flex align-items-center">
     <form class="d-flex search-form w-100 " role="search">
       <input class="form-control search" type="search" placeholder="Search products, brands..." aria-label="Search"/>
     </form>
@@ -122,8 +123,11 @@
       <i class="bi bi-cart"></i>
     </div>
   </div>
+  <div class="result" style="background-color: #ffffffe8;max-height: 35vh;border-radius: 5px;overflow-y:scroll;scrollbar-width:none;">
+  </div>
+  </div>
   <!-- Main content area -->
-  <main class="flex-grow-1 container" style="min-height:80vh;margin-bottom:30px;">
+  <main class="flex-grow-1 container mb-2" style="min-height:80vh;margin-top:90px;">
     {% block content %}
     <!-- Page specific content goes here -->
      {% endblock %}
