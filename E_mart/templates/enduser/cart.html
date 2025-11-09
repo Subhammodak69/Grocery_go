@@ -24,7 +24,7 @@
 </div>
 
 
-<div class="cart-container-9" style="margin-top:50px;">
+<div class="cart-container-9">
   <div class="container-fluid px-3 px-md-4 py-4">
     
     <!-- Header Section -->
@@ -71,8 +71,8 @@
                   </div>
 
                   <!-- Product Details -->
-                  <div class="product-details cursor-pointer"onclick="window.location.href='/product/{{item.product_id}}/'">
-                    <h5 class="product-name">{{ item.product_name }}</h5>
+                  <div class="product-details">
+                    <h5 class="product-name  cursor-pointer"onclick="window.location.href='/product/{{item.product_id}}/'">{{ item.product_name }}</h5>
                     <p class="product-description">{{ item.product_description }}</p>
                     
                     <!-- Quantity Controls -->

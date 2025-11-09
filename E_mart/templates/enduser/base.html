@@ -26,24 +26,43 @@
     </div>
   </div>
   <!-- Navbar -->
-  <nav class="navbar navbar-expand-lg navbar-light shadow-sm fixed-top" style="padding:0px; background: linear-gradient(135deg, #9feaff, #0072ff);">
+  <nav class="navbar navbar-expand-lg navbar-light shadow-sm fixed-top" style="padding:0px; background: linear-gradient(135deg, #00c6ff, #0072ff);">
     <div class="container">
-      <a class="navbar-brand fw-bold fs-4 text-primary d-flex align-items-center" href="/">
-        <img src="{% static 'logos/logo.png' %}" alt="Logo" height="40px" width="40px" class="m-auto">
-        <p class="m-auto">GroceryGo</p>
-      </a>
+      
 
-      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarContent"
-        aria-controls="navbarContent" aria-expanded="false" aria-label="Toggle navigation" style="border: none;font-size: 14px;">
-        <span class="navbar-toggler-icon"></span>
-      </button>
+
+        <a class="navbar-brand fw-bold fs-4 text-primary d-flex align-items-center" href="/">
+          <img src="{% static 'logos/logo.png' %}" alt="Logo" height="40px" width="40px" class="m-auto">
+          <p class="m-auto">GroceryGo</p>
+        </a>
+
+      <div class="mobile" style="display:none;">
+        <div class="d-flex gap-2 align-items-center">
+          <!-- User Account Dropdown -->
+          {% if user.is_authenticated and user.role != 1 %}
+            <li class="nav-item dropdown mx-2 ">
+              <div class="d-flex align-items-center nav-link text-light fw-semibold " id="accountDropdown" role="button"
+                data-bs-toggle="dropdown" aria-expanded="false">
+                <i class="bi bi-person-circle text-dark" style="font-size:20px;"></i>
+                <p class="mb-0 mx-1 text-dark">You</p>
+            </div>
+            </li>
+          {% else %}
+            <li class="nav-item dropdown mx-2">
+              <button class="btn btn-primary" onclick="window.location.href='/login/'">
+                  <i class="bi bi-person me-1"></i>Log in
+              </button>
+
+              <button class="btn btn-secondary signup" onclick="window.location.href='/signup/'">
+                  <i class="bi bi-person-plus me-1"></i> Sign up
+              </button>
+
+            </li>
+          {% endif %}
+        </div>
+      </div>
 
       <div class="collapse navbar-collapse" id="navbarContent">
-        <!-- Search bar -->
-        <form class="d-flex ms-auto m-auto search-form my-lg-0" role="search" style="width: 30%;border-bottom: 1px solid #0f6b9e;">
-          <input class="form-control py-0  me-2 search" type="search" placeholder="Search products, brands..." aria-label="Search" style="border:none;background: transparent; "/>
-        </form>
-
         <!-- Nav links -->
         <ul class="navbar-nav align-items-center">
           <li class="nav-item dropdown mx-2">
@@ -58,29 +77,24 @@
 
 
           <li class="nav-item mx-2">
-            <a class="nav-link fw-semibold" href="/deals">Deals</a>
+            <a class="nav-link fw-semibold" href="/user/cart">
+              <i class="bi bi-cart text-light"></i>
+              Shopping Cart</a>
           </li>
 
           <li class="nav-item mx-2">
-            <a class="nav-link fw-semibold" href="/about">About Us</a>
+            <a class="nav-link fw-semibold" href="/about">
+              <i class="bi bi-telephone text-light"></i>
+              About Us</a>
           </li>
 
           <!-- User Account Dropdown -->
            {% if user.is_authenticated and user.role != 1 %}
-          <li class="nav-item dropdown mx-2">
-            <a class="nav-link dropdown-toggle text-dark fw-semibold" href="#" id="accountDropdown" role="button"
+          <li class="nav-item mx-2">
+            <a class="nav-link fw-semibold" href="#" id="accountDropdown" role="button"
               data-bs-toggle="dropdown" aria-expanded="false">
               <i class="bi bi-person-circle" style="margin: 5px;"></i>{{user.first_name}}
             </a>
-            <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="accountDropdown">
-              <li><a class="dropdown-item" href="/profile/"><i class="fas fa-user me-2"></i>Profile</a></li>
-              <li><a class="dropdown-item" href="/orders/"><i class="fas fa-box me-2"></i>Orders</a></li>
-              <li><a class="dropdown-item" href="/user/cart/"><i class="fas fa-shopping-cart me-2"></i>Cart</a></li>
-              <li><a class="dropdown-item" href="/wishlist/"><i class="fas fa-heart me-2"></i>Wishlist</a></li>
-              <li><a class="dropdown-item" href="/bills/"><i class="fas fa-file-invoice-dollar me-2"></i>Bills</a></li>
-              <li><hr class="dropdown-divider" /></li>
-              <li><a class="dropdown-item text-danger" onclick="logout()"><i class="fas fa-sign-out-alt me-2"></i>Logout</a></li>
-            </ul>
           </li>
           {% else %}
           <li class="nav-item dropdown mx-2">
@@ -100,7 +114,14 @@
       </div>
     </div>
   </nav>
-
+  <div class="search-div d-flex align-items-center mx-auto" style="margin-top: 60px;max-width:600px;">
+    <form class="d-flex search-form w-100 " role="search">
+      <input class="form-control search" type="search" placeholder="Search products, brands..." aria-label="Search"/>
+    </form>
+    <div onclick="window.location.href='/user/cart/'" style="margin-left: 10px;border-radius: 5px;padding: 5px 10px;border: 1px solid #c0c2c4;">
+      <i class="bi bi-cart"></i>
+    </div>
+  </div>
   <!-- Main content area -->
   <main class="flex-grow-1 container" style="min-height:80vh;margin-bottom:30px;">
     {% block content %}
@@ -109,7 +130,7 @@
   </main>
 
   <!-- Footer -->
-  <footer style="padding: 20px;background: linear-gradient(135deg, #9feaff, #0072ff);">
+  <footer style="padding: 20px;background: linear-gradient(135deg, #00c6ff, #0072ff);">
     <div class="container">
       <div class="row text-muted">
         <div class="col-md-3 mb-4 mb-md-0">
