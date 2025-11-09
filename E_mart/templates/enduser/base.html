@@ -70,7 +70,7 @@
               data-bs-toggle="dropdown" aria-expanded="false">
               Categories
             </a>
-            <ul class="dropdown-menu position-absolute px-4" aria-labelledby="accountDropdown" style="width:max-content;left: -18px;top:50px;" id="categoriesDropdown">
+            <ul class="dropdown-menu position-absolute px-4" aria-labelledby="accountDropdown" style="width:max-content;left: -18px;top:93px;" id="categoriesDropdown">
               <li class="dropdown-item text-muted">Loading categories...</li>
             </ul>
           </li>
@@ -114,18 +114,23 @@
       </div>
     </div>
   </nav>
-  <div class="search-div navbar-expand-lg fixed-top mx-auto" style="margin-top: 60px;max-width:600px;">
-    <div class="d-flex align-items-center">
-    <form class="d-flex search-form w-100 " role="search">
-      <input class="form-control search" type="search" placeholder="Search products, brands..." aria-label="Search"/>
+ <div class="search-div navbar-expand-lg fixed-top mx-auto" style="margin-top: 60px;max-width:600px;">
+  <div class="d-flex align-items-center">
+    <form class="d-flex search-form w-100" role="search" onsubmit="return false;">
+      <input id="search-input" class="form-control search" type="search" placeholder="Search products, brands..." aria-label="Search" autocomplete="off" />
     </form>
-    <div onclick="window.location.href='/user/cart/'" style="margin-left: 10px;border-radius: 5px;padding: 5px 10px;border: 1px solid #c0c2c4;">
+    <div onclick="window.location.href='/user/cart/'" style="margin-left: 10px; border-radius: 5px; padding: 5px 10px; border: 1px solid #c0c2c4;">
       <i class="bi bi-cart"></i>
     </div>
   </div>
-  <div class="result" style="background-color: #ffffffe8;max-height: 35vh;border-radius: 5px;overflow-y:scroll;scrollbar-width:none;">
-  </div>
-  </div>
+  <div id="result" class="result" style="background-color: #ffffffe8; max-height: 35vh; border-radius: 5px; overflow-y: scroll; scrollbar-width: none;"></div>
+</div>
+
+<script>
+ 
+
+</script>
+
   <!-- Main content area -->
   <main class="flex-grow-1 container mb-2" style="min-height:80vh;margin-top:90px;">
     {% block content %}

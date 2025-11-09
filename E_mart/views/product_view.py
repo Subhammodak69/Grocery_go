@@ -109,3 +109,25 @@ class ProductDetailsView(View):
                     'review_len':len(review_data),
                     'rating':rating
                 })
+
+class ProductSearchView(View):
+    def get(self, request):
+        query = request.GET.get('q', '').strip()
+        if not query:
+            return JsonResponse([], safe=False)  # Return empty list if no query
+
+        # Search products by name or brand case-insensitively
+        
+        products = product_service.get_searched_product_data(query)
+
+        # Prepare JSON response data
+        results = [
+            {
+                'product_name': product.name,
+                'category_name': product.category.name,
+                'product_id': product.id,
+                'category_id':product.category.id
+            }
+            for product in products
+        ]
+        return JsonResponse(results, safe=False)

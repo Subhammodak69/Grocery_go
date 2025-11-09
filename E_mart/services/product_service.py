@@ -5,7 +5,7 @@ from django.conf import settings
 from django.core.files.storage import FileSystemStorage
 from django.utils.crypto import get_random_string
 import random
-
+from django.db.models import Q
 
 
 def get_all_products():
@@ -148,3 +148,7 @@ def get_product_offer_by_id(product_id):
 
     
 
+def get_searched_product_data(query):
+    return Product.objects.filter(
+            Q(name__icontains=query) | Q(category__name__icontains=query)
+        )[:20]  # limit results to 20
