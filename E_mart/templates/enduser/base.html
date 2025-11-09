@@ -29,8 +29,6 @@
   <nav class="navbar navbar-expand-lg navbar-light shadow-sm fixed-top" style="padding:0px; background: linear-gradient(135deg, #00c6ff, #0072ff);">
     <div class="container">
       
-
-
         <a class="navbar-brand fw-bold fs-4 text-primary d-flex align-items-center" href="/">
           <img src="{% static 'logos/logo.png' %}" alt="Logo" height="40px" width="40px" class="m-auto">
           <p class="m-auto">GroceryGo</p>
@@ -41,7 +39,7 @@
           <!-- User Account Dropdown -->
           {% if user.is_authenticated and user.role != 1 %}
             <li class="nav-item dropdown mx-2 ">
-              <div class="d-flex align-items-center nav-link text-light fw-semibold " id="accountDropdown" role="button"
+              <div class="d-flex align-items-center nav-link text-light fw-semibold cursor-pointer " onclick="window.location.href='/user/profile/'" id="accountDropdown" role="button"
                 data-bs-toggle="dropdown" aria-expanded="false">
                 <i class="bi bi-person-circle text-dark" style="font-size:20px;"></i>
                 <p class="mb-0 mx-1 text-dark">You</p>
@@ -91,7 +89,7 @@
           <!-- User Account Dropdown -->
            {% if user.is_authenticated and user.role != 1 %}
           <li class="nav-item mx-2">
-            <a class="nav-link fw-semibold" href="#" id="accountDropdown" role="button"
+            <a class="nav-link fw-semibold cursor-pointer" href="#" onclick="window.location.href='/user/profile/'" id="accountDropdown" role="button"
               data-bs-toggle="dropdown" aria-expanded="false">
               <i class="bi bi-person-circle" style="margin: 5px;"></i>{{user.first_name}}
             </a>

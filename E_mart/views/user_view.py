@@ -1,6 +1,6 @@
 from django.views import View
 from django.shortcuts import render
-from E_mart.constants.decorators import admin_required
+from E_mart.constants.decorators import admin_required,enduser_required
 from django.utils.decorators import method_decorator
 from E_mart.services import user_service
 from django.views.decorators.csrf import csrf_exempt
@@ -105,3 +105,30 @@ class AdminUserUpdateView(View):
         except Exception as e:
             # Log the error in production
             return JsonResponse({'error': str(e)}, status=500)
+
+@method_decorator(enduser_required, name='dispatch')
+class UserProfileView(View):
+    def get(self,request):
+        user_data = user_service.get_user_data_by_id(request.user.id)
+        user = request.user
+        print(user_data)
+        return render(request, 'enduser/profile.html',{'user':user,'user_data':user_data})
+
+
+@method_decorator(enduser_required, name='dispatch')
+@method_decorator(csrf_exempt, name='dispatch')
+class UserProfileUpdateView(View):
+    def post(self, request):
+        try:
+            data = json.loads(request.body)
+            phone = data.get('phone')
+            main_address = data.get('mainAddress')
+            optional_address = data.get('optionalAddress')
+
+            user_service.update_enduser(request.user.id,phone,main_address,optional_address)
+            return JsonResponse({'success': True, 'message': 'Profile updated successfully.'})
+
+        except json.JSONDecodeError:
+            return JsonResponse({'success': False, 'message': 'Invalid JSON data.'}, status=400)
+        except Exception as e:
+            return JsonResponse({'success': False, 'message': str(e)}, status=500)

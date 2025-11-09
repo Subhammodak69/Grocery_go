@@ -1,0 +1,177 @@
+{% extends 'enduser/base.html'%}
+{% load static %}
+{% block title %}Profile|GroceryGo{% endblock %}
+{% block content %}
+
+<div id="edit-modal" style="display:none; position:fixed; z-index:9999; top:0; left:0; width:100vw; height:100vh; background:rgba(10,12,30,0.36); align-items:center; justify-content:center;">
+  <div style="width:90%;top:10%;display: flex;max-width: 600px; margin:auto; background:#fff; border-radius:12px; box-shadow:0 2px 24px rgba(30,30,140,.10); padding:2rem; position:relative;">
+    <!-- Account Details Update Form -->
+    <div class="w-100"style="max-width:100%">
+      <div style="cursor:pointer; position: absolute;top: 10px;right: 20px;">
+        <i onclick="close_modal()" class="bi bi-x" style="font-size: 30px;" ></i>
+      </div>
+      <div class="card-header bg-success px-4 py-2 my-3">
+        <h5 class="text-light ">Account Details</h5>
+      </div>
+      <div class="card-body">
+        <form id="profileForm">
+          <div class="form-content" style="max-height:55vh; overflow-y:auto;scrollbar-width:none;">
+          <div class="mb-3">
+            <label for="firstName" class="form-label">First Name *</label>
+            <input type="text" class="form-control" id="firstName" value="{{user.first_name}}" disabled/>
+          </div>
+          <div class="mb-3">
+            <label for="lastName" class="form-label">Last Name *</label>
+            <input type="text" class="form-control" id="lastName" value="{{user.last_name}}" disabled/>
+          </div>
+          <div class="mb-3">
+            <label for="userEmail" class="form-label">Email address *</label>
+            <input type="email" class="form-control" id="userEmail" value="{{user.email}}" disabled/>
+          </div>
+          <div class="mb-3">
+            <label for="userPhone" class="form-label">Phone Number</label>
+            <input type="text" class="form-control" id="userPhone" maxlength="10" placeholder="Enter mobile number" value="{{user.phone_number}}" />
+          </div>
+          <div class="mb-3">
+            <label for="userAddress" class="form-label">Main Address</label>
+            <textarea class="form-control" id="mainAddress" rows="2">{{user.address}}</textarea>
+          </div>
+          <div class="mb-3">
+            <label for="userAddress" class="form-label">Additional Address</label>
+            <textarea class="form-control" id="optionalAddress" placeholder="Additional address.............." rows="2">{{user_data.optional_address}}</textarea>
+          </div>
+        </div>
+          <button type="submit" class="btn btn-primary w-100">Save Changes</button>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="container-9 mb-5"style="margin-top:20px;">
+  <div class="d-flex mx-auto main-profile-container gap-4"style="margin-top:120px;">
+    <!-- Profile Info -->
+    <div class="w-100 ">
+      <div class="card py-4 px-2 w-100"style="max-width:100%">
+        <i class="bi bi-person-circle text-center"style="font-size:35px;"></i>
+        <div class="card-body text-center">
+          <h5 class="card-title">{{user_data.full_name}}</h5>
+          <p class="card-text text-muted">{{user.email}}</p>
+          <p class="card-text"><small class="text-muted">Joined at</small> {{user.date_joined|date:"d,M, Y"}} </p>
+          <button class="btn btn-primary btn-sm" id="edit-btn" onclick="open_modal()">Edit Profile</button>
+          <hr>
+          <p><strong class="mx-2">Address:</strong>{{user.address}}</p>
+          <p><strong class="mx-2">Phone No:</strong>{{user.phone_number}}</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Orders and Settings -->
+    <div class="w-100">
+        
+      <!-- Orders Summary -->
+      <div class="card py-4 px-4 mb-4 w-100"style="max-width:100%">
+        <div class="card-header bg-success mb-3">
+          <h5 class="text-light">Shortcuts</h5>
+        </div>
+        <div class="item-shortcuts mb-2" onclick="window.location.href='/orders/'">
+            <i class="fa-solid fa-truck"></i>
+            Orders
+        </div>
+        <div class="item-shortcuts mb-2" onclick="window.location.href='/wishlist/'">
+            <i class='bi bi-heart-fill'></i>
+            Wishlist
+        </div>
+        <div class="item-shortcuts mb-2" onclick="window.location.href='#'">
+            <i class='bi bi-telephone-fill'></i>
+            Contact us
+        </div>
+      </div>
+      <div class="d-flex align-items-center justify-content-center">
+        <button type="button" onclick="window.location.href='/'" class="continue-btn">Continue Shopping</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<style>
+.main-profile-container{
+    flex-direction: column;
+    max-width:600px;
+}
+
+.continue-btn{
+    background-color: #4f46e5;
+    border: 2px solid var(--primary-color);
+    color: white;
+    padding: 0.75rem 2rem;
+    border-radius: 5px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: var(--transition);
+    display: inline-flex;
+    align-items: center;
+}
+.continue-btn:active{
+  background-color: #302a9bff;
+}
+.item-shortcuts{
+    border-radius: 5px;
+    border: 1px solid gray;
+    background: aliceblue;
+    padding: 10px;
+    cursor:pointer;
+}
+.item-shortcuts:active{
+    background: #85919c;
+    color:white;
+}
+.form-label{
+  font-size:18px;
+  font-weight: 600;
+}
+</style>
+
+<script>
+function open_modal() {
+  const modal = document.getElementById('edit-modal');
+  modal.style.display = 'block';
+}
+
+function close_modal() {
+  const modal = document.getElementById('edit-modal');
+  const closeButton = document.getElementById('close-btn');
+  modal.style.display = 'none';
+}
+
+document.addEventListener('DOMContentLoaded', function () {
+  const form = document.getElementById('profileForm');
+  form.addEventListener('submit', async function(e) {
+    e.preventDefault();
+    const phone = document.getElementById('userPhone').value;
+    const mainAddress = document.getElementById('mainAddress').value;
+    const optionalAddress = document.getElementById('optionalAddress').value;
+
+    try {
+      const response = await fetch('/profile/update/', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ phone, mainAddress, optionalAddress })
+      });
+      if (response.ok) {
+        close_modal();
+        location.reload();
+      } else {
+        alert('Failed to update profile.');
+      }
+    } catch (error) {
+      alert('Error updating profile.');
+    }
+  });
+});
+
+
+</script>
+{% endblock %}

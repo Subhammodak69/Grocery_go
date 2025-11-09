@@ -35,7 +35,9 @@ urlpatterns = [
 
     path('api/categories/',ApiGetAllCategory, name='api_get_categories'),
     path('products/<int:category_id>/',CategoryProductList.as_view(), name='category_products'),  
-    path('api/products/search', ProductSearchView.as_view(), name='product-search'),
+    path('api/products/search/', ProductSearchView.as_view(), name='product-search'),
+    path('user/profile/', UserProfileView.as_view(), name='user_profile'),
+    path('profile/update/', UserProfileUpdateView.as_view(), name='profile-update'),
     path('product/<int:product_id>/',ProductDetailsView.as_view(), name='product_details'), 
     path('product-order/summary/',ProductOrderSummary.as_view(), name='product_order_summary'),
     path('cart-product-order/summary/',ProductsOrderSummaryByCart.as_view(), name='cart_product_order_summary'),

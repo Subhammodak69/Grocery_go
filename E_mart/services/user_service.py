@@ -40,7 +40,15 @@ def update_user(user_id,email,first_name,last_name,phone_number,address):
     user.save() 
     return user
 
-    
+def update_enduser(user_id,phone,main_address,optional_address):
+    print(phone,main_address,optional_address)
+    user = User.objects.get(id=user_id, is_active = True)
+    user.phone_number = phone
+    user.address = main_address
+    user.optional_address = optional_address
+    user.save() 
+    print(user)
+    return
    
    
 #admin
@@ -63,3 +71,11 @@ def toggle_active_user(user_id,is_active):
 
 def get_user_for_admin_by_id(user_id):
     return User.objects.get(id = user_id)
+
+def get_user_data_by_id(user_id):
+    user = User.objects.filter(id = user_id, is_active = True).first()
+    user_data = {
+        'full_name': f"{user.first_name} {user.last_name}",
+        'optional_address':user.optional_address if user.optional_address else ''
+    }
+    return user_data
