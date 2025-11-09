@@ -75,17 +75,21 @@
           <h5 class="text-light">Shortcuts</h5>
         </div>
         <div class="item-shortcuts mb-2" onclick="window.location.href='/orders/'">
-            <i class="fa-solid fa-truck"></i>
-            Orders
+            <i class="fa-solid fa-truck me-2 text-primary"></i>
+            Your Orders
         </div>
         <div class="item-shortcuts mb-2" onclick="window.location.href='/wishlist/'">
-            <i class='bi bi-heart-fill'></i>
-            Wishlist
+            <i class='bi bi-heart-fill me-2 text-primary'></i>
+            Your Wishlist
         </div>
         <div class="item-shortcuts mb-2" onclick="window.location.href='#'">
-            <i class='bi bi-telephone-fill'></i>
+            <i class='bi bi-telephone-fill me-2 text-primary'></i>
             Contact us
         </div>
+        <button type="button" onclick="logout()" class="btn mt-4 btn-danger">
+          <i class="bi bi-power"></i>
+          Log out
+        </button>
       </div>
       <div class="d-flex align-items-center justify-content-center">
         <button type="button" onclick="window.location.href='/'" class="continue-btn">Continue Shopping</button>
@@ -121,6 +125,7 @@
     background: aliceblue;
     padding: 10px;
     cursor:pointer;
+    font-weight:600;
 }
 .item-shortcuts:active{
     background: #85919c;

@@ -11,33 +11,26 @@
       <div class="card-1 bg-white rounded shadow-sm border-0 mb-4" style="width: 100%;">
         <div class="card-body text-center py-4 px-2">
         
-          <i class="bi bi-person-fill me-2" style="font-size:25px;"></i>
+          <i class="bi bi-person-circle me-2" style="font-size:25px;"></i>
 
-          <div class="fw-bold fs-5 mb-1">Hello,<br>{{ user.get_full_name }}</div>
+          <div class="fw-bold fs-5 mb-1">{{ user.get_full_name }}</div>
+        <p class="">{{user.email}}</p>
+          
         </div>
       </div>
       <div class="list-group shadow-sm">
         <div class="list-group-item bg-light fw-semibold" onclick="window.location.href='/orders/'">
           <i class="bi bi-bag-check-fill me-2 text-primary"></i> MY ORDERS
-          <span class="float-end">
-            <i class="bi bi-arrow-right" style="font-size: 20px; color: #333;"></i>
-          </span>
+        
         </div>
 
         <div class="list-group-item bg-light fw-semibold" onclick="window.location.href='/user/cart/'">
           <i class="bi bi-cart-fill me-2 text-primary"></i> My Cart
-          <span class="float-end">
-            <i class="bi bi-arrow-right" style="font-size: 20px; color: #333;"></i>
-          </span>
+          
         </div>
         <div class="list-group-item bg-light fw-semibold" onclick="window.location.href='/user/profile/'">
-          <i class="bi bi-person-fill me-2 text-primary"></i> ACCOUNT
-          <span class="float-end">
-            <i class="bi bi-arrow-right" style="font-size: 20px; color: #333;"></i>
-          </span>
-        </div>
-        <div class="list-group-item bg-light fw-semibold">
-          <i class="bi bi-credit-card-2-back-fill me-2 text-primary"></i> PAYMENTS
+          <i class="bi bi-person-circle me-2 text-primary"></i> ACCOUNT
+          
         </div>
       </div>
     </div>
