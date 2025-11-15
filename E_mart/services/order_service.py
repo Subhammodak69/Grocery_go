@@ -1,7 +1,9 @@
-from E_mart.models import Order,OrderItem,CartItem,Product
-from E_mart.services import cart_service
+from E_mart.models import Order,OrderItem,CartItem,Product,Payment
+from E_mart.services import cart_service,payment_service
 from decimal import Decimal
-from E_mart.constants.default_values import OrderStatus
+from E_mart.constants.default_values import OrderStatus,PaymentStatus
+from django.utils import timezone
+from datetime import timedelta
 from django.core.exceptions import PermissionDenied, ObjectDoesNotExist
 
 def create_order(user, address,final_price,delivery_fee,discount):
@@ -36,11 +38,15 @@ def create_order(user, address,final_price,delivery_fee,discount):
         
         # Create OrderItem entries from cart items
         for cart_item in cart_items:
-            OrderItem.objects.create(
+            orderitem =OrderItem.objects.create(
                 order=order,
                 product=cart_item.product,
+                quantity = item.quantity
             )
-        
+            product = orderitem.product
+            product.stock -= item.quantity
+            product.save()
+
         # Clear cart after order creation
         cart_items.delete()
         
@@ -60,7 +66,6 @@ def sigle_order_create(user, product_id, address, quantity,listing_price,deliver
         listing_price = product.original_price * int(quantity) 
         total_price = (product.price * int(quantity) )+ Decimal(delivery_fee)
         
-
         # Create order
         order = Order.objects.create(
             user=user,
@@ -78,7 +83,10 @@ def sigle_order_create(user, product_id, address, quantity,listing_price,deliver
             product=product,
             quantity=quantity
         )
-
+        if order_item:
+            product.stock -= quantity
+            product.save()
+            print("now stock is =>",product.stock)
         # Return created order (could be used for confirmation, etc.)
         return order
 
@@ -134,7 +142,8 @@ def get_order_full_data(order_id):
         'address':order.delivery_address,
         'status':order.status,
         'status_value':OrderStatus(order.status).value,
-        'orderitems':get_order_items_data(order)
+        'orderitems':get_order_items_data(order),
+        'is_paid':payment_service.check_order_is_paid(order.id)
     }
     return order_data
 
@@ -166,3 +175,40 @@ def delete_order(order_id, user):
 
     order.status = OrderStatus.CANCELLED.value
     order.save()
+    orderitems = OrderItem.objects.filter(order = order,is_active = True)
+    for item in orderitems:
+        product = item.product
+        product.stock += item.quantity
+        product.save() 
+
+def get_order_by_id(order_id):
+    return Order.objects.filter(id = order_id, is_active = True).first()
+
+def get_orderitems_by_order_id(order_id):
+    order = get_order_by_id(order_id)
+    return  OrderItem.objects.filter(order = order, is_active = True)
+
+
+
+def free_garbage_order():
+    garbage_orders = Order.objects.filter(
+        status__in=[OrderStatus.PENDING.value, OrderStatus.CANCELLED.value],
+        is_active=True,
+        created_at__lt=timezone.now()-timedelta(hours=24)
+    )
+    filtered_orders = []
+    for order in garbage_orders:
+        try:
+            payment = Payment.objects.get(order=order)
+            if payment.status != PaymentStatus.COMPLETED.value:  
+                filtered_orders.append(order)
+        except Payment.DoesNotExist:
+            filtered_orders.append(order)
+    for order in filtered_orders:  # Use the filtered unpaid orders only
+        orderitems = OrderItem.objects.filter(order=order, is_active=True).select_related('product')
+        for item in orderitems:
+            product = item.product
+            product.stock += item.quantity
+            product.save()
+        order.delete()
+    return

@@ -787,9 +787,6 @@
     grid-template-columns: 1fr;
   }
   
-  .order-actions {
-    justify-content: stretch;
-  }
   
   .place-order-btn {
     max-width: none;
@@ -902,6 +899,7 @@
   
   .summary-body,
   .address-input-container {
+    min-height:120px;
     padding: 1rem;
   }
   

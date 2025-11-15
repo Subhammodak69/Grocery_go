@@ -51,7 +51,6 @@
         {% endif %}
       </div>
     </div>
-
     <form id="order-summary-form"  class="order-form">
       <div class="row g-4"> 
         <!-- Product Details Section (Multiple Products) -->
@@ -194,7 +193,12 @@
                 {% endif %}
               </div>
             </div>
-
+    {%if not order_data.is_paid %}
+      <button type="button" class="btn btn-primary mx-3 p-2 mb-4" onclick="window.location.href='/create/payment/{{order_data.id}}/'">
+        <i class="bi bi-credit-card me-1"></i>
+        Go To Pay
+      </button>
+    {% endif %}
             <!-- User Details Card -->
             <div class="user-details-card">
               <div class="card-header">
@@ -248,7 +252,7 @@
                 </h3>
               </div>
               
-              <div class="address-input-container" style="margin-top: 10px;border-radius: 10px;border: 1px solid gray;">
+              <div class="address-input-container mb-4" style=" min-height:120px; margin-top: 10px;border-radius: 10px;border: 1px solid gray;">
                 {{order_data.address}}
               </div>
             </div>
@@ -259,6 +263,7 @@
                 <i class="bi bi-arrow-left"></i>
                 Back
               </button>
+              
               {% if order_data.status == 1 or order_data.status == 2 %}
               <button type="button" style="background: transparent;color: black;border: none;border-bottom: 1px solid #000000;" onclick="cancel_order()">
                 <input type = 'hidden' id="order_id" value ="{{order_data.id}}"/>
@@ -275,6 +280,7 @@
         <i class="bi bi-chat mx-1"></i>Chat us
       </div>
     <hr>
+    
     <!-- Trust Indicators -->
     <div class="trust-section mt-5">
       <div class="row g-3">

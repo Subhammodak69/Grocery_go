@@ -2,7 +2,7 @@ from django.views import View
 from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import csrf_exempt
 from django.shortcuts import render,redirect
-from E_mart.services import cartitem_service,cart_service
+from E_mart.services import cartitem_service,cart_service,product_service
 import json
 from E_mart.constants.decorators import enduser_required
 from django.http import JsonResponse
@@ -68,10 +68,11 @@ class CartItemUpdateView(View):
         quantity = data.get('quantity')
 
         cart_item,summary = cart_service.update_cart_items_quantity(item_id,request.user,quantity)
-        print(summary)
         return JsonResponse({
             "cart_item_id": cart_item.id,
             "quantity": cart_item.quantity,
+            "in_stock": product_service.is_product_in_stock(cart_item.product.id,cart_item.quantity),
             "item_total": cart_service.get_cartitem_total_by_item_id(cart_item.id),
             "cart_summary": summary,
         })
+    

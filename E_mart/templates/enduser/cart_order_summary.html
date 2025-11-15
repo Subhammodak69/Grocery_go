@@ -10,11 +10,16 @@
 {% endblock %}
 {% block content %}
 
-
-
 <div class="order-container">
   <div class="container-fluid m-auto px-md-4">
-    
+    {% if error_message %}
+      <div class="card border-danger mb-3" style="max-width: 30rem; margin: 1rem auto;">
+          <div class="card-header bg-danger text-white">Error</div>
+          <div class="card-body">
+              <p class="card-text">{{ error_message }}</p>
+          </div>
+      </div>
+    {% else %}
     <!-- Header Section -->
     <div class="order-header mt-2 mb-3">
       <div class="header-content">
@@ -326,6 +331,7 @@
         </div>
       </div>
     </div>
+    {%endif%}
   </div>
 </div>
 

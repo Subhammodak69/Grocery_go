@@ -55,8 +55,8 @@ function handlePlaceOrder(e) {
     })
     .then(data => {
         if (data.success) {
-            alert('Order placed successfully!');
-            window.location.href = data.redirect_url || '/orders/';
+            console.log('Order placed successfully!');
+            window.location.href = data.redirect_url || `/create/payment/${data.order-id}/`;
         } else {
             alert('Failed to place order: ' + (data.message || 'Unknown error'));
             btnContent.style.display = 'block';

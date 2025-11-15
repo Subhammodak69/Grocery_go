@@ -10,7 +10,15 @@
 {% block content %}
 <div class="order-container">
   <div class="container-fluid m-auto px-md-4">
-    
+    {% if error_message %}
+      <div class="card border-danger mb-3" style="max-width: 30rem; margin: 1rem auto;">
+          <div class="card-header bg-danger text-white">Error</div>
+          <div class="card-body">
+              <p class="card-text">{{ error_message }}</p>
+          </div>
+      </div>
+    {% else %}
+
     <!-- Header Section -->
     <div class="order-header mt-2 mb-2">
       <div class="header-content">
@@ -57,6 +65,9 @@
             <!-- Product Image -->
             <div class="product-image-container">
               <div class="product-image-wrapper">
+                {% if not data.is_selected_quantity_available %}
+                <p class="text-danger" style="position: absolute;bottom: 10px;">Out of stock<p>
+                {% endif %}
                 <img 
                   src="{% static data.image %}" 
                   alt="{{ data.name }}" 
@@ -355,6 +366,7 @@
         </div>
       </div>
     </div>
+    {% endif %}
   </div>
 </div>
 

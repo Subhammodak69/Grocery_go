@@ -42,35 +42,63 @@ document.addEventListener('DOMContentLoaded', function() {
 
       if (response.ok) {
         const data = await response.json();
-        qtyDisplay.textContent = data.quantity;
-        itemTotalElem.textContent = "Total: ₹" + Number(data.item_total).toFixed(2);
-        updateSummaryFields(data.cart_summary, data.final_price);
+        // Debug
+        console.log("API Response:", data);
+
+        if (qtyDisplay) qtyDisplay.textContent = data.quantity;
+        if (itemTotalElem) itemTotalElem.textContent = "Total: ₹" + Number(data.item_total).toFixed(2);
+
+        updateSummaryFields(data.cart_summary, data.final_price, data.in_stock);
+        toggleQuantityButtons(data.in_stock, itemId);
+
       } else {
         alert('Could not update quantity.');
       }
     } catch (err) {
       alert('Error updating cart.');
+      console.error(err);
     }
   }
 
-  function updateSummaryFields(summary, final_price) {
-    document.getElementById('summary-total-price').textContent = "₹" + Number(summary.list_price).toFixed(2);
-    document.getElementById('summary-fee').textContent = "₹" + Number(summary.fee).toFixed(2);
-    document.getElementById('summary-discount').textContent = "-₹" + Number(summary.discount).toFixed(2);
-    document.getElementById('summary-final-price').textContent = "₹" + Number(summary.total_price).toFixed(2);
 
+  function updateSummaryFields(summary, final_price, in_stock) {
+    if (!summary) return;
+
+    const totalPriceElem = document.getElementById('summary-total-price');
+    const feeElem = document.getElementById('summary-fee');
+    const discountElem = document.getElementById('summary-discount');
+    const finalPriceElem = document.getElementById('summary-final-price');
+    const outOfStockElem = document.getElementById('outofstock');
     const savingsBadge = document.getElementById('savings');
-    if (summary.discount > 0) {
-      if (savingsBadge) {
-        savingsBadge.style.display = 'block'; // ensure visible
+
+    if (totalPriceElem) totalPriceElem.textContent = "₹" + Number(summary.list_price).toFixed(2);
+    if (feeElem) feeElem.textContent = "₹" + Number(summary.fee).toFixed(2);
+    if (discountElem) discountElem.textContent = "-₹" + Number(summary.discount).toFixed(2);
+    if (finalPriceElem) finalPriceElem.textContent = "₹" + Number(summary.total_price).toFixed(2);
+
+    if (outOfStockElem) {
+      outOfStockElem.style.display = in_stock ? 'none' : 'block';
+    }
+
+    if (savingsBadge) {
+      if (summary.discount > 0) {
+        savingsBadge.style.display = 'block';
         savingsBadge.innerHTML = `<i class="bi bi-piggy-bank me-2"></i>You're saving ₹${Number(summary.discount).toFixed(2)}!`;
-      }
-    } else {
-      if (savingsBadge) {
-        savingsBadge.style.display = 'none'; // hide if no discount
+      } else {
+        savingsBadge.style.display = 'none';
       }
     }
   }
 
-  window.go_back = go_back; // expose globally if used inline
+  function toggleQuantityButtons(in_stock, itemId) {
+    console.log("in stock => "+in_stock);
+    const itemElem = document.querySelector(`.cart-item[data-item-id="${itemId}"]`);
+    if (!itemElem) return;
+
+    const qtyPlusBtn = itemElem.querySelector('.qty-plus');
+
+    if (qtyPlusBtn) qtyPlusBtn.disabled = !in_stock;
+  }
+
+  window.go_back = go_back; // global exposure if used inline
 });

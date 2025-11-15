@@ -3,7 +3,7 @@ from django.shortcuts import render,redirect
 from django.views.decorators.csrf import csrf_exempt
 from django.utils.decorators import method_decorator
 from E_mart.constants.decorators import admin_required
-from E_mart.services import product_service,category_service,review_service
+from E_mart.services import product_service,category_service,review_service,order_service
 from django.http import JsonResponse
 import json
 
@@ -95,6 +95,7 @@ class CategoryProductList(View):
 
 class ProductDetailsView(View):
     def get(self,request, product_id):
+        order_service.free_garbage_order()
         product = product_service.get_product_by_id(product_id)
         review_data = review_service.get_product_review_data(product.id)
         rating = review_service.get_rating_by_product_id(product_id)

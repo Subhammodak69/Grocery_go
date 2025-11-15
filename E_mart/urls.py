@@ -44,6 +44,7 @@ urlpatterns = [
     path('user/cart/',UserCartDetailsView.as_view(), name='user_cart'),
     path('order/create/',OrderCreateView.as_view(),name='order_create'),
     path('order/delete/',OrderDeleteView.as_view(),name='order_delete'),
+    path('delete/order/<int:order_id>/',OrderPermanentDeleteView.as_view(),name='order_permanent_delete'), 
     path('orders/',OrderListView.as_view(),name='order_list'),
     path('order/<int:order_id>/',OrderDetailsView.as_view(),name='order_details'),
     path('user/cart/create-data/',UserCartCreateDataView.as_view(), name='user_cart_create_data'),
@@ -52,7 +53,7 @@ urlpatterns = [
     path('wishlist/', WishlistListView.as_view(), name="user_wishlist"),
     path('review/create/', ReviewCreateView.as_view(), name='review_create'),
     path('wishlist/delete-item/<int:wishlist_id>/', WishlistItemDeleteView.as_view(), name="wishlist_item_delete"),
-
+    path('create/payment/<int:order_id>/',PaymentCreateView.as_view(), name='payment_create'),
     path('wishlist/toggle/<int:product_id>/',ToggleWishlistCreateDelete.as_view(), name='wishlist_toggler'),
     path('wishlist/check/<int:product_id>/', CheckWishlistStatus.as_view(), name='check_wishlist'),
     #delivery worker

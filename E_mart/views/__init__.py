@@ -9,3 +9,4 @@ from .cart_view import *
 from .order_view import *
 from .worker_view import *
 from .Review_view import *
+from .payment_view import *

@@ -152,3 +152,6 @@ def get_searched_product_data(query):
     return Product.objects.filter(
             Q(name__icontains=query) | Q(category__name__icontains=query)
         )[:20]  # limit results to 20
+
+def is_product_in_stock(product_id,quantity):
+    return Product.objects.filter(id=product_id, is_active=True, stock__gte=quantity).exists()

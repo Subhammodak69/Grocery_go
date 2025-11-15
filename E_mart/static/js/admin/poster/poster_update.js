@@ -3,6 +3,7 @@ async function poster_update() {
     messageEl.textContent = '';
     messageEl.className = 'message';
     const posterId = document.getElementById('poster_id').value;
+    const product_id = document.getElementById('product_id').value;
     const title = document.getElementById('title').value.trim();
     const description = document.getElementById('description').value.trim();
     const fileInput = document.getElementById('image');
@@ -10,7 +11,7 @@ async function poster_update() {
     const start_date = document.getElementById('start_date').value.trim();
     const end_date = document.getElementById('end_date').value.trim();
 
-    if (!title || !description || !start_date || !end_date) {
+    if (!product_id || !title || !description || !start_date || !end_date) {
         messageEl.textContent = 'Please fill all required fields.';
         messageEl.classList.add('error');
         return;
@@ -18,6 +19,7 @@ async function poster_update() {
 
     const formData = new FormData();
     formData.append('title', title);
+    formData.append('product_id', product_id);
     formData.append('description', description);
     if (file !== undefined) {
         formData.append('image', file);

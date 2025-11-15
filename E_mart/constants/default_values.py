@@ -25,14 +25,9 @@ class OrderStatus(Enum):
     DELIVERED = 4
     CANCELLED = 5
     CONFIRMED = 6
+ 
 
-class RefundStatus(Enum):
-    PENDING = 1
-    APPROVED = 2
-    REJECTED = 3
-    PROCESSED = 4    
-
-class ExchangeStatus(Enum):
+class ExchangeOrReturnStatus(Enum):
     PENDING = 1
     APPROVED = 2
     REJECTED = 3
@@ -43,3 +38,17 @@ class DeliveryStatus(Enum):
     IN_PROGRESS = 2
     DELIVERED = 3
     FAILED = 4 
+
+class Purpose(Enum):
+    DELIVERY = 1
+    PICKUP = 2
+
+class ExOrRePurpose(Enum):
+    EXCHANGE = 1
+    RETURN = 2
+
+class HelpStatus(Enum):
+    PENDING = 1
+    ACCEPTED = 2
+    RESOLVED = 3
+    FAILED = 4

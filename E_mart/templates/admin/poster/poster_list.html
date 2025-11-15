@@ -14,6 +14,7 @@
                 <th>ID</th>
                 <th>Title</th>
                 <th>Description</th>
+                <th>Product</th>
                 <th>Image</th>
                 <th>Start Date</th>
                 <th>End Date</th>
@@ -27,6 +28,7 @@
                 <td>{{ poster.id }}</td>
                 <td>{{ poster.title }}</td>
                 <td>{{ poster.description }}</td>
+                <td>{{ poster.product.name }}</td>
                 <td>
                     <img src="{% static poster.image %}" height="40px" width="60px" >
                 </td>

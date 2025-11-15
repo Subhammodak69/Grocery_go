@@ -72,6 +72,9 @@
 
                   <!-- Product Details -->
                   <div class="product-details">
+                    {% if not item.is_item_in_stock %}
+                    <p id="outofstock" class="text-danger">Out of stock</p>
+                    {% endif %}
                     <h5 class="product-name  cursor-pointer"onclick="window.location.href='/product/{{item.product_id}}/'">{{ item.product_name }}</h5>
                     <p class="product-description">{{ item.product_description }}</p>
                     

@@ -24,7 +24,6 @@ document.addEventListener('DOMContentLoaded', () => {
       }
       
       const data = await response.json();
-      alert('Login successful:', data);
       window.location.href='/admin/';
       
     } catch (error) {

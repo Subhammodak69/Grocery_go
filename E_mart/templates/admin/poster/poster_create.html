@@ -2,10 +2,28 @@
 {% load static %}
 {% block title %}Create Admin Poster{% endblock %}
 {% block content %}
+<link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
 <script src="{% static 'js/admin/poster/poster_create.js' %}"></script>
 <div class="card shadow-sm m-auto mt-4 p-4 rounded" style="max-width: 600px;">
   <h2 class="mb-4 text-center fw-bold" style="color: #007bff;">Create Admin Poster</h2>
   <form class="px-3" id="adminposterForm" onsubmit="return false;" novalidate>
+  <select id="product_id" name="product_id" class="form-select" required>
+    <option value=''>Select or type product for search</option>
+    {% for product in products %}
+      <option value="{{ product.id }}">{{ product.name }}</option>
+    {% endfor %}
+  </select>
+
+  <script>
+    $(document).ready(function() {
+      $('#product_id').select2({
+        width: '100%',        
+        minimumResultsForSearch: 0
+      });
+    });
+  </script>
+
 
     <div class="mb-3">
       <label for="title" class="form-label fw-semibold">Title*</label>

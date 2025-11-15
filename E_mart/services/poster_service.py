@@ -4,6 +4,7 @@ from django.conf import settings
 from django.core.files.storage import FileSystemStorage
 from django.utils.crypto import get_random_string
 from django.utils.timezone import now
+from E_mart.services import product_service
 
 
 def get_all_posters():
@@ -16,9 +17,11 @@ def get_all_showable_posters():
 def get_poster_by_id(poster_id):
     return Poster.objects.filter(id= poster_id).first()
 
-def poster_create(title, description, photo_file, start_date, end_date):
+def poster_create(product_id,title, description, photo_file, start_date, end_date):
+    product = product_service.get_product_by_id(product_id)
     relative_url = get_relative_url_of_poster(photo_file)
     return Poster.objects.create(
+        product = product,
         title=title,
         description=description,
         image=relative_url,
@@ -32,16 +35,18 @@ def toggle_active_poster(poster_id,is_active):
     poster.save()        
     return poster
     
-def poster_update(poster_id,title, description, image_file, start_date, end_date):
+def poster_update(poster_id,product_id,title, description, image_file, start_date, end_date):
+    product = product_service.get_product_by_id(product_id)
     poster = Poster.objects.get(id=poster_id)
     if image_file == None:
         poster.title = title
+        poster.product = product
         poster.description = description
         poster.start_date = start_date
         poster.end_date = end_date
         poster.save()
         return poster
-
+    poster.product = product
     poster.title = title
     poster.description = description
     poster.image = get_relative_url_of_poster(image_file)

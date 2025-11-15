@@ -4,7 +4,7 @@ from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.utils.decorators import method_decorator
 from E_mart.constants.decorators import admin_required
-from E_mart.services import poster_service
+from E_mart.services import poster_service,product_service,category_service
 import json
 
 
@@ -18,21 +18,23 @@ class AdminPosterListView(View):
 @method_decorator(csrf_exempt, name='dispatch')
 class AdminPosterCreateView(View):
     def get(self,request):
-        return render(request,'admin/poster/poster_create.html')
+        products = product_service.get_all_active_products()
+        return render(request,'admin/poster/poster_create.html',{'products':products})
     
     def post(self, request):
         try:
+            product_id = request.POST.get('product_id')
             title = request.POST.get('title')
             description = request.POST.get('description')
             image_file = request.FILES.get('image')  
             start_date = request.POST.get('start_date')
             end_date = request.POST.get('end_date')
 
-            
-            if not all([title, image_file, start_date, end_date]):
+            print(product_id)
+            if not all([product_id,title, image_file, start_date, end_date]):
                 return JsonResponse({'error': 'Missing required fields'}, status=400)
 
-            poster_service.poster_create(title, description, image_file, start_date, end_date)
+            poster_service.poster_create(product_id,title, description, image_file, start_date, end_date)
             return JsonResponse({'message': 'Poster created successfully!'})
 
         except Exception as e:
@@ -44,10 +46,12 @@ class AdminPosterCreateView(View):
 class AdminPosterUpdateView(View):
     def get(self,request, poster_id):
         poster = poster_service.get_poster_by_id(poster_id)
-        return render(request,'admin/poster/poster_update.html',{'poster':poster})
+        products = product_service.get_all_active_products()
+        return render(request,'admin/poster/poster_update.html',{'poster':poster,'products':products})
     
     def post(self, request, poster_id):
         try:
+            product_id = request.POST.get('product_id')
             title = request.POST.get('title')
             description = request.POST.get('description')
             image_file = request.FILES.get('image')
@@ -55,10 +59,10 @@ class AdminPosterUpdateView(View):
             end_date = request.POST.get('end_date')
 
            
-            if not all([title,description,start_date, end_date]):
+            if not all([product_id,title,description,start_date, end_date]):
                 return JsonResponse({'error': 'Missing required fields'}, status=400)
 
-            poster_service.poster_update(poster_id,title, description, image_file, start_date, end_date)
+            poster_service.poster_update(poster_id,product_id,title, description, image_file, start_date, end_date)
             return JsonResponse({'message': 'Poster created successfully!'})
 
         except Exception as e:

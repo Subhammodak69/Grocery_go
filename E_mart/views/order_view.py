@@ -17,7 +17,8 @@ class ProductOrderSummary(View):
         quantity = request.GET.get('quantity')
         product = product_service.get_product_data_by_id(product_id)
         product.update({
-            'quantity':quantity
+            'quantity':quantity,
+            'is_selected_quantity_available':product_service.is_product_in_stock(product['id'],quantity)
         })
         total = product['original_price']* int(product['quantity'])
         total_discount = (product['original_price']-product['price'])*int(product['quantity'])
@@ -30,6 +31,7 @@ class ProductOrderSummary(View):
         return render(request, 'enduser/singly_order_summary.html', {'total_price':final_price,'data': product,'extra_data':extra_data})
     
     def post(self, request):
+        print(request.user.id)
         try:
             # Extract form data from POST request
             user = request.user
@@ -40,36 +42,30 @@ class ProductOrderSummary(View):
             delivery_fee = request.POST.get('delivery_fee')
             discount = request.POST.get('discount')
 
-            if not discount:
-                discount = 0.00
-            if not address:
-                return JsonResponse({
-                    'success': False,
-                    'message': 'Address is required'
-                })
-
-            if not product_details_id or not quantity.isdigit():
-                return JsonResponse({
-                    'success': False,
-                    'message': 'Invalid product or quantity'
-                })
-
             quantity = int(quantity)
-            
+            if not address:
+                return render(request, 'enduser/singly_order_summary.html', {
+                    'error_message': 'Address is required',
+                })
+
+            product_is_available = product_service.is_product_in_stock(product_details_id, quantity)
+            if not product_is_available:
+                return render(request, 'enduser/singly_order_summary.html', {
+                    'error_message': 'Product is recently out of stock',
+                })
+
             # Create order using your service function
-            order = order_service.sigle_order_create(user,product_details_id, address, quantity,listing_price,delivery_fee,discount)
-            
+            order = order_service.sigle_order_create(user, product_details_id, address, quantity, listing_price, delivery_fee, discount)
+
             if order:
-                return redirect(f'/order/{order.id}')
+                return redirect(f'/create/payment/{order.id}/')
             else:
-                return JsonResponse({
-                    'success': False,
-                    'message': 'Failed to create order'
+                return render(request, 'enduser/singly_order_summary.html', {
+                    'error_message': 'Failed to create order',
                 })
         except Exception as e:
-            return JsonResponse({
-                'success': False,
-                'message': str(e)
+            return render(request, 'enduser/singly_order_summary.html', {
+                'error_message': str(e),
             })
 
     
@@ -112,7 +108,7 @@ class OrderCreateView(View):
                 return JsonResponse({
                     'success': True,
                     'message': 'Order created successfully',
-                    'redirect_url': f'/order/{order.id}/'
+                    'redirect_url': f'/create/payment/{order.id}/'
                 })
             else:
                 return JsonResponse({
@@ -161,6 +157,27 @@ class OrderDeleteView(View):
             order_service.delete_order(order_id, request.user)
 
             return JsonResponse({'message': 'Order cancelled successfully'}, status=200)
+
+        except Exception as e:
+            return JsonResponse({'error': str(e)}, status=500)
+                
+
+@method_decorator(csrf_exempt, name='dispatch')
+@method_decorator(enduser_required, name='dispatch')
+class OrderPermanentDeleteView(View):
+    def post(self, request, order_id):
+        try:
+            if not order_id:
+                return JsonResponse({'error': 'Order ID not provided'}, status=400)
+
+            order = order_service.get_order_by_id(order_id)
+            orderitems = order_service.get_orderitems_by_order_id(order_id)
+            for item in orderitems:
+                product = item.product
+                product.stock += item.quantity
+                product.save()
+            order.delete()
+            return JsonResponse({'message': 'Order deleted successfully'}, status=200)
 
         except Exception as e:
             return JsonResponse({'error': str(e)}, status=500)
