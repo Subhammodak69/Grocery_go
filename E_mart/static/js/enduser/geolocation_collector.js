@@ -42,7 +42,7 @@ async function getCurrentLocation() {
           }, 2000);
           
         } catch (error) {
-          console.error('Geocoding error:', error);
+          showMessage('error','GeoCoding Error!')
           addressField.value = `Coordinates: ${lat.toFixed(6)}, ${lng.toFixed(6)}\n(Unable to get address. Please enter manually)`;
           
           locationBtn.innerHTML = '<i class="bi bi-check-circle me-2"></i>Coordinates Added';
@@ -54,7 +54,7 @@ async function getCurrentLocation() {
         }
       },
       function(error) {
-        console.error('Geolocation error:', error);
+        showMessage('error', "Location error!");
         
         let errorMsg = 'Location access failed. ';
         switch(error.code) {
@@ -69,7 +69,7 @@ async function getCurrentLocation() {
             break;
         }
         
-        alert(errorMsg);
+        showMessage('error',errorMsg);
         
         locationBtn.innerHTML = '<i class="bi bi-exclamation-triangle me-2"></i>Location Failed';
         setTimeout(() => {
@@ -80,7 +80,7 @@ async function getCurrentLocation() {
       options
     );
   } else {
-    alert('Geolocation is not supported by this browser.');
+    showMessage('error', "Geolocation is not supported !");
   }
 }
 
@@ -120,5 +120,5 @@ async function reverseGeocode(lat, lng) {
     return formattedAddress || data.display_name;
   }
   
-  throw new Error('No address found');
+  showMessage('error', "No address found!");
 }

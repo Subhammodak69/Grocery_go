@@ -7,10 +7,10 @@ function buy_now() {
     quantity: quantity
   });
   if(!product_id){
-    console.error("product_id not found");
+    showMessage('error',"product_id not found");
   }
   if(!quantity){
-    console.error("quantity not found");
+    showMessage('error',"quantity not found");
   }
   window.location.href = `/product-order/summary/?${params.toString()}`;
 }
@@ -32,13 +32,17 @@ function add_to_cart() {
   })
   .then(response => {
     if (response.ok) {
-      window.location.href = `/user/cart/`;
+      showMessage('success','Item is added to your cart! Redirecting.........');
+      setTimeout(()=>{
+        window.location.href = `/user/cart/`;
+      },1000);
+     
     } else {
-      console.error('Add to cart failed');
+      showMessage('error','Add to cart failed!');
     }
   })
   .catch(error => {
-    console.error('Error:', error);
+    showMessage('error','Server error!');
   });
 
 }
@@ -140,7 +144,6 @@ window.addEventListener('DOMContentLoaded',() => {
       }
     });
     ratingInput.value = total;
-    console.log('Current total rating:', total);
   }
 });
 
@@ -213,8 +216,7 @@ function sendReviewData(product_id, photo_url, rating, review) {
   .then(response => response.json())
 .then(data => {
   if (data.success) {
-    console.log('Review submitted successfully!');
-    console.log(data.data);
+    showMessage('success','Review submitted successfully!');
 
     // Reset form fields FIRST
     const reviewForm = document.getElementById('reviewForm');
@@ -294,15 +296,14 @@ function sendReviewData(product_id, photo_url, rating, review) {
       
     noReview.style.display = 'none';
     } else {
-      console.error('Reviews container not found');
+      showMessage('error','Reviews container not found!');
     }
 
   } else {
-    alert('Error: ' + (data.error || 'Unknown error'));
+    showMessage('error','unknown error!')
   }
 })
 .catch(error => {
   console.error('Fetch error:', error);
-    alert('Fetch error: ' + error);
 });
 }

@@ -11,6 +11,7 @@
   <link rel="stylesheet" href="{% static 'css/enduser/base.css' %}" />
   <link rel="stylesheet" href="{% static 'css/enduser/product_list.css' %}" />
   <script src="{% static 'js/base.js' %}"></script>
+  <script src="{% static 'js/error_or_success.js' %}"></script>
   <script src="{% static 'js/logout.js' %}"></script>
   <script src="{% static 'js/auto_reload.js' %}"></script>
   {% block extra_css%}{%endblock%}
@@ -111,6 +112,13 @@
         </ul>
       </div>
     </div>
+      <!--error and success show-->
+  <div id="error" class="alert alert-danger" style="display:none;right: 0;top: 110px;position: absolute;">
+
+  </div>
+  <div id="success" class="alert alert-success" style="display:none;right: 0;top: 110px;position: absolute;">
+
+  </div>
   </nav>
  <div class="search-div navbar-expand-lg fixed-top mx-auto" style="margin-top: 60px;max-width:600px;">
   <div class="d-flex align-items-center">

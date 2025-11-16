@@ -46,6 +46,7 @@
  </div>
 </div>
 
+
 <div class="container-9 py-4 px-4">
     <!-- Header Section -->
     <div class="order-header mt-2 mb-2">
@@ -178,7 +179,7 @@
             </p>
             <button class="btn btn-dark w-100">Place Order (COD)</button>
         </div>
-        <button type="button" onclick="open_modal()" class="btn btn-secondary w-100">Back</button>
+        <button type="button" onclick="open_modal()" class="btn btn-secondary w-100 mt-4">Back</button>
     </div>
     <div class="trust-section mt-5">
       <div class="row g-3">
@@ -263,6 +264,112 @@
             if (selectedForm) selectedForm.style.display = 'block';
         }
     });
+
+    // Payment Submission Handler
+    document.addEventListener("DOMContentLoaded", function () {
+        // Define mapping between payment method and related form elements
+        const methodConfigs = {
+            UPI: {
+                buttonSelector: "#UPI-form button",
+                data: function() {
+                    return {
+                        method: "UPI",
+                        upi_id: document.querySelector("#UPI-form input[type='text']").value
+                    }
+                }
+            },
+            CREDITCARD: {
+                buttonSelector: "#CREDITCARD-form button",
+                data: function() {
+                    const inputs = document.querySelectorAll("#CREDITCARD-form input");
+                    return {
+                        method: "CREDITCARD",
+                        card_number: inputs[0].value,
+                        expiry: inputs[1].value,
+                        cvv: inputs[2].value
+                    }
+                }
+            },
+            DEBITCARD: {
+                buttonSelector: "#DEBITCARD-form button",
+                data: function() {
+                    const inputs = document.querySelectorAll("#DEBITCARD-form input");
+                    return {
+                        method: "DEBITCARD",
+                        card_number: inputs[0].value,
+                        expiry: inputs[1].value,
+                        cvv: inputs[2].value
+                    }
+                }
+            },
+            NETBANKING: {
+                buttonSelector: "#NETBANKING-form button",
+                data: function() {
+                    return {
+                        method: "NETBANKING",
+                        bank: document.querySelector("#NETBANKING-form select").value
+                    }
+                }
+            },
+            COD: {
+                buttonSelector: "#COD-form button",
+                data: function() {
+                    return { method: "COD" }
+                }
+            }
+        };
+
+        // Attach event listeners for all method buttons
+        Object.keys(methodConfigs).forEach(function(method) {
+            const selector = methodConfigs[method].buttonSelector;
+            const button = document.querySelector(selector);
+            if (button) {
+                button.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    submitPayment(method);
+                });
+            }
+        });
+
+        function submitPayment(method) {
+            // Construct payload
+            let data = methodConfigs[method].data();
+            data.amount = document.getElementById("amount").value;
+            data.order_id = "{{order.id}}"; // Use Django template variable
+
+            // Optionally show loader here
+            document.getElementById('loaderdiv').style.display = 'block';
+            setTimeout(()=>{
+              fetch(`/create/payment/${data.order_id}/`, {
+                  method: "POST",
+                  headers: {
+                      "Content-Type": "application/json",
+                  },
+                  body: JSON.stringify(data)
+              })
+              .then(response => response.json())
+              .then(result => {
+                  if (result.success) {
+                      document.getElementById('loaderdiv').style.display = 'none';
+                      showMessage('success', "Payment successful! Redirecting...");
+                      // Redirect after short delay if you want
+                      setTimeout(() => {
+                          window.location.href = result.redirect_url || '/order/success/';
+                      }, 1000);
+                  } else {
+                      document.getElementById('loaderdiv').style.display = 'none';
+                      showMessage('error',"Something went wrong.");
+                  }
+              })
+              .catch(() => {
+                  document.getElementById('loaderdiv').style.display = 'none';
+                  showMessage('error', "Network or server error. Please try again.");
+              })
+            
+            },1500);
+        }     
+    });
+
 </script>
 
 {% endblock %}

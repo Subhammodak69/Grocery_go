@@ -55,17 +55,19 @@ function handlePlaceOrder(e) {
     })
     .then(data => {
         if (data.success) {
-            console.log('Order placed successfully!');
-            window.location.href = data.redirect_url || `/create/payment/${data.order-id}/`;
+            showMessage('success', "Order Placed Successfully! Redirecting...");
+            setTimeout(()=>{
+                window.location.href = data.redirect_url || `/create/payment/${data.order-id}/`;
+            },2000);
         } else {
-            alert('Failed to place order: ' + (data.message || 'Unknown error'));
+            showMessage('error', data.message);
             btnContent.style.display = 'block';
             btnLoader.style.display = 'none';
             placeOrderBtn.disabled = false;
         }
     })
     .catch(error => {
-        alert('Error placing order. Please try again.');
+        showMessage('error','Error placing order. Please try again.');
         btnContent.style.display = 'block';
         btnLoader.style.display = 'none';
         placeOrderBtn.disabled = false;

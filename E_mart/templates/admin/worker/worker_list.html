@@ -1,0 +1,52 @@
+{% extends "admin/home.html" %}
+{% load static %}
+{% block title %}worker List{% endblock %}
+{% block content %}
+<script src="{% static 'js/admin/worker/worker_list.js'%}"></script>
+<div class="overflow-auto p-4 rounded h-100">
+    <div class="d-flex align-items-center justify-content-between mb-3">
+        <h4>worker List</h4>
+        <button class="btn btn-success" onclick="create_worker()">+Create worker</button>
+    </div>
+    <table class="table table-striped table-bordered w-100">
+        <thead class="table-dark">
+            <tr>
+                <th>ID</th>
+                <th>Full Name</th>
+                <th>Email ID</th>
+                <th>Phone No</th>
+                <th>Role</th>
+                <th>Is Active</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for worker in workers %}
+            <tr>
+                <td>{{ worker.id }}</td>
+                <td>{{ worker.get_full_name }}</td>
+                <td>{{ worker.email }}</td>
+                <td>{{ worker.phone_number }}</td>
+                <td>{{ worker.role }}</td>
+                <td>
+                    <div class="form-check form-switch" onclick="isactive_toggle()">
+                        <input class="form-check-input toggle-active" type="checkbox" data-worker-id="{{ worker.id }}" {% if worker.is_active %}checked{% endif %} />
+                    </div>
+                </td>
+                <td>
+                    <button class="btn btn-warning btn-sm" onclick="update_worker({{worker.id}})">Update</button>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+<style>
+    td {
+  max-width: 150px;        
+  white-space: nowrap;     
+  overflow: hidden;       
+  text-overflow: ellipsis; 
+}
+</style>
+{% endblock %}

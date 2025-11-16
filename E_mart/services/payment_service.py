@@ -1,7 +1,86 @@
 from E_mart.models import Payment
 from E_mart.services import order_service
-from E_mart.constants.default_values import PaymentStatus,PaymentMethod
+from E_mart.constants.default_values import PaymentStatus,PaymentMethod,OrderStatus
 
 def check_order_is_paid(order_id):
     order = order_service.get_order_by_id(order_id)
-    return Payment.objects.filter(order = order,status = PaymentStatus.PENDING.value and PaymentStatus.FAILED.value).exclude(method =PaymentMethod.COD.value ).exists()
+    return Payment.objects.filter(
+        order=order
+    ).exclude(
+        status__in=[PaymentStatus.PENDING.value, PaymentStatus.FAILED.value]
+    ).exclude(
+        method=PaymentMethod.COD.value
+    ).exists()
+
+def create_payment(order, payment_data):
+    method_str = payment_data.get('method')
+    # Map string method to PaymentMethod enum value
+    method_map = {
+        'COD': PaymentMethod.COD.value,
+        'UPI': PaymentMethod.UPI.value,
+        'CREDITCARD': PaymentMethod.CREDITCARD.value,
+        'DEBITCARD': PaymentMethod.DEBITCARD.value,
+        'NETBANKING': PaymentMethod.NETBANKING.value,
+    }
+    method = method_map.get(method_str)
+
+    # Prepare payment fields conditionally based on method
+    card_details = None
+    bank_details = None
+    upi_id = None
+
+    if method_str in ['CREDITCARD', 'DEBITCARD']:
+        card_number = payment_data.get('card_number', '')
+        expiry = payment_data.get('expiry', '')
+        # Mask card details except last 4 digits
+        masked_card = "**** **** **** " + (card_number[-4:] if len(card_number) >= 4 else '')
+        card_details = f"{masked_card} Expiry: {expiry}"
+    elif method_str == 'NETBANKING':
+        bank_details = payment_data.get('bank')
+    elif method_str == 'UPI':
+        upi_id = payment_data.get('upi_id')
+
+    is_paid_in_cod = Payment.objects.filter(order=order, method=PaymentMethod.COD.value).first()
+
+    if is_paid_in_cod:
+        try:
+            payment = Payment.objects.filter(order=order, is_active=True).first()
+            if payment:
+                payment.status = PaymentStatus.COMPLETED.value
+                payment.card_details = card_details
+                payment.bank_details = bank_details
+                payment.upi_id = upi_id
+                payment.amount = payment_data.get('amount')
+                payment.transaction_id = payment_data.get('transaction_id')
+                payment.method = method  # removed trailing comma that made it a tuple
+                payment.save()
+            else:
+                print("DEBUG: No active payment found to update.")
+        except Exception as e:
+            print(f"ERROR saving payment update for COD payment: {e}")
+    else:
+        try:
+            payment = Payment.objects.create(
+                user=order.user,
+                order=order,
+                method=method,
+                card_details=card_details,
+                bank_details=bank_details,
+                upi_id=upi_id,
+                amount=payment_data.get('amount'),
+                transaction_id=payment_data.get('transaction_id')
+            )
+            if payment:
+                payment.status = PaymentStatus.PENDING.value if method == PaymentMethod.COD.value else PaymentStatus.COMPLETED.value
+                payment.save()
+
+            order.status = OrderStatus.PROCESSING.value
+            order.save()
+
+        except Exception as e:
+            print(f"ERROR creating new payment: {e}")
+
+    return payment
+
+
+

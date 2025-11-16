@@ -41,21 +41,19 @@ document.addEventListener('DOMContentLoaded', function() {
         });
 
         if (response.ok) {
-            // Remove DOM element only if the backend confirms deletion
+            showMessage('success','Item is removed!')
             itemToRemove.remove();
             setTimeout(()=>{
                 window.location.reload();
             },1000);
         } else {
-            // Optionally notify the user of failure
-            alert('Failed to remove the item. Please try again.');
+            showMessage('error', "'Failed to remove the item. Please try again.'");
         }
         } catch (error) {
-        // Handle network or other errors
-        alert('Error removing item: ' + error.message);
+        showMessage('error', "Error Occures Removing Item");
         }
     }else{
-        console.error("not triggered remove btn");
+        showMessage('error', "Remove button is not working!");
     }
 
     // Close modal and clear reference

@@ -52,11 +52,10 @@ document.addEventListener('DOMContentLoaded', function() {
         toggleQuantityButtons(data.in_stock, itemId);
 
       } else {
-        alert('Could not update quantity.');
+        showMessage('error', "Quantity is not updated properly!");
       }
     } catch (err) {
-      alert('Error updating cart.');
-      console.error(err);
+      showMessage('error', "Error Updating Cart!");
     }
   }
 

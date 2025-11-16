@@ -4,5 +4,8 @@ window.addEventListener('load', () => {
     console.log('Back or forward navigation detected - reloading');
     window.location.reload();
   }
+  else{
+    console.log("not reloading");
+  }
 });
 
