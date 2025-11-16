@@ -1,11 +1,10 @@
-window.addEventListener('load', () => {
-  // Check if navigation type is back_forward (2)
-  if (performance.getEntriesByType("navigation")[0].type === 'back_forward') {
-    console.log('Back or forward navigation detected - reloading');
+window.addEventListener('pageshow', (event) => {
+  if (event.persisted) {
+    console.log('Page loaded from back-forward cache, reloading...');
     window.location.reload();
-  }
-  else{
-    console.log("not reloading");
+  } else {
+    console.log('Page loaded normally');
   }
 });
+
 
