@@ -30,7 +30,6 @@ class AdminPosterCreateView(View):
             start_date = request.POST.get('start_date')
             end_date = request.POST.get('end_date')
 
-            print(product_id)
             if not all([product_id,title, image_file, start_date, end_date]):
                 return JsonResponse({'error': 'Missing required fields'}, status=400)
 

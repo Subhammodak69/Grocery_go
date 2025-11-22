@@ -1,0 +1,21 @@
+{% extends 'enduser/base.html' %}
+{% load static %}
+{% block title %} Order | GroceryGo {% endblock %}
+{% block content %}
+<div class="d-flex align-items-center mb-2 justify-content-center" style="margin-top: 200px;width: 100%;position: relative;">
+  <div class="card {% if status == 'success' %}border-success{% else %} border-danger {%endif%}" >
+      <p class="d-flex align-items-center mb-2 justify-content-center p-2 {% if status == 'success' %}bg-success{% else %} bg-danger {%endif%} text-white">{{status}}!</p>
+      <div class="card-body">
+          <p class="card-text {% if status == 'success' %}text-success{% else %} text-danger {%endif%}">{{message}}</p>
+      </div>
+      <input type="hidden" id = "url_value" value = "{{redirected_url}}">
+  </div>
+</div>
+<script>
+  const redirected_url = document.getElementById('url_value').value.trim();
+  console.log(redirected_url);
+  setTimeout(() => {
+    window.location.href = redirected_url;
+  },1500); 
+</script>
+{% endblock %}

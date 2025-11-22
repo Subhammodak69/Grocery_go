@@ -2,7 +2,7 @@ from django.views import View
 from django.shortcuts import render
 from E_mart.constants.decorators import admin_required
 from django.utils.decorators import method_decorator
-from E_mart.services import worker_service
+from E_mart.services import worker_service,deliveryperson_service
 from django.views.decorators.csrf import csrf_exempt
 import json
 from django.http import JsonResponse
@@ -48,12 +48,14 @@ class AdminWorkerCreateView(View):
                 return JsonResponse({'error': 'Missing required fields.'}, status=400)
 
             # Call your worker_service to create worker (implement this accordingly)
-            worker_service.create_worker(
+            user = worker_service.create_worker(
                 email=email,
                 first_name=first_name,
                 last_name=last_name,
                 phone_number=phone_number,
             )
+            if user:
+                deliveryperson_service.create_deliveryperson(user)
 
             return JsonResponse({'message': 'worker created successfully.'})
 
@@ -74,7 +76,6 @@ class AdminWorkerUpdateView(View):
     def post(self, request,worker_id):
         try:
             data = json.loads(request.body)
-            print(data)
             first_name = data.get('first_name')
             last_name = data.get('last_name')
             email = data.get('email')

@@ -83,10 +83,10 @@
         <button type="button" onclick="changeQuantity(1)" style="font-size:20px;border: none;">+</button>
     </div>
         <div class="mt-4 d-flex align-items-center gap-4">
-            <button class="btn btn-danger px-4"onclick="buy_now()">
+            <button class="btn btn-danger px-4"onclick="buy_now()" {% if product.stock == 0 %}disabled{% endif %}>
               <i class="bi bi-bag"></i> Buy now
             </button>
-            <button class="btn btn-warning px-4" onclick="add_to_cart()">
+            <button class="btn btn-warning px-4" onclick="add_to_cart()" {% if product.stock == 0 %}disabled{% endif %}>
               <i class="bi bi-cart"></i>Add to Cart
             </button>
         </div>
@@ -196,12 +196,64 @@
     {% endif %}
   </div>
 </div>
-<div class="mt-5 pt-4 border-top">
+<div class="mt-5 py-4 mb-3 border-top border-bottom">
   <h2 class="h5 fw-semibold mb-3">Additional Information</h2>
   <ul class="list-unstyled text-secondary mb-0">
     <li>Delivery charges: Free shipping on orders over ₹500</li>
     <li>Exchange and Refund is available.</li>
   </ul>
+</div>
+  <h2 class="h5 fw-semibold">Related Products</h2>
+
+<div class="d-flex overflow-y-scroll g-4 mx-auto mb-5 bg-light" style="padding: 10px;gap: 10px;">
+  {% for product in products %}
+  <div style="max-width:200px; width:100%;">
+    <div class="card product-card h-100 mb-3"> 
+      <span class="wishlist-icon"
+            data-product-id="{{ product.id }}"
+            onclick="toggleWishlist(this)">
+        {% if product.is_in_wishlist %}
+          <i class="bi bi-heart-fill" style="color:red"></i>
+        {% else %}
+          <i class="bi bi-heart"></i>
+        {% endif %}
+      </span>
+      <img src="{% static product.image %}" class="product-img" alt="Product">
+        <div class="product-info">
+          <div style="height: 40px;overflow: hidden; ">
+            <h5 class="product-title">{{ product.name }}</h5>
+            <div class="d-flex align-items-center mb-3">
+              <div class="text-warning d-flex">
+                <!-- 5 star icons for review (Bootstrap doesn't have built-in SVG, so using inline SVG as is) -->
+                {% if product.rating %}
+                {% for i in product.rating.rated_stars%}
+                <svg class="me-1" width="12" height="12" fill="currentColor" viewBox="0 0 20 20">
+                  <path d="M10 15l-5.878 3.09 1.123-6.545L.49 6.91l6.564-.955L10 0l2.946 5.955 6.564.955-4.755 4.635 1.123 6.545z"/>
+                </svg>
+                {% endfor %}
+                {% for i in product.rating.unrated_stars%}
+                <svg width="12" height="12" fill="#d1d5db" viewBox="0 0 20 20">
+                  <path d="M10 15l-5.878 3.09 1.123-6.545L.49 6.91l6.564-.955L10 0l2.946 5.955 6.564.955-4.755 4.635 1.123 6.545z"/>
+                </svg>
+                {% endfor %}
+                {% endif %}
+              </div>
+              <span class="ms-2 text-muted small">({{product.rating.ratings}})</span>
+            </div>
+          </div>
+          <div class="price-stack mb-2">
+            <div class="d-flex align-items-center justify-content-between gap-2">
+            <span class="original-price">₹{{ product.original_price }} </span>
+            <p class="discount-label mb-0">{{ product.discount|floatformat:2 }}%</p>
+            
+            </div>
+            <span class="discounted-price">₹{{ product.price }}/{{ product.size }}</span>
+          </div>
+          <button class="para text-center view-btn" onclick="window.location.href='/product/{{product.id}}/'">View Details-></button>
+        </div>
+    </div>
+  </div>
+  {% endfor %}
 </div>
 <!--Show picture-->
 <div id="photo-modal" style="display:none; position:fixed; z-index:9999; top:0; left:0; width:100vw; height:100vh; background:rgba(10,12,30,0.36); align-items:center; justify-content:center;">

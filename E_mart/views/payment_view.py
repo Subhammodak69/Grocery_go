@@ -16,7 +16,6 @@ class PaymentCreateView(View):
     def get(self,request,order_id):
         order = order_service.get_order_by_id(order_id)
         is_paid =payment_service.check_order_is_paid(order.id)
-        print(is_paid)
         if is_paid:
             return redirect('/')
         return render(request,'enduser/payment.html',{'order':order})
@@ -53,7 +52,7 @@ class PaymentCreateView(View):
             
             payment_service.create_payment(order,data)
 
-            return JsonResponse({'success': True, 'redirect_url': '/order/success/'})
+            return JsonResponse({'success': True})
 
         except json.JSONDecodeError:
             return JsonResponse({'success': False, 'error': 'Invalid JSON'}, status=400)

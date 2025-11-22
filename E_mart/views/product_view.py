@@ -100,6 +100,7 @@ class ProductDetailsView(View):
         review_data = review_service.get_product_review_data(product.id)
         rating = review_service.get_rating_by_product_id(product_id)
         discount = product_service.get_product_offer_by_id(product.id)
+        related_products = product_service.get_products_by_category(product.category.id)
         return render(
             request, 
             'enduser/product_details.html', 
@@ -108,7 +109,8 @@ class ProductDetailsView(View):
                     'discount':discount,
                     'reviews':review_data,
                     'review_len':len(review_data),
-                    'rating':rating
+                    'rating':rating,
+                    'products':related_products
                 })
 
 class ProductSearchView(View):

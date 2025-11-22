@@ -41,13 +41,11 @@ def update_user(user_id,email,first_name,last_name,phone_number,address):
     return user
 
 def update_enduser(user_id,phone,main_address,optional_address):
-    print(phone,main_address,optional_address)
     user = User.objects.get(id=user_id, is_active = True)
     user.phone_number = phone
     user.address = main_address
     user.optional_address = optional_address
     user.save() 
-    print(user)
     return
    
    

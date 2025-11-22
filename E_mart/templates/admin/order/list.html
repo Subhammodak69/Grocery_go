@@ -1,0 +1,139 @@
+{% extends "admin/home.html" %}
+{% load static %}
+{% block title %}Orders List{% endblock %}
+{% block content %}
+{% comment %} <script src="{% static 'js/admin/order/order_list.js'%}"></script> {% endcomment %}
+<div class="overflow-auto p-4 rounded h-100">
+    <div class="d-flex align-items-center justify-content-between mb-3">
+        <h4>Order List</h4>
+        <div class="d-flex align-items-center justify-content-center">
+            Filter
+            <select id="order-filter" class="form-select">
+                <option value="all">--All--</option>
+                <option value="pending">Pending</option>
+                <option value="processing">Processing</option>
+                <option value="outfordelivery">Out for delivery</option>
+                <option value="delivered">Delivered</option>
+                <option value="cancelled">Cancelled</option>
+                <option value="confirmed">Confirmed</option>
+            </select>
+        </div>
+
+<script>
+    // Function to set the selected option on page load
+    function setSelectedFilter() {
+        var params = new URLSearchParams(window.location.search);
+        var filter = params.get('filter') || 'all';  // Default to 'all' if no filter param
+
+        var select = document.getElementById('order-filter');
+        select.value = filter;  // Set the select box value
+
+        // Add event listener for changes (already in your code)
+        select.addEventListener('change', function() {
+            var filter = this.value;
+            var params = new URLSearchParams(window.location.search);
+            if (filter === 'all') {
+                params.delete('filter');
+            } else {
+                params.set('filter', filter);
+            }
+            window.location.search = params.toString();
+        });
+    }
+
+    // Run on page load
+    document.addEventListener('DOMContentLoaded', setSelectedFilter);
+</script>
+
+
+    </div>
+    <table class="table table-striped table-bordered w-100">
+        <thead class="table-dark">
+            <tr>
+                <th>ID</th>
+                <th>Assinged To</th>
+                <th>Order By</th>
+                <th>Created_at</th>
+                <th>Updated_at</th>
+                <th>Status</th>
+                <th>Total</th>
+                <th>Discount</th>
+                <th>Delivery_fee</th>
+                <th>Listing_price</th>
+                <th>delivery_address</th>
+                <th>No. of Item </th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for order in orders %}
+            <tr>
+                <td>{{ order.order.id }}</td>
+                <td>
+                    <select id="assigned-to-{{ order.order.id }}" class="assigned-to-select" data-order-id="{{ order.order.id }}">
+                        <option value="">--select--</option>
+                        {% for dboy in deliveryboys %}
+                            <option value="{{ dboy.id }}" {% if dboy.id == order.assigned_to %}selected{% endif %}>
+                                {{ dboy.user.first_name }} {{ dboy.user.last_name }}
+                            </option>
+                        {% endfor %}
+                    </select>
+                </td>
+                <td>{{ order.order.user }}</td>
+                <td>{{ order.order.created_at }}</td>
+                <td>{{ order.order.updated_at }}</td>
+                <td>{{ order.status_name }}</td>
+                <td>{{ order.order.total_price }}</td>
+                <td>{{ order.order.discount }}</td>
+                <td>{{ order.order.delivery_fee }}</td>
+                <td>{{ order.order.listing_price }}</td>
+                <td>{{ order.order.delivery_address }}</td>
+                <td>{{ order.items_count }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Add change event listener to all delivery boy selects
+        document.querySelectorAll('.assigned-to-select').forEach(function(selectElem) {
+            selectElem.addEventListener('change', function(event) {
+                const orderId = this.getAttribute('data-order-id');
+                const selectedDboyId = this.value;
+
+                console.log('Order ID:', orderId, 'Assigned To Delivery Boy ID:', selectedDboyId);
+
+                fetch('/admin/update-order-assignee/', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({order_id: orderId, assigned_to: selectedDboyId})
+                })
+                .then(response => response.json())
+                .then(data => {
+                    console.log(JSON.stringify(data));
+                    if (data.success){
+                        alert('Success:'+ data.message);
+                        window.location.reload();
+                    }else{
+                        alert('Error:'+ data.message);
+                        window.location.reload();
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                });
+            });
+        });
+    });
+</script>
+<style>
+    td {
+  max-width: 150px;        
+  white-space: nowrap;     
+  overflow: hidden;       
+  text-overflow: ellipsis; 
+}
+</style>
+{% endblock %}

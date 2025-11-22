@@ -111,7 +111,6 @@ class UserProfileView(View):
     def get(self,request):
         user_data = user_service.get_user_data_by_id(request.user.id)
         user = request.user
-        print(user_data)
         return render(request, 'enduser/profile.html',{'user':user,'user_data':user_data})
 
 

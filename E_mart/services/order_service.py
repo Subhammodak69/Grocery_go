@@ -1,61 +1,59 @@
 from E_mart.models import Order,OrderItem,CartItem,Product,Payment
-from E_mart.services import cart_service,payment_service
+from E_mart.services import cart_service,payment_service,product_service
 from decimal import Decimal
 from E_mart.constants.default_values import OrderStatus,PaymentStatus
 from django.utils import timezone
 from datetime import timedelta
 from django.core.exceptions import PermissionDenied, ObjectDoesNotExist
 
-def create_order(user, address,final_price,delivery_fee,discount):
+def create_order(user, address, final_price, delivery_fee, discount):
     """
     Create an order from the user's cart
     """
     try:
         user_cart = cart_service.get_cart_by_user(user.id)
-        
-        # Get CartItem objects directly - DON'T convert to dict
+
         cart_items = CartItem.objects.filter(cart=user_cart)
-        
+
         if not cart_items.exists():
             raise Exception("Cart is empty")
-        
-        # Calculate total price correctly
+
         total = 0
         for item in cart_items:
-            item_total = (item.product.price) * item.quantity
+            # Check stock availability
+            if item.product.stock < item.quantity:
+                raise Exception(f"Product '{item.product.name}' is out of stock!")
+            item_total = item.product.price * item.quantity
             total += item_total
-        
-        # Create the order
+
         order = Order.objects.create(
             user=user,
             status=OrderStatus.PENDING.value,
             listing_price=total,
-            total_price = final_price,
-            delivery_fee = delivery_fee,
+            total_price=final_price,
+            delivery_fee=delivery_fee,
             delivery_address=address,
-            discount = discount
+            discount=discount
         )
-        
-        # Create OrderItem entries from cart items
+
         for cart_item in cart_items:
-            orderitem =OrderItem.objects.create(
+            order_item = OrderItem.objects.create(
                 order=order,
                 product=cart_item.product,
-                quantity = item.quantity
+                quantity=cart_item.quantity  # fixed usage here
             )
-            product = orderitem.product
-            product.stock -= item.quantity
+            product = order_item.product
+            product.stock -= cart_item.quantity  # fixed usage here
             product.save()
 
-        # Clear cart after order creation
+        # Clear cart items after creating order
         cart_items.delete()
-        
+
         return order
-        
+
     except Exception as e:
         print(f"Error creating order: {str(e)}")
         return None
-
 
 
 def sigle_order_create(user, product_id, address, quantity,listing_price,delivery_fee,discount):
@@ -86,7 +84,6 @@ def sigle_order_create(user, product_id, address, quantity,listing_price,deliver
         if order_item:
             product.stock -= quantity
             product.save()
-            print("now stock is =>",product.stock)
         # Return created order (could be used for confirmation, etc.)
         return order
 
@@ -212,3 +209,9 @@ def free_garbage_order():
             product.save()
         order.delete()
     return
+
+def get_all_orders(status):
+    if status == 'all':
+        return Order.objects.all()
+    return Order.objects.filter(status = OrderStatus[status].value)
+

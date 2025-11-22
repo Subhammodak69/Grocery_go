@@ -193,12 +193,25 @@
                 {% endif %}
               </div>
             </div>
-    {%if not order_data.is_paid %}
-      <button type="button" class="btn btn-primary mx-3 p-2 mb-4" onclick="window.location.href='/create/payment/{{order_data.id}}/'">
-        <i class="bi bi-credit-card me-1"></i>
-        Go To Pay
-      </button>
-    {% endif %}
+            <div class="summary-card">
+              <div class="summary-header">
+                <h3 class="section-title">
+                  <i class="bi bi-calculator me-2"></i>
+                  Payment Details
+                </h3>
+              </div>
+              {%if payment %}
+              <div class="d-flex">Payment Method:<p>{{payment.method}}</p></div>
+              <div class="d-flex">Payment status:<p>{{payment.status}}</p></div>
+              <div class="d-flex">Amount:<p>{{payment.amount}}</p></div>
+              {% endif %}
+            </div>
+            {%if not order_data.is_paid %}
+              <button type="button" class="btn btn-primary mx-3 p-2 mb-4" onclick="window.location.href='/create/payment/{{order_data.id}}/'">
+                <i class="bi bi-credit-card me-1"></i>
+                Go To Pay
+              </button>
+            {% endif %}
             <!-- User Details Card -->
             <div class="user-details-card">
               <div class="card-header">
@@ -259,7 +272,7 @@
 
             <!-- Order Actions -->
             <div class="order-actions mx-4">
-              <button type="button" class="back-btn btn btn-primary px-4" onclick="window.history.back()">
+              <button type="button" class="back-btn btn btn-primary px-4" onclick="window.location.href='/orders/'">
                 <i class="bi bi-arrow-left"></i>
                 Back
               </button>

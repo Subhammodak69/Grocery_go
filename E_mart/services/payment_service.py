@@ -83,4 +83,9 @@ def create_payment(order, payment_data):
     return payment
 
 
+def get_payment_data_by_order_id(order_id):
+    order = order_service.get_order_by_id(order_id)
+    return Payment.objects.filter(order = order, is_active = True).first()
+
+    
 

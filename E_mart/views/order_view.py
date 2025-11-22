@@ -1,11 +1,12 @@
 from django.views import View
 from django.shortcuts import render,redirect
-from E_mart.services import product_service,cart_service,order_service
+from E_mart.services import product_service,cart_service,order_service,payment_service,delivery_service,deliveryperson_service
 from django.utils.decorators import method_decorator
-from E_mart.constants.decorators import enduser_required
+from E_mart.constants.decorators import enduser_required,admin_required
 from django.views.decorators.csrf import csrf_exempt
 from django.http import JsonResponse
 import json
+from E_mart.constants.default_values import OrderStatus
 
 
 
@@ -31,7 +32,6 @@ class ProductOrderSummary(View):
         return render(request, 'enduser/singly_order_summary.html', {'total_price':final_price,'data': product,'extra_data':extra_data})
     
     def post(self, request):
-        print(request.user.id)
         try:
             # Extract form data from POST request
             user = request.user
@@ -50,23 +50,18 @@ class ProductOrderSummary(View):
 
             product_is_available = product_service.is_product_in_stock(product_details_id, quantity)
             if not product_is_available:
-                return render(request, 'enduser/singly_order_summary.html', {
-                    'error_message': 'Product is recently out of stock',
-                })
+                return render(request, 'enduser/success_delay_redirect.html', {'redirected_url':'/','message':'Product is recently out of stock!','status':'error'})
 
             # Create order using your service function
             order = order_service.sigle_order_create(user, product_details_id, address, quantity, listing_price, delivery_fee, discount)
 
             if order:
-                return redirect(f'/create/payment/{order.id}/')
+                return render(request, 'enduser/success_delay_redirect.html', {'redirected_url':f"/create/payment/{order.id}/",'message':'Order placed successfully! Redirecting...','status':'success'})
+
             else:
-                return render(request, 'enduser/singly_order_summary.html', {
-                    'error_message': 'Failed to create order',
-                })
+                return render(request, 'enduser/success_delay_redirect.html', {'redirected_url':'/','message':'Failed to create order','status':'error'})
         except Exception as e:
-            return render(request, 'enduser/singly_order_summary.html', {
-                'error_message': str(e),
-            })
+            render(request, 'enduser/success_delay_redirect.html', {'redirected_url':'/','message':'Server Error!','status':'error'})
 
     
 @method_decorator(enduser_required, name='dispatch')
@@ -94,27 +89,28 @@ class OrderCreateView(View):
             final_price = data.get('final_price')
             delivery_fee = data.get('delivery_fee')
             discount = data.get('discount')
-            
+
             if not address:
                 return JsonResponse({
                     'success': False,
                     'message': 'Address is required'
                 })
-            
-            # Create order with address
-            order = order_service.create_order(request.user, address,final_price,delivery_fee,discount)
-            
+
+            order = order_service.create_order(request.user, address, final_price, delivery_fee, discount)
+
             if order:
                 return JsonResponse({
                     'success': True,
                     'message': 'Order created successfully',
+                    'order_id': order.id,  # return this for frontend redirect
                     'redirect_url': f'/create/payment/{order.id}/'
                 })
             else:
                 return JsonResponse({
                     'success': False,
-                    'message': 'Failed to create order'
+                    'message': 'Product is out of stock or cart is empty!'
                 })
+
         except Exception as e:
             return JsonResponse({
                 'success': False,
@@ -137,10 +133,11 @@ class OrderDetailsView(View):
         if not order_data:
             return redirect('/orders/')
         summary = order_service.get_order_price_summary(order_id) 
-
+        payment = payment_service.get_payment_data_by_order_id(order_id)
         context = {
             'order_data': order_data,
-            'summary':summary
+            'summary':summary,
+            'payment':payment
         }
         return render(request, 'enduser/order_details.html', context)   
 
@@ -181,3 +178,59 @@ class OrderPermanentDeleteView(View):
 
         except Exception as e:
             return JsonResponse({'error': str(e)}, status=500)
+        
+    
+
+#For Admin View
+
+@method_decorator(admin_required,name='dispatch')
+class AdminOrderListView(View):
+    def get(self, request):
+        filter_value = request.GET.get('filter', None)
+        if filter_value == 'pending':
+            filter_by = 'PENDING'
+        elif filter_value == 'processing':
+            filter_by = 'PROCESSING'
+        elif filter_value == 'outfordelivery':
+            filter_by = 'OUTFORDELIVERY'
+        elif filter_value == 'delivered':
+            filter_by = 'DELIVERED'
+        elif filter_value == 'cancelled':
+            filter_by = 'CANCELLED'
+        elif filter_value == 'confirmed':
+            filter_by = 'CONFIRMED'
+        else:
+            filter_by = 'all'
+
+        orders = order_service.get_all_orders(filter_by)
+        orders_data = [
+            {
+                'order':order,
+                'items_count':order.items.count(),
+                'status_name':OrderStatus(order.status).name,
+                'assigned_to':delivery_service.get_delivery_person_by_order(order.id)
+            }
+            for order in orders
+        ]
+        deliveryboys = deliveryperson_service.get_available_delivery_boys()
+        context = {'orders': orders_data,'deliveryboys':deliveryboys}
+        return render(request, 'admin/order/list.html', context)
+    
+
+@method_decorator(admin_required,name='dispatch')
+@method_decorator(csrf_exempt,name='dispatch')
+class AdminOrderAssignedView(View):
+    def post(self, request):
+        data = json.loads(request.body)
+        print(data)
+        order_id = data.get('order_id')
+        assigned_to = data.get('assigned_to')
+        if not all([order_id,assigned_to]):
+            return JsonResponse({'success':False, 'message':'Order id or assigned_to is missing!'})
+        res = delivery_service.assigned_worker(order_id,assigned_to)
+        if res:
+            order = order_service.get_order_by_id(order_id)
+            order.status = OrderStatus.CONFIRMED.value
+            order.save()
+            return JsonResponse({'success':True, 'message':'Assigned successfully!'})
+        return JsonResponse({'success':False, 'message':'Assigned is failed!'})

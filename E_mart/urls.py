@@ -31,6 +31,9 @@ urlpatterns = [
     path('admin/product/update/<int:product_id>/',AdminProductUpdateView.as_view(), name='admin_product_update'),
     path('admin/products/toggle-active/',AdminProductToggleActiveView.as_view(), name='admin_product_toggle_active'),
 
+    path('admin/orders/',AdminOrderListView.as_view(), name='admin_order_list'), 
+    path('admin/update-order-assignee/',AdminOrderAssignedView.as_view(), name='admin_order_assigned'),
+
     #enduser
 
     path('api/categories/',ApiGetAllCategory, name='api_get_categories'),
