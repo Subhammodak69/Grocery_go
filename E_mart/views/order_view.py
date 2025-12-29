@@ -33,6 +33,7 @@ class ProductOrderSummary(View):
     
     def post(self, request):
         try:
+
             # Extract form data from POST request
             user = request.user
             product_details_id = request.POST.get('product_details_id')
@@ -51,12 +52,15 @@ class ProductOrderSummary(View):
             product_is_available = product_service.is_product_in_stock(product_details_id, quantity)
             if not product_is_available:
                 return render(request, 'enduser/success_delay_redirect.html', {'redirected_url':'/','message':'Product is recently out of stock!','status':'error'})
-
             # Create order using your service function
             order = order_service.sigle_order_create(user, product_details_id, address, quantity, listing_price, delivery_fee, discount)
-
+            payment_data = request.session.get('payment_data')
+            payment = payment_service.api_create_payment(order,payment_data)
+            if not payment:
+                return  render(request, 'enduser/success_delay_redirect.html', {'redirected_url':f"/create/payment/{order.id}/",'message':'Payment failed! Redirecting...','status':'error'})
+            request.session.pop('payment_data')
             if order:
-                return render(request, 'enduser/success_delay_redirect.html', {'redirected_url':f"/create/payment/{order.id}/",'message':'Order placed successfully! Redirecting...','status':'success'})
+                return render(request, 'enduser/success_delay_redirect.html', {'redirected_url':f"/order/{order.id}/",'message':'Order placed successfully! Redirecting...','status':'success'})
 
             else:
                 return render(request, 'enduser/success_delay_redirect.html', {'redirected_url':'/','message':'Failed to create order','status':'error'})
@@ -69,8 +73,10 @@ class ProductsOrderSummaryByCart(View):
     def get(self,request):
         user_cart = cart_service.get_cart_by_user(request.user.id)
         products_data = cart_service.get_all_cart_products_data(user_cart)
+        if not products_data:
+            return redirect('/user/cart/')
         summary = cart_service.get_cart_summary(user_cart)
-        
+
         return render(request, 'enduser/cart_order_summary.html',{
             'cart_id':user_cart.id,
             'products_data':products_data, 
@@ -97,13 +103,19 @@ class OrderCreateView(View):
                 })
 
             order = order_service.create_order(request.user, address, final_price, delivery_fee, discount)
-
+            
             if order:
+                payment_data = request.session.get('payment_data')
+                res = payment_service.api_create_payment(order,payment_data)
+                if not res:
+                    order.delete()
+                    return JsonResponse({'success':False, 'message':'server error!'})
+                request.session.pop('payment_data')
                 return JsonResponse({
                     'success': True,
                     'message': 'Order created successfully',
                     'order_id': order.id,  # return this for frontend redirect
-                    'redirect_url': f'/create/payment/{order.id}/'
+                    'redirect_url': f'/order/{order.id}/'
                 })
             else:
                 return JsonResponse({
@@ -222,7 +234,6 @@ class AdminOrderListView(View):
 class AdminOrderAssignedView(View):
     def post(self, request):
         data = json.loads(request.body)
-        print(data)
         order_id = data.get('order_id')
         assigned_to = data.get('assigned_to')
         if not all([order_id,assigned_to]):

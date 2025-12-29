@@ -10,3 +10,4 @@ from .order_view import *
 from .worker_view import *
 from .Review_view import *
 from .payment_view import *
+from .delivery_or_pickup_view import *

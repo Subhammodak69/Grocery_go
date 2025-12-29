@@ -217,56 +217,44 @@
               <div class="card-header">
                 <h3 class="section-title">
                   <i class="bi bi-person-circle me-2"></i>
-                  Account Information
+                  Account & Delivery Information
                 </h3>
               </div>
-              
+
               <div class="user-info-grid">
+
+                <!-- Full Name -->
                 <div class="info-item">
-                  <div class="info-icon">
-                    <i class="bi bi-person-fill"></i>
-                  </div>
-                  <div class="info-content">
-                    <span class="info-label">Full Name</span>
-                    <span class="info-value">{{ user.get_full_name|default:"Not provided" }}</span>
+                  <i class="bi bi-person-fill text-secondary me-2 fs-5"></i>
+                  <div>
+                    <div class="small text-muted">Full Name</div>
+                    <div>{{ user.get_full_name|default:"Not provided" }}</div>
                   </div>
                 </div>
 
+                <!-- Phone -->
+                {% if user.phone_number %}
                 <div class="info-item">
-                  <div class="info-icon">
-                    <i class="bi bi-envelope-fill"></i>
-                  </div>
-                  <div class="info-content">
-                    <span class="info-label">Email Address</span>
-                    <span class="info-value">{{ user.email }}</span>
-                  </div>
-                </div>
-
-                {% if user.phone %}
-                <div class="info-item">
-                  <div class="info-icon">
-                    <i class="bi bi-telephone-fill"></i>
-                  </div>
-                  <div class="info-content">
-                    <span class="info-label">Phone Number</span>
-                    <span class="info-value">{{ user.phone }}</span>
+                  <i class="bi bi-telephone-fill text-secondary me-2 fs-5"></i>
+                  <div>
+                    <div class="small text-muted">Phone</div>
+                    <div>{{ user.phone_number }}</div>
                   </div>
                 </div>
                 {% endif %}
-              </div>
-            </div>
 
-            <!-- Delivery Address Card -->
-            <div class="delivery-card">
-              <div class="card-header">
-                <h3 class="section-title">
-                  <i class="bi bi-geo-alt-fill me-2"></i>
-                  Delivery Address
-                </h3>
-              </div>
-              
-              <div class="address-input-container mb-4" style=" min-height:120px; margin-top: 10px;border-radius: 10px;border: 1px solid gray;">
-                {{order_data.address}}
+                <!-- Delivery Address Input -->
+                <div class="col-12">
+                  <label class="small text-muted mb-1">Delivery Address</label>
+                  <textarea 
+                    id="delivery-address" 
+                    name="address" 
+                    class="form-control" 
+                    rows="3"
+                    disabled
+                  >{{ order_data.address }}</textarea>
+                </div>
+
               </div>
             </div>
 

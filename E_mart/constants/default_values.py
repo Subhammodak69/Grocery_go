@@ -38,6 +38,7 @@ class DeliveryStatus(Enum):
     IN_PROGRESS = 2
     DELIVERED = 3
     FAILED = 4 
+    PICKEDUP = 5
 
 class Purpose(Enum):
     DELIVERY = 1

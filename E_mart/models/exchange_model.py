@@ -13,6 +13,7 @@ class ExchangeOrReturn(models.Model):
     processed_date = models.DateTimeField(null=True, blank=True)
     purpose = models.IntegerField(choices=((eo.value,eo.name)for eo in ExOrRePurpose), default=1)
 
+
     class Meta:
         db_table = 'exchange_requests'
 

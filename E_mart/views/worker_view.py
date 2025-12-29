@@ -101,3 +101,5 @@ class AdminWorkerUpdateView(View):
         except Exception as e:
             # Log the error in production
             return JsonResponse({'error': str(e)}, status=500)
+
+

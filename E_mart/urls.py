@@ -53,6 +53,7 @@ urlpatterns = [
     path('user/cart/create-data/',UserCartCreateDataView.as_view(), name='user_cart_create_data'),
     path('api/cart/remove-item/<int:cart_id>/',ApiRemoveCartItem.as_view(), name='cart_remove_item'),
     path('api/product-quantity/update/<int:item_id>/', CartItemUpdateView.as_view(), name="cartitem-update"),
+    path('api/payment/create/', ApiPaymentCreateView.as_view(), name="payment_create_api"),
     path('wishlist/', WishlistListView.as_view(), name="user_wishlist"),
     path('review/create/', ReviewCreateView.as_view(), name='review_create'),
     path('wishlist/delete-item/<int:wishlist_id>/', WishlistItemDeleteView.as_view(), name="wishlist_item_delete"),
@@ -61,6 +62,7 @@ urlpatterns = [
     path('wishlist/check/<int:product_id>/', CheckWishlistStatus.as_view(), name='check_wishlist'),
     #delivery worker
     path('delivery-worker/',DeliveryWorkerHomeView.as_view(), name='delivery_worker_home'),
+    path('deliveries/',DeliveriesListView.as_view(), name='deliveries_list'),
     path('admin/delivery-worker/create/',AdminWorkerCreateView.as_view(), name='delivery_worker_create'), 
     path('admin/delivery-worker/update/<int:worker_id>/',AdminWorkerUpdateView.as_view(), name='delivery_worker_update'),
     path('admin/delivery-workers/',AdminWorkerListView.as_view(), name='delivery_worker_update'), 

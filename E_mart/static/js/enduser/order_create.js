@@ -1,20 +1,5 @@
-document.addEventListener('DOMContentLoaded', function() {
-    const orderForm = document.getElementById('order-summary-form');
-    if (orderForm) {
-        orderForm.addEventListener('submit', handlePlaceOrder);
-    }
-
-    const placeOrderBtn = document.getElementById('placeOrderBtn');
-    if (placeOrderBtn) {
-        placeOrderBtn.addEventListener('click', function(e) {
-            // Form submission handled by 'submit' event
-        });
-    }
-});
-
-function handlePlaceOrder(e) {
-    e.preventDefault();
-
+function create_order(){
+    console.log("called...............");
     const addressField = document.getElementById('delivery-address');
     const address = addressField ? addressField.value.trim() : '';
     const final_price = document.getElementById('final_price').value;
@@ -32,15 +17,6 @@ function handlePlaceOrder(e) {
         return;
     }
 
-    const placeOrderBtn = document.getElementById('placeOrderBtn');
-    if (!placeOrderBtn) return;
-    const btnContent = placeOrderBtn.querySelector('.btn-content');
-    const btnLoader = placeOrderBtn.querySelector('.btn-loader');
-
-    btnContent.style.display = 'none';
-    btnLoader.style.display = 'block';
-    placeOrderBtn.disabled = true;
-
     fetch('/order/create/', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -57,29 +33,27 @@ function handlePlaceOrder(e) {
         return response.json();
     })
     .then(data => {
+        console.log(JSON.stringify(data));
         if (data.success) {
             showMessage(
                 'success',
                 'Order Placed Successfully! Redirecting...'
             );
-            // Redirect based on order_id returned by backend
-            window.location.href = `/create/payment/${data.order_id}/`;
+            setTimeout(() => {
+                window.location.href = `/order/${data.order_id}/`;
+                },1000);
         } else {
             showMessage('error', data.message);
             setTimeout(() => {
                 window.location.href = `/user/cart/`;
             },1000);
             
-            btnContent.style.display = 'block';
-            btnLoader.style.display = 'none';
-            placeOrderBtn.disabled = false;
         }
     })
     .catch(error => {
         showMessage('error', error.message || error);
+        setTimeout(() => {
         window.location.href = `/user/cart/`;
-        btnContent.style.display = 'block';
-        btnLoader.style.display = 'none';
-        placeOrderBtn.disabled = false;
+        },1000);
     });
 }

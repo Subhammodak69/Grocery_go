@@ -6,6 +6,7 @@
 {% endblock %}
 {% block extra_js %}
   <script src = "{% static 'js/enduser/geolocation_collector.js' %}"></script>
+  <script src = "{% static 'js/enduser/single_order_payment.js' %}"></script>
 {% endblock %}
 {% block content %}
 <div class="order-container">
@@ -220,119 +221,199 @@
                 {% endif %}
               </div>
             </div>
-
-            <!-- User Details Card -->
+            <!--user details-->
             <div class="user-details-card">
               <div class="card-header">
                 <h3 class="section-title">
                   <i class="bi bi-person-circle me-2"></i>
-                  Account Information
+                  Account & Delivery Information
                 </h3>
               </div>
-              
+
               <div class="user-info-grid">
+
+                <!-- Full Name -->
                 <div class="info-item">
-                  <div class="info-icon">
-                    <i class="bi bi-person-fill"></i>
-                  </div>
-                  <div class="info-content">
-                    <span class="info-label">Full Name</span>
-                    <span class="info-value">{{ user.get_full_name|default:"Not provided" }}</span>
+                  <i class="bi bi-person-fill text-secondary me-2 fs-5"></i>
+                  <div>
+                    <div class="small text-muted">Full Name</div>
+                    <div>{{ user.get_full_name|default:"Not provided" }}</div>
                   </div>
                 </div>
 
+                <!-- Email -->
                 <div class="info-item">
-                  <div class="info-icon">
-                    <i class="bi bi-envelope-fill"></i>
-                  </div>
-                  <div class="info-content">
-                    <span class="info-label">Email Address</span>
-                    <span class="info-value">{{ user.email }}</span>
+                  <i class="bi bi-envelope-fill text-secondary me-2 fs-5"></i>
+                  <div>
+                    <div class="small text-muted">Email</div>
+                    <div>{{ user.email }}</div>
                   </div>
                 </div>
 
-                {% if user.phone %}
+                <!-- Phone -->
+                {% if user.phone_number %}
                 <div class="info-item">
-                  <div class="info-icon">
-                    <i class="bi bi-telephone-fill"></i>
-                  </div>
-                  <div class="info-content">
-                    <span class="info-label">Phone Number</span>
-                    <span class="info-value">{{ user.phone }}</span>
+                  <i class="bi bi-telephone-fill text-secondary me-2 fs-5"></i>
+                  <div>
+                    <div class="small text-muted">Phone</div>
+                    <div>{{ user.phone_number }}</div>
                   </div>
                 </div>
                 {% endif %}
-
-                {% if user.address %}
-                <div class="info-item full-width">
-                  <div class="info-icon">
-                    <i class="bi bi-house-fill"></i>
-                  </div>
-                  <div class="info-content">
-                    <span class="info-label">Saved Address</span>
-                    <span class="info-value">{{ user.address }}</span>
+              </div >
+              <div style="padding: 0px 1rem;">
+                  <textarea 
+                    id="delivery-address" 
+                    name="address" 
+                    class="address-textarea" 
+                    placeholder="Enter your complete delivery address..."
+                    required
+                    rows="4"
+                  >{{user.address}}</textarea>
+                  <div class="d-flex justify-content-end">
+                    <button type="button" class="location-btn" onclick="getCurrentLocation()">
+                      <i class="bi bi-geo-alt me-2"></i>
+                      Use Current Location
+                    </button>
+                    <button type="button" class="saved-address-btn">
+                      <i class="bi bi-bookmark me-2"></i>
+                      Saved Addresses
+                    </button>
                   </div>
                 </div>
-                {% endif %}
-              </div>
             </div>
 
-            <!-- Delivery Address Card -->
-            <div class="delivery-card">
+            <div class="payment-card">
               <div class="card-header">
                 <h3 class="section-title">
-                  <i class="bi bi-geo-alt-fill me-2"></i>
-                  Delivery Address
+                  <i class="bi bi-wallet2 me-2"></i>Create Payment
                 </h3>
               </div>
-              
-              <div class="address-input-container">
-                <textarea 
-                  id="delivery-address" 
-                  name="address" 
-                  class="address-textarea" 
-                  placeholder="Enter your complete delivery address..."
-                  required
-                  rows="4"
-                >{{user.address}}</textarea>
-                
-                <div class="address-actions">
-                  <button type="button" class="location-btn" onclick="getCurrentLocation()">
-                    <i class="bi bi-geo-alt me-2"></i>
-                    Use Current Location
-                  </button>
-                  <button type="button" class="saved-address-btn">
-                    <i class="bi bi-bookmark me-2"></i>
-                    Saved Addresses
-                  </button>
-                </div>
-              </div>
-            </div>
 
-            <!-- Order Actions -->
-            <div class="order-actions">
-              <button type="button" class="back-btn btn btn-primary px-4 py-3" onclick="window.history.back()">
-                <i class="bi bi-arrow-left me-2"></i>
-                Back
-              </button>
-              
-              <button type="submit" class="place-order-btn">
-                <span class="btn-content">
-                  <i class="bi bi-check-circle me-2"></i>
-                  <span class="btn-text">Place Order</span>
-                  <span class="btn-price"> ₹{{ total_price|floatformat:2 }}</span>
-                </span>
-                <div class="btn-loader" style="display: none;">
-                  <i class="bi bi-arrow-repeat spin"></i>
-                  Processing...
-                </div>
-              </button>
+              <div class="mb-3">
+                  <label class="form-label fw-semibold">Amount</label>
+                  <input type="text" class="form-control" id="amount" name="amount" value = "{{ total_price|floatformat:2 }}" disabled>
+              </div>
+              <!-- Payment Method Select -->
+              <div class="mb-3">
+                  <label class="form-label fw-semibold">Select Payment Method</label>
+                  <select class="form-select" id="payment-method">
+                      <option value="">-- Choose Option --</option>
+                      <option value="UPI">UPI</option>
+                      <option value="CREDITCARD">Credit Card</option>
+                      <option value="DEBITCARD">Debit Card</option>
+                      <option value="NETBANKING">Net Banking</option>
+                      <option value="COD">Cash on Delivery (COD)</option>
+                  </select>
+              </div>
+
+              <!-- ======================= FORMS ======================= -->
+
+              <!-- UPI Form -->
+              <div id="UPI-form" class="method-form">
+                  <h5 class="fw-bold mb-3">UPI Payment</h5>
+                  <div class="mb-3">
+                      <label class="form-label">Enter UPI ID</label>
+                      <input type="text" class="form-control" placeholder="example@upi">
+                  </div>
+                  <button class="btn btn-primary w-100">Pay via UPI</button>
+              </div>
+
+              <!-- Credit Card Form -->
+              <div id="CREDITCARD-form" class="method-form">
+                  <h5 class="fw-bold mb-3">Credit Card Details</h5>
+
+                  <div class="mb-3">
+                      <label class="form-label">Card Number</label>
+                      <input type="text" class="form-control" placeholder="XXXX-XXXX-XXXX-XXXX">
+                  </div>
+                  <div class="row mb-3">
+                      <div class="col-6">
+                          <label class="form-label">Expiry Date</label>
+                          <input type="text" class="form-control" placeholder="MM/YY">
+                      </div>
+                      <div class="col-6">
+                          <label class="form-label">CVV</label>
+                          <input type="password" class="form-control" placeholder="***">
+                      </div>
+                  </div>
+                  <button class="btn btn-success w-100">Pay via Credit Card</button>
+              </div>
+
+              <!-- Debit Card Form -->
+              <div id="DEBITCARD-form" class="method-form">
+                  <h5 class="fw-bold mb-3">Debit Card Details</h5>
+
+                  <div class="mb-3">
+                      <label class="form-label">Card Number</label>
+                      <input type="text" class="form-control" placeholder="XXXX-XXXX-XXXX-XXXX">
+                  </div>
+
+                  <div class="row mb-3">
+                      <div class="col-6">
+                          <label class="form-label">Expiry Date</label>
+                          <input type="text" class="form-control" placeholder="MM/YY">
+                      </div>
+                      <div class="col-6">
+                          <label class="form-label">CVV</label>
+                          <input type="password" class="form-control" placeholder="***">
+                      </div>
+                  </div>
+
+                  <button class="btn btn-info w-100">Pay via Debit Card</button>
+              </div>
+
+              <!-- Net Banking -->
+              <div id="NETBANKING-form" class="method-form">
+                  <h5 class="fw-bold mb-3">Net Banking</h5>
+
+                  <div class="mb-3">
+                      <label class="form-label">Select Your Bank</label>
+                      <select class="form-select">
+                          <option value="">-- Choose Bank --</option>
+                          <option>SBI</option>
+                          <option>HDFC Bank</option>
+                          <option>Axis Bank</option>
+                          <option>ICICI Bank</option>
+                      </select>
+                  </div>
+                  <button class="btn btn-warning w-100">Proceed to Net Banking</button>
+              </div>
+
+              <!-- COD -->
+              <div id="COD-form" class="method-form">
+                  <h5 class="fw-bold mb-2">Cash on Delivery</h5>
+                  <p class="text-muted small">
+                      You can pay in cash when your order is delivered at your doorstep.
+                  </p>
+                  <button class="btn btn-dark w-100">Place Order (COD)</button>
+              </div>
+              <button type="button" onclick="open_modal()" class="btn btn-secondary w-100 mt-4">Back</button>
             </div>
           </div>
         </div>
       </div>
     </form>
+<style>
+        .method-form {
+            display: none;
+            margin-top: 20px;
+            animation: fade .3s ease-in-out;
+        }
+        @keyframes fade {
+            from {opacity: 0;}
+            to {opacity: 1;}
+        }
+        .upi-badge {
+            font-size: 2rem;
+        }
 
+        @media(max-width:400px){
+          .modalcontent{
+            margin:auto 20px!important;
+          }
+        }
+    </style>
     <!-- Trust Indicators -->
     <div class="trust-section mt-5">
       <div class="row g-3">

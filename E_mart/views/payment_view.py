@@ -59,3 +59,12 @@ class PaymentCreateView(View):
 
         except Exception as e:
             return JsonResponse({'success': False, 'error': str(e)}, status=500)
+
+
+@method_decorator(enduser_required,name='dispatch')
+@method_decorator(csrf_exempt,name='dispatch')
+class ApiPaymentCreateView(View):
+    def post(self, request):
+        data = json.loads(request.body)
+        request.session['payment_data'] = data
+        return JsonResponse({'success':True})

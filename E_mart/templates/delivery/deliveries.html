@@ -1,0 +1,99 @@
+{% extends 'delivery/base.html'%}
+{% load static %}
+{% block title %} Home | Delivery Site {% endblock %}
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/enduser/cart.css' %}">
+<link rel="stylesheet" href="{% static 'css/enduser/order.css' %}">
+{% endblock %}
+{% block content %}
+<div class="container-9 py-4 px-4" style="min-height: 100vh; background:white;">
+  <div class="cart-header mb-4">
+    <h2 class="cart-title"><i class="fas fa-truck me-2"></i>Your delivery deliveries</h2>
+    <p class="cart-subtitle text-gray">
+      {% if deliveries %}{{deliveries|length }} item{{deliveries|length|pluralize }} in your delivery-orders
+      {% else %}Your Delivery Cart is empty{% endif %}
+    </p>
+  </div>
+  {% if deliveries %}
+    <div class="deliveries-list">
+    {% for order in deliveries %}
+      <div class="order-card-horiz" onclick="window.location.href = '/order/{{order.id}}/'">
+        <div class="order-card-left">
+          <!-- PHOTO FIELD -->
+          <div class="order-photo-block">
+            {# Get length once #}
+            {% with order.orderitems|length as item_count %}
+            {% if item_count == 1 %}
+              <!-- Single image, fill -->
+              <img
+                src="{% if order.orderitems.0.image %}{% static order.orderitems.0.image %}{% else %}{% static 'no_image.png' %}{% endif %}"
+                class="order-img-single"
+                alt="Product">
+            {% elif item_count == 2 %}
+              {% for item in order.orderitems %}
+                <img
+                  src="{% if item.image %}{% static item.image %}{% else %}{% static 'no_image.png' %}{% endif %}"
+                  class="order-img-grid order-img-grid-2 order-img-pos-{{forloop.counter}}"
+                  alt="Product">
+              {% endfor %}
+            {% elif item_count == 3 %}
+              {% for item in order.orderitems|slice:":2" %}
+                <img
+                  src="{% if item.image %}{% static item.image %}{% else %}{% static 'no_image.png' %}{% endif %}"
+                  class="order-img-grid order-img-grid-2 order-img-pos-{{forloop.counter}}"
+                  alt="Product">
+              {% endfor %}
+              <img
+                src="{% if order.orderitems.2.image %}{% static order.orderitems.2.image %}{% else %}{% static 'no_image.png' %}{% endif %}"
+                class="order-img-grid order-img-grid-3 order-img-pos-3"
+                alt="Product">
+            {% elif item_count == 4 %}
+              {% for item in order.orderitems|slice:":4" %}
+                <img
+                  src="{% if item.image %}{% static item.image %}{% else %}{% static 'no_image.png' %}{% endif %}"
+                  class="order-img-grid order-img-grid-4 order-img-pos-{{forloop.counter}}"
+                  alt="Product">
+              {% endfor %}
+            {% elif item_count > 4 %}
+              {% for item in order.orderitems|slice:":3" %}
+                <img
+                  src="{% if item.image %}{% static item.image %}{% else %}{% static 'no_image.png' %}{% endif %}"
+                  class="order-img-grid order-img-grid-4 order-img-pos-{{forloop.counter}}"
+                  alt="Product">
+              {% endfor %}
+                <img
+                  src="{% if order.orderitems.3.image %}{% static order.orderitems.3.image %}{% else %}{% static 'no_image.png' %}{% endif %}"
+                  class="order-img-grid order-img-grid-4 order-img-pos-4"
+                  alt="Product">
+                <div class="order-img-more-overlay">
+                  +{{ item_count|add:'-4' }}
+                </div>
+            {% endif %}
+            {% endwith %}
+          </div>
+
+          <!-- INFO FIELD -->
+          <div class="order-main-info">
+            <div class="order-title">
+              {% for item in order.orderitems %}
+              {{item.name}},
+              {% endfor %}
+            </div>
+            <div class="order-address"><strong style="white-space: nowrap;">Delivery Address:</strong> <p style="white-space: nowrap;overflow: hidden;text-overflow: ellipsis;">{{ order.address }}</p></div>
+          </div>
+        </div>
+        <div class="order-card-price">
+          ₹{{ order.total|floatformat:2 }}
+        </div>
+        <div class="order-card-status {% if order.status_value == 4 %}delivered{% elif order.status_value == 5 %}cancelled{% elif order.status_value == 3%}outfordelivery{% elif order.status_value == 2%}processing{%elif order.status_value == 1%}pending{% endif %}">
+          <span class="status-dot"></span>
+          {{ order.status }} on {{ order.updated_at|date:"M d, Y" }}
+        </div>
+      </div>
+    {% endfor %}
+    </div>
+  {% else %}
+    <div class="alert alert-info mt-4">You have no delivery deliveries yet.</div>
+  {% endif %}
+</div>
+{% endblock %}
