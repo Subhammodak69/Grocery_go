@@ -12,3 +12,10 @@ class DeliveriesListView(View):
         worker = delivery_service.get_delivery_worker_obj_by_user_id(request.user)
         deliveries = delivery_service.get_deliveries_by_deliveryPerson(worker)
         return render(request, 'delivery/deliveries.html',{'deliveries':deliveries})
+    
+@method_decorator(delivery_worker_required,name='dispatch')
+class PickUpsListView(View):
+    def get(self, request):
+        worker = delivery_service.get_delivery_worker_obj_by_user_id(request.user)
+        pickups = delivery_service.get_pickups_by_deliveryPerson(worker)
+        return render(request, 'delivery/pickups.html',{'deliveries':pickups})

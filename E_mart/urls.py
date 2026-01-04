@@ -62,7 +62,9 @@ urlpatterns = [
     path('wishlist/check/<int:product_id>/', CheckWishlistStatus.as_view(), name='check_wishlist'),
     #delivery worker
     path('delivery-worker/',DeliveryWorkerHomeView.as_view(), name='delivery_worker_home'),
+    path('delivery-worker/profile/',DeliveryWorkerProfileView.as_view(), name='delivery_worker_profile'),
     path('deliveries/',DeliveriesListView.as_view(), name='deliveries_list'),
+    path('pickups/',PickUpsListView.as_view(), name='pickups_list'),
     path('admin/delivery-worker/create/',AdminWorkerCreateView.as_view(), name='delivery_worker_create'), 
     path('admin/delivery-worker/update/<int:worker_id>/',AdminWorkerUpdateView.as_view(), name='delivery_worker_update'),
     path('admin/delivery-workers/',AdminWorkerListView.as_view(), name='delivery_worker_update'), 

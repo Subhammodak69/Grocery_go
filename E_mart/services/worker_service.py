@@ -1,4 +1,4 @@
-from E_mart.models import User
+from E_mart.models import User,DeliveryPerson
 from E_mart.constants.default_values import Role
 
 def create_user(email,first_name,last_name,phone_number,address):
@@ -41,3 +41,6 @@ def update_worker(worker_id,email,first_name,last_name,phone_number):
     worker.phone_number = phone_number
     worker.save()
     return worker
+
+def get_worker_by_user_obj(user):
+    return DeliveryPerson.objects.filter(user = user, is_active = True).first()

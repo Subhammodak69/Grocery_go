@@ -70,6 +70,60 @@ def get_last_7_days_stats(worker):
     }
 
 def get_deliveries_by_deliveryPerson(worker):
-    deliveries = DeliveryOrPickup.objects.filter(delivery_person = worker, is_active = True)
-    print(deliveries)
+    """
+    Get active delivery orders assigned to a specific delivery person.
+    Prefetches related order, order_items, and products for efficient template rendering.
+    """
+    deliveries = DeliveryOrPickup.objects.filter(
+        delivery_person=worker,
+        purpose=Purpose.DELIVERY.value,
+        is_active=True
+    ).prefetch_related(
+        'order__order_items__product',
+        'order__user'
+    ).select_related('delivery_person__user', 'order').order_by('-assigned_at')
+    
     return deliveries
+
+def get_pickups_by_deliveryPerson(worker):
+    """
+    Get active delivery orders assigned to a specific delivery person.
+    Prefetches related order, order_items, and products for efficient template rendering.
+    """
+    pickups = DeliveryOrPickup.objects.filter(
+        delivery_person=worker,
+        purpose=Purpose.PICKUP.value,
+        is_active=True
+    ).prefetch_related(
+        'order__order_items__product',
+        'order__user'
+    ).select_related('delivery_person__user', 'order').order_by('-assigned_at')
+    
+    return pickups
+
+def get_total_delivery_or_pickup_by_worker(worker):
+    deliveries = DeliveryOrPickup.objects.filter(
+        delivery_person=worker,
+        status__in=[
+            DeliveryStatus.DELIVERED.value,
+            DeliveryStatus.PICKEDUP.value
+        ]
+    )
+
+    return deliveries
+
+def get_all_delivery_pickups_of_worker(worker):
+    return DeliveryOrPickup.objects.filter(delivery_person = worker)
+
+def get_total_complete_deliveries_of_worker(worker):
+    return DeliveryOrPickup.objects.filter(
+        delivery_person = worker,
+        purpose = Purpose.DELIVERY.value,
+        status = DeliveryStatus.DELIVERED.value
+    )
+def get_total_complete_pickups_of_worker(worker):
+    return DeliveryOrPickup.objects.filter(
+        delivery_person = worker,
+        purpose = Purpose.PICKUP.value,
+        status = DeliveryStatus.PICKEDUP.value
+    )

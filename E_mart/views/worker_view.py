@@ -1,8 +1,8 @@
 from django.views import View
 from django.shortcuts import render
-from E_mart.constants.decorators import admin_required
+from E_mart.constants.decorators import admin_required,delivery_worker_required
 from django.utils.decorators import method_decorator
-from E_mart.services import worker_service,deliveryperson_service
+from E_mart.services import worker_service,deliveryperson_service,delivery_service
 from django.views.decorators.csrf import csrf_exempt
 import json
 from django.http import JsonResponse
@@ -102,4 +102,21 @@ class AdminWorkerUpdateView(View):
             # Log the error in production
             return JsonResponse({'error': str(e)}, status=500)
 
+
+@method_decorator(delivery_worker_required, name='dispatch')
+class DeliveryWorkerProfileView(View):
+    def get(self,request):
+        worker = worker_service.get_worker_by_user_obj(request.user)
+        total_delivery_count = len(delivery_service.get_total_complete_deliveries_of_worker(worker))
+        total_pickup_count = len(delivery_service.get_total_complete_pickups_of_worker(worker))
+        complete_delivery_or_pickup_count = len(delivery_service.get_total_delivery_or_pickup_by_worker(worker)) 
+        total_services_count = len(delivery_service.get_all_delivery_pickups_of_worker(worker))
+        pending_count = (total_services_count)-(complete_delivery_or_pickup_count)
+        data = {
+            'deliveries_count':total_delivery_count,
+            'pickups_count':total_pickup_count,
+            'complete_count':complete_delivery_or_pickup_count,
+            'pending_count':pending_count
+        }
+        return render(request,'delivery/profile.html',{'delivery_person':worker,'data':data})
 

@@ -4,16 +4,17 @@
 
 {% block content %}
 <div class="container-9 py-4 px-4" style="min-height: 100vh; background:white;">
+  <div class="container pb-5">
+        <div class="row justify-content-center">
+            <div class="col-12 text-center">
+                <h1 class="display-4 fw-bold mb-4" style="color: var(--primary-color);">Welcome to Grocery Go</h1>
+                <p class="lead mb-5" style="color: var(--text-muted);">Your one-stop shop for everything you need.</p>
+            </div>
+        </div>
+    </div>
   <!-- Stats cards -->
   <div class="row mb-5 d-flex justify-content-center">
-    <div class="col-md-3 bar-card-col col-sm-5 d-flex justify-content-center mb-3">
-      <div class="card shadow-sm">
-        <div class="bar-txt card-body">
-          <h5 class="text-center card-title mb-2">Request For Delivery</h5>
-          <h3 id="totalDeliveries" class="text-center mb-0">0</h3>
-        </div>
-      </div>
-    </div>
+    
     <div class="col-md-3 bar-card-col col-sm-5 d-flex justify-content-center mb-3">
       <div class="card shadow-sm">
         <div class="bar-txt card-body">
@@ -39,6 +40,14 @@
         </div>
       </div>
     </div>
+    <div class="col-md-3 bar-card-col col-sm-5 d-flex justify-content-center mb-3">
+      <div class="card shadow-sm">
+        <div class="bar-txt card-body">
+          <h5 class="text-center card-title mb-2">Pending</h5>
+          <h3 id="pending" class=" text-center mb-0">0</h3>
+        </div>
+      </div>
+    </div>
   </div>
 <div class="d-flex align-items-conter justify-content-center">
   <!-- Bar chart -->
@@ -58,15 +67,16 @@
   const chartData = JSON.parse('{{ chart_data|safe }}');
   const labels = chartData.labels;
   const deliveries = chartData.deliveries;
-  const pickups    = chartData.pickups;
+  const pickups = chartData.pickups;
+  const totalPendings = chartData.pendings;
 
-  // Update KPI cards
   const totalDeliveries = deliveries.reduce((a, b) => a + b, 0);
   const totalPickups    = pickups.reduce((a, b) => a + b, 0);
   const totalJobs       = totalDeliveries + totalPickups;
   const completionRate  = totalJobs === 0 ? 0 : Math.round((totalDeliveries / totalJobs) * 100);
 
   document.getElementById("totalDeliveries").innerText = totalDeliveries;
+  document.getElementById("pending").innerText = totalPendings;
   document.getElementById("totalPickups").innerText    = totalPickups;
   document.getElementById("completionRate").innerText  = completionRate + "%";
 

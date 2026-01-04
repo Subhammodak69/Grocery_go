@@ -10,6 +10,7 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
   {% comment %} <script src="{% static 'js/error_or_success.js' %}"></script> {% endcomment %}
   <script src="{% static 'js/logout.js' %}"></script>
+  <script src="{% static 'js/active-nav.js' %}"></script>
   <link rel="stylesheet" href="{% static 'css/enduser/base.css' %}" />
   <script src="{% static 'js/auto_reload.js' %}"></script>
   {% block extra_css%}{%endblock%}
@@ -25,10 +26,10 @@
     </div>
   </div>
   <!-- Navbar -->
-  <nav class="navbar navbar-expand-lg navbar-light shadow-sm fixed-top" style="padding:0px; background: linear-gradient(135deg, #00c6ff, #0072ff);">
+  <nav class="navbar navbar-expand-lg navbar-light shadow-sm fixed-top" style="padding:0px; background: #0d9999;">
     <div class="container">
       
-        <a class="navbar-brand fw-bold fs-4 text-primary d-flex align-items-center" href="/">
+        <a class="navbar-brand fw-bold fs-4 text-light d-flex align-items-center" href="/">
           <img src="{% static 'logos/logo.png' %}" alt="Logo" height="40px" width="40px" class="m-auto">
           <p class="m-auto">GroceryGo</p>
         </a>
@@ -38,7 +39,7 @@
           <!-- User Account Dropdown -->
           {% if user.is_authenticated and user.role != 1 %}
             <li class="nav-item dropdown mx-2 ">
-              <div class="d-flex align-items-center nav-link text-light fw-semibold cursor-pointer " onclick="window.location.href='/user/profile/'" id="accountDropdown" role="button"
+              <div class="d-flex align-items-center nav-link text-light fw-semibold cursor-pointer " onclick="window.location.href='/delivery-worker/profile/'" id="accountDropdown" role="button"
                 data-bs-toggle="dropdown" aria-expanded="false">
                 <i class="bi bi-person-circle text-dark" style="font-size:20px;"></i>
                 <p class="mb-0 mx-1 text-dark">You</p>
@@ -58,26 +59,35 @@
           {% endif %}
         </div>
       </div>
-
+      <script>
+        
+      </script>
       <div class="collapse navbar-collapse" id="navbarContent">
         <!-- Nav links -->
         <ul class="navbar-nav align-items-center">
 
-          <li class="nav-item mx-2">
+          <li class="nav-item tab mx-2">
+            <a class="nav-link fw-semibold" href="/delivery-worker/">
+            <i class="bi bi-house text-light" style="font-size:18px;"></i>
+            Home
+            </a>
+          </li>
+
+          <li class="nav-item tab mx-2">
             <a class="nav-link fw-semibold" href="/deliveries/">
             <i class="bi bi-truck text-light" style="font-size:18px;"></i>
             Deliveries
             </a>
           </li>
 
-          <li class="nav-item mx-2">
+          <li class="nav-item tab mx-2">
             <a class="nav-link fw-semibold" href="/pickups/">
             <i class="bi bi-truck text-light" style="font-size:18px;"></i>
             Pickups
             </a>
           </li>
 
-          <li class="nav-item mx-2">
+          <li class="nav-item tab mx-2">
             <a class="nav-link fw-semibold" href="/about">
               <i class="bi bi-telephone text-light"></i>
               About Us
@@ -86,12 +96,16 @@
 
           <!-- User Account Dropdown -->
            {% if user.is_authenticated and user.role != 1 %}
-          <li class="nav-item mx-2">
-            <a class="nav-link fw-semibold cursor-pointer" href="#" onclick="window.location.href='/user/profile/'" id="accountDropdown" role="button"
-              data-bs-toggle="dropdown" aria-expanded="false">
-              <i class="bi bi-person-circle" style="margin: 5px;"></i>{{user.first_name}}
-            </a>
-          </li>
+              <li class="nav-item dropdown">
+                <a id="selectBtn" class="nav-link dropdown-toggle text-light" role="button" data-bs-toggle="dropdown" aria-expanded="false" >
+                    <i class="bi bi-person-circle me-2"></i><strong>{{user.first_name}}</strong>
+                </a>
+                <ul id="optionDiv" class="dropdown-menu dropdown-menu-end">
+                    <li><a class="dropdown-item" href="/delivery-worker/profile/"><i class="bi bi-person me-2"></i>Profile</a></li>
+                    <hr class="dropdown-divider">
+                    <li><a class="dropdown-item text-danger" href="/logout/"><i class="bi bi-box-arrow-right me-2"></i>Logout</a></li>
+                </ul>
+              </li>
           {% else %}
           <li class="nav-item dropdown mx-2">
             <button class="btn btn-primary" onclick="window.location.href='/login/'">
@@ -127,7 +141,7 @@
   </main>
 
   <!-- Footer -->
-  <footer style="padding: 20px;background: linear-gradient(135deg, #00c6ff, #0072ff);">
+  <footer style="padding: 20px;background: #0d9999;">
     <div class="container">
       <div class="row text-muted">
         <div class="col-md-3 mb-4 mb-md-0">

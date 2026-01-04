@@ -25,12 +25,14 @@ class DeliveryWorkerHomeView(View):
         user = request.user
         worker = delivery_service.get_delivery_worker_obj_by_user_id(user)
         stats = delivery_service.get_last_7_days_stats(worker)
-        print(stats)
-
+        complete_delivery_or_pickup_count = len(delivery_service.get_total_delivery_or_pickup_by_worker(worker)) 
+        total_services_count = len(delivery_service.get_all_delivery_pickups_of_worker(worker))
+        pending_count = (total_services_count)-(complete_delivery_or_pickup_count)
         data = {
             "labels": stats["labels"],
             "deliveries": stats["deliveries"],
             "pickups": stats["pickups"],
+            "pendings":pending_count,
         }
 
         context = {
@@ -41,3 +43,4 @@ class DeliveryWorkerHomeView(View):
         }
 
         return render(request, "delivery/home.html", context)
+

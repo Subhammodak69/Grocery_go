@@ -1,6 +1,6 @@
 {% extends 'delivery/base.html'%}
 {% load static %}
-{% block title %} Home | Delivery Site {% endblock %}
+{% block title %} Pickups | Delivery Site {% endblock %}
 {% block extra_css %}
 <link rel="stylesheet" href="{% static 'css/enduser/cart.css' %}">
 <link rel="stylesheet" href="{% static 'css/enduser/order.css' %}">
@@ -8,29 +8,28 @@
 {% block content %}
 <div class="container-9 py-4 px-4" style="min-height: 100vh; background:white;">
   <div class="cart-header mb-4">
-    <h2 class="cart-title"><i class="fas fa-truck me-2"></i>Your Delivery Orders</h2>
+    <h2 class="cart-title"><i class="fas fa-shopping-bag me-2"></i>Your Pickup Orders</h2>
     <p class="cart-subtitle text-gray">
-      {% if deliveries %}{{ deliveries|length }} order{{ deliveries|length|pluralize }} assigned to you
-      {% else %}No delivery orders assigned yet{% endif %}
+      {% if pickups %}{{ pickups|length }} pickup{{ pickups|length|pluralize }} assigned to you
+      {% else %}No pickup orders assigned yet{% endif %}
     </p>
   </div>
   
-  {% if deliveries %}
-    <div class="deliveries-list">
-      {% for delivery in deliveries %}
-        <div class="order-card-horiz" onclick="window.location.href = '/delivery/{{ delivery.id }}/'"style="max-height: 180px;">
+  {% if pickups %}
+    <div class="pickups-list">
+      {% for pickup in pickups %}
+        <div class="order-card-horiz" onclick="window.location.href = '/pickup/{{ pickup.id }}/'">
           <div class="order-card-left">
-            <!-- PHOTO FIELD - Dynamic Grid -->
+            <!-- PHOTO FIELD - Dynamic Grid (Same as deliveries) -->
             <div class="order-photo-block">
-              {% with delivery.order.order_items.all|length as item_count %}
+              {% with pickup.order.order_items.all|length as item_count %}
                 {% if item_count == 1 %}
-                  <!-- Single image, fill -->
-                  {% with delivery.order.order_items.all.0.product.image as img %}
+                  {% with pickup.order.order_items.all.0.product.image as img %}
                     <img src="{% if img %}{% static img %}{% else %}{% static 'no_image.png' %}{% endif %}"
                          class="order-img-single" alt="Product">
                   {% endwith %}
                 {% elif item_count == 2 %}
-                  {% for item in delivery.order.order_items.all %}
+                  {% for item in pickup.order.order_items.all %}
                     {% with item.product.image as img %}
                       <img src="{% if img %}{% static img %}{% else %}{% static 'no_image.png' %}{% endif %}"
                            class="order-img-grid order-img-grid-2 order-img-pos-{{ forloop.counter }}"
@@ -38,20 +37,20 @@
                     {% endwith %}
                   {% endfor %}
                 {% elif item_count == 3 %}
-                  {% for item in delivery.order.order_items.all|slice:":2" %}
+                  {% for item in pickup.order.order_items.all|slice:":2" %}
                     {% with item.product.image as img %}
                       <img src="{% if img %}{% static img %}{% else %}{% static 'no_image.png' %}{% endif %}"
                            class="order-img-grid order-img-grid-2 order-img-pos-{{ forloop.counter }}"
                            alt="{{ item.product.name }}">
                     {% endwith %}
                   {% endfor %}
-                  {% with delivery.order.order_items.all.2.product.image as img %}
+                  {% with pickup.order.order_items.all.2.product.image as img %}
                     <img src="{% if img %}{% static img %}{% else %}{% static 'no_image.png' %}{% endif %}"
                          class="order-img-grid order-img-grid-3 order-img-pos-3"
                          alt="Product">
                   {% endwith %}
                 {% elif item_count == 4 %}
-                  {% for item in delivery.order.order_items.all|slice:":4" %}
+                  {% for item in pickup.order.order_items.all|slice:":4" %}
                     {% with item.product.image as img %}
                       <img src="{% if img %}{% static img %}{% else %}{% static 'no_image.png' %}{% endif %}"
                            class="order-img-grid order-img-grid-4 order-img-pos-{{ forloop.counter }}"
@@ -59,14 +58,14 @@
                     {% endwith %}
                   {% endfor %}
                 {% elif item_count > 4 %}
-                  {% for item in delivery.order.order_items.all|slice:":3" %}
+                  {% for item in pickup.order.order_items.all|slice:":3" %}
                     {% with item.product.image as img %}
                       <img src="{% if img %}{% static img %}{% else %}{% static 'no_image.png' %}{% endif %}"
                            class="order-img-grid order-img-grid-4 order-img-pos-{{ forloop.counter }}"
                            alt="{{ item.product.name }}">
                     {% endwith %}
                   {% endfor %}
-                  {% with delivery.order.order_items.all.3.product.image as img %}
+                  {% with pickup.order.order_items.all.3.product.image as img %}
                     <img src="{% if img %}{% static img %}{% else %}{% static 'no_image.png' %}{% endif %}"
                          class="order-img-grid order-img-grid-4 order-img-pos-4"
                          alt="Product">
@@ -78,60 +77,60 @@
               {% endwith %}
             </div>
 
-            <!-- INFO FIELD -->
+            <!-- INFO FIELD - Pickup Specific -->
             <div class="order-main-info">
               <div class="order-title">
-                {% for item in delivery.order.order_items.all|slice:":3" %}
+                {% for item in pickup.order.order_items.all|slice:":3" %}
                   {{ item.product.name }}{% if not forloop.last %}, {% endif %}
                 {% endfor %}
-                {% if delivery.order.order_items.all|length > 3 %}+{{ delivery.order.order_items.all|length|add:"-3" }} more{% endif %}
+                {% if pickup.order.order_items.all|length > 3 %}+{{ pickup.order.order_items.all|length|add:"-3" }} more{% endif %}
               </div>
               <div class="order-address">
-                <strong style="white-space: nowrap;">Delivery Address:</strong> 
+                <strong style="white-space: nowrap;">Pickup Address:</strong> 
                 <p style="white-space: nowrap;overflow: hidden;text-overflow: ellipsis;">
-                  {{ delivery.address|truncatechars:50 }}
+                  {{ pickup.address|truncatechars:50 }}
                 </p>
               </div>
               <div class="order-customer">
-                <strong>Customer:</strong> {{ delivery.order.user.username|default:delivery.order.user.email|truncatechars:20 }}
+                <strong>Customer:</strong> {{ pickup.order.user.username|default:pickup.order.user.email|truncatechars:20 }}
               </div>
               <div class="order-id">
-                <small>Order #{{ delivery.order.id }} | Assigned {{ delivery.assigned_at|date:"M d" }}</small>
+                <small>Order #{{ pickup.order.id }} | Assigned {{ pickup.assigned_at|date:"M d" }}</small>
               </div>
             </div>
           </div>
           
           <div class="order-card-price">
-            ₹{{ delivery.order.total_price|floatformat:2 }}
+            ₹{{ pickup.order.total_price|floatformat:2 }}
           </div>
           
           <div class="order-card-status 
-            {% if delivery.status == 4 %}delivered
-            {% elif delivery.status == 5 %}cancelled 
-            {% elif delivery.status == 3 %}outfordelivery
-            {% elif delivery.status == 2 %}processing
-            {% elif delivery.status == 1 %}pending
+            {% if pickup.status == 4 %}delivered
+            {% elif pickup.status == 5 %}cancelled 
+            {% elif pickup.status == 3 %}outfordelivery
+            {% elif pickup.status == 2 %}processing
+            {% elif pickup.status == 1 %}pending
             {% else %}unknown{% endif %}">
             <span class="status-dot"></span>
-            {{ delivery.get_status_display|default:"Pending" }}<br>
-            <small>{{ delivery.assigned_at|date:"M d, Y" }}</small>
+            {{ pickup.get_status_display|default:"Pending" }}<br>
+            <small>{{ pickup.assigned_at|date:"M d, Y" }}</small>
           </div>
         </div>
       {% endfor %}
     </div>
     
-    {% if deliveries|length > 10 %}
+    {% if pickups|length > 10 %}
     <div class="text-center mt-4">
-      <button class="btn btn-outline-primary">Load More Orders</button>
+      <button class="btn btn-outline-primary">Load More Pickups</button>
     </div>
     {% endif %}
     
   {% else %}
     <div class="empty-state text-center py-8">
-      <i class="fas fa-truck-loading fa-4x text-muted mb-4"></i>
-      <h4 class="text-muted mb-2">No deliveries assigned yet</h4>
-      <p class="text-muted mb-4">You'll see your assigned delivery orders here.</p>
-      <a href="{% url 'delivery:dashboard' %}" class="btn btn-primary">
+      <i class="fas fa-shopping-cart fa-4x text-muted mb-4"></i>
+      <h4 class="text-muted mb-2">No pickups assigned yet</h4>
+      <p class="text-muted mb-4">You'll see your assigned pickup orders here.</p>
+      <a href="/" class="btn btn-primary">
         <i class="fas fa-home me-2"></i>Go to Dashboard
       </a>
     </div>

@@ -12,6 +12,7 @@
   <link rel="stylesheet" href="{% static 'css/enduser/product_list.css' %}" />
   <script src="{% static 'js/base.js' %}"></script>
   <script src="{% static 'js/error_or_success.js' %}"></script>
+  <script src="{% static 'js/active-nav.js' %}"></script>
   <script src="{% static 'js/logout.js' %}"></script>
   <script src="{% static 'js/auto_reload.js' %}"></script>
   {% block extra_css%}{%endblock%}
@@ -64,6 +65,12 @@
       <div class="collapse navbar-collapse" id="navbarContent">
         <!-- Nav links -->
         <ul class="navbar-nav align-items-center">
+          <li class="nav-item tab mx-2">
+            <a class="nav-link fw-semibold" href="/">
+              <i class="bi bi-house text-light"></i>
+              Home</a>
+          </li>
+
           <li class="nav-item dropdown mx-2">
             <a class="nav-link dropdown-toggle fw-semibold" href="#" id="accountDropdown" role="button"
               data-bs-toggle="dropdown" aria-expanded="false">
@@ -75,13 +82,13 @@
           </li>
 
 
-          <li class="nav-item mx-2">
-            <a class="nav-link fw-semibold" href="/user/cart">
+          <li class="nav-item tab mx-2">
+            <a class="nav-link fw-semibold" href="/user/cart/">
               <i class="bi bi-cart text-light"></i>
               Shopping Cart</a>
           </li>
 
-          <li class="nav-item mx-2">
+          <li class="nav-item tab mx-2">
             <a class="nav-link fw-semibold" href="/about">
               <i class="bi bi-telephone text-light"></i>
               About Us</a>
