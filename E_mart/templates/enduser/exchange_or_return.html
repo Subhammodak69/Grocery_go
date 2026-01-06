@@ -1,0 +1,104 @@
+{% extends "enduser/base.html" %}
+{% load static %}
+{% block title %}Order Summary | GroceryGo{% endblock %}
+{% block extra_css %}
+  <link rel="stylesheet" href="{% static 'css/enduser/singly_order_summary.css'%}"/>
+{% endblock %}
+{% block content %}
+  <!-- Main Form Card -->
+  <div class="py-4 border-0 overflow-hidden">
+    <div class="card-header bg-gradient bg-primary text-white py-4">
+      <h3 class="card-title mb-0 fw-bold">
+        <i class="bi bi-file-earmark-text me-2"></i>Request Details
+      </h3>
+    </div>
+    
+    <div class="card-body p-5 p-lg-6">
+      <form method="POST" enctype="multipart/form-data">
+        {% csrf_token %}
+        
+        <!-- Order Selection -->
+        <div class="row mb-5">
+          <div class="col-md-6 mb-4">
+            <label class="form-label fw-semibold fs-6 mb-3">Order No*</label>
+            <label class="form-label fw-semibold fs-6 mb-3">#{{order.id}}</label>
+          </div>
+          
+          <div class="col-md-12 mb-4">
+          <label class="form-label fw-semibold fs-6 mb-3">
+            Select Order Items *
+          </label>
+
+          <div class="list-group" id="orderItemsList">
+            {% for item in order_items %}
+              <label class="list-group-item d-flex align-items-start gap-3">
+                <input 
+                  class="form-check-input mt-1 order-item-checkbox"
+                  type="checkbox"
+                  name="order_items[]"
+                  value="{{ item.id }}"
+                  data-name="{{ item.product.name }}"
+                  data-price="{{ item.product.price }}"
+                  data-qty="{{ item.quantity }}"
+                >
+
+                <div class="flex-grow-1">
+                  <h6 class="mb-1 fw-bold">{{ item.product.name }}</h6>
+                  <p class="mb-0 text-muted">
+                    Price: ₹{{ item.product.price }} |
+                    Qty: {{ item.quantity }}
+                  </p>
+                </div>
+              </label>
+            {% endfor %}
+          </div>
+        </div>
+
+        </div>
+
+        <!-- Product Info (Auto-filled) -->
+        <div class="row mb-5">         
+          <div class="col-md-6">
+            <label class="form-label fw-semibold fs-6 mb-2">Request Type *</label>
+            <div class="d-flex gap-3">
+              <div class="form-check">
+                <input class="form-check-input" type="radio" name="purpose" id="exchange" value="1" required>
+                <label class="form-check-label fw-semibold" for="exchange">
+                  <i class="bi bi-arrow-repeat text-primary"></i> Exchange
+                </label>
+              </div>
+              <div class="form-check">
+                <input class="form-check-input" type="radio" name="purpose" id="return" value="2" required>
+                <label class="form-check-label fw-semibold" for="return">
+                  <i class="bi bi-box-arrow-down text-danger"></i> Return
+                </label>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Reason -->
+        <div class="mb-5">
+          <label class="form-label fw-semibold fs-6 mb-3">Reason for Exchange/Return * <small class="text-muted">(Max 500 characters)</small></label>
+          <textarea name="reason" id="reason" class="form-control form-control-lg" rows="5" 
+                    maxlength="500" placeholder="Please describe the issue in detail..." required></textarea>
+          <div class="form-text">
+            <span id="charCount">0</span> / 500 characters
+          </div>
+        </div>
+
+        <!-- Actions -->
+        <div class="d-flex gap-3 justify-content-end">
+          <button type="submit" class="btn btn-primary btn-lg px-5">
+            <i class="bi bi-send me-2"></i>Submit Request
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Success/Error Messages -->
+  <div id="messageContainer" class="mt-4"></div>
+</div>
+
+{% endblock %}

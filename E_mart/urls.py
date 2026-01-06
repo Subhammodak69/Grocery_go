@@ -60,11 +60,17 @@ urlpatterns = [
     path('create/payment/<int:order_id>/',PaymentCreateView.as_view(), name='payment_create'),
     path('wishlist/toggle/<int:product_id>/',ToggleWishlistCreateDelete.as_view(), name='wishlist_toggler'),
     path('wishlist/check/<int:product_id>/', CheckWishlistStatus.as_view(), name='check_wishlist'),
+    path('exchange-return/create/<int:order_id>/', ExchangeReturnCreateView.as_view(), name='exchange_return_create'),
+    path('exchanges-or-returns/', ExchangeReturnListView.as_view(), name='exchange_return_list'),
+    path('exchanges-or-returns/<int:pk>/', ExchangeReturnDetailsView.as_view(), name='exchange_return_details'),
     #delivery worker
     path('delivery-worker/',DeliveryWorkerHomeView.as_view(), name='delivery_worker_home'),
     path('delivery-worker/profile/',DeliveryWorkerProfileView.as_view(), name='delivery_worker_profile'),
     path('deliveries/',DeliveriesListView.as_view(), name='deliveries_list'),
     path('pickups/',PickUpsListView.as_view(), name='pickups_list'),
+    path("delivery-worker/order-details/<int:order_id>/", DeliveryOrderDetails.as_view(), name="worker_order_details"),
+    path('api/delivery-or-pickup/<int:delivery_id>/status/update/', DeliveryOrPickupStatusUpdateView.as_view(), name='delivery_status_update'),
+
     path('admin/delivery-worker/create/',AdminWorkerCreateView.as_view(), name='delivery_worker_create'), 
     path('admin/delivery-worker/update/<int:worker_id>/',AdminWorkerUpdateView.as_view(), name='delivery_worker_update'),
     path('admin/delivery-workers/',AdminWorkerListView.as_view(), name='delivery_worker_update'), 

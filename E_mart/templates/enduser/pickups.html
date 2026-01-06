@@ -1,0 +1,127 @@
+{% extends 'enduser/base.html' %}
+{% load static %}
+{% block title %} Your Pickups | GroceryGo {% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/enduser/cart.css' %}">
+<link rel="stylesheet" href="{% static 'css/enduser/order.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="container-9 py-4 px-4" style="min-height: 100vh; background:white;">
+  <div class="cart-header mb-4">
+    <h2 class="cart-title"><i class="fas fa-shopping-bag me-2"></i>Your Pickups</h2>
+    <p class="cart-subtitle text-gray">
+      {% if pickups %}{{ pickups|length }} item{{ pickups|length|pluralize }} in your pickups
+      {% else %}You have no pickups yet{% endif %}
+    </p>
+  </div>
+
+  {% if pickups %}
+    <div class="orders-list">
+    {% for pickup in pickups %}
+      <div class="order-card-horiz" onclick="window.location.href = '/exchanges-or-returns/{{ pickup.id }}/'">
+        <div class="order-card-left">
+          <!-- PHOTO FIELD -->
+          <div class="order-photo-block">
+            {% with pickup.orderitems as items %}
+            {% with items|length as item_count %}
+
+            {% if item_count == 1 %}
+              {% with items.0 as item %}
+              <img
+                src="{% if item.image %}{% static item.image %}{% else %}{% static 'no_image.png' %}{% endif %}"
+                class="order-img-single"
+                alt="{{ item.name }}">
+              {% endwith %}
+
+            {% elif item_count == 2 %}
+              {% for item in items %}
+                <img
+                  src="{% if item.image %}{% static item.image %}{% else %}{% static 'no_image.png' %}{% endif %}"
+                  class="order-img-grid order-img-grid-2 order-img-pos-{{ forloop.counter }}"
+                  alt="{{ item.name }}">
+              {% endfor %}
+
+            {% elif item_count == 3 %}
+              {% for item in items|slice:":2" %}
+                <img
+                  src="{% if item.image %}{% static item.image %}{% else %}{% static 'no_image.png' %}{% endif %}"
+                  class="order-img-grid order-img-grid-2 order-img-pos-{{ forloop.counter }}"
+                  alt="{{ item.name }}">
+              {% endfor %}
+              {% with items.2 as item %}
+              <img
+                src="{% if item.image %}{% static item.image %}{% else %}{% static 'no_image.png' %}{% endif %}"
+                class="order-img-grid order-img-grid-3 order-img-pos-3"
+                alt="{{ item.name }}">
+              {% endwith %}
+
+            {% elif item_count == 4 %}
+              {% for item in items|slice:":4" %}
+                <img
+                  src="{% if item.image %}{% static item.image %}{% else %}{% static 'no_image.png' %}{% endif %}"
+                  class="order-img-grid order-img-grid-4 order-img-pos-{{ forloop.counter }}"
+                  alt="{{ item.name }}">
+              {% endfor %}
+
+            {% elif item_count > 4 %}
+              {% for item in items|slice:":3" %}
+                <img
+                  src="{% if item.image %}{% static item.image %}{% else %}{% static 'no_image.png' %}{% endif %}"
+                  class="order-img-grid order-img-grid-4 order-img-pos-{{ forloop.counter }}"
+                  alt="{{ item.name }}">
+              {% endfor %}
+              {% with items.3 as item %}
+              <img
+                src="{% if item.image %}{% static item.image %}{% else %}{% static 'no_image.png' %}{% endif %}"
+                class="order-img-grid order-img-grid-4 order-img-pos-4"
+                alt="{{ item.name }}">
+              {% endwith %}
+              <div class="order-img-more-overlay">
+                +{{ item_count|add:'-4' }}
+              </div>
+            {% endif %}
+
+            {% endwith %}
+            {% endwith %}
+          </div>
+
+          <!-- INFO FIELD -->
+          <div class="order-main-info">
+            <div class="order-title">
+              {% for item in pickup.orderitems %}
+                {{ item.name }}{% if not forloop.last %}, {% endif %}
+              {% endfor %}
+            </div>
+            <div class="order-address">
+              <strong style="white-space: nowrap;">Pickup Address:</strong>
+              <p style="white-space: nowrap;overflow: hidden;text-overflow: ellipsis;">
+                {{ pickup.address }}
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <div class="order-card-price">
+          ₹{{ pickup.total|floatformat:2 }}
+        </div>
+
+        <div class="order-card-status
+            {% if pickup.status_value == 4 %}delivered
+            {% elif pickup.status_value == 5 %}cancelled
+            {% elif pickup.status_value == 3 %}outfordelivery
+            {% elif pickup.status_value == 2 %}processing
+            {% elif pickup.status_value == 1 %}pending
+            {% endif %}">
+          <span class="status-dot"></span>
+          {{ pickup.status }} on {{ pickup.request_date|date:"M d, Y" }}
+        </div>
+      </div>
+    {% endfor %}
+    </div>
+  {% else %}
+    <div class="alert alert-info mt-4">You have no pickups yet.</div>
+  {% endif %}
+</div>
+{% endblock %}

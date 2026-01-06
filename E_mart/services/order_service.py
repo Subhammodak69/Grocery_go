@@ -181,6 +181,7 @@ def delete_order(order_id, user):
 def get_order_by_id(order_id):
     return Order.objects.filter(id = order_id, is_active = True).first()
 
+
 def get_orderitems_by_order_id(order_id):
     order = get_order_by_id(order_id)
     return  OrderItem.objects.filter(order = order, is_active = True)
@@ -215,3 +216,24 @@ def get_all_orders(status):
         return Order.objects.all()
     return Order.objects.filter(status = OrderStatus[status].value)
 
+def get_order_enums():
+    enums_data = [
+        {
+            'value': enum.value,
+            'name': enum.name
+        }
+        for enum in OrderStatus 
+        if enum.name not in [OrderStatus.PENDING.name, OrderStatus.PROCESSING.name, OrderStatus.CONFIRMED.name]
+    ]
+    return enums_data
+
+
+def get_price_summary(order):
+    order = Order.objects.get(id=order.id)
+    data = {
+        'listing_price':order.listing_price,
+        'discount':order.discount,
+        'delivery_fee':order.delivery_fee,
+        'total_price':order.total_price,
+    }
+    return data

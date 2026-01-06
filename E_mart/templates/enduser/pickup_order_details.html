@@ -1,0 +1,291 @@
+{% extends "enduser/base.html" %}
+{% load static %}
+{% block title %}Return / Exchange | GroceryGo{% endblock %}
+
+{% block extra_css %}
+  <link rel="stylesheet" href="{% static 'css/enduser/singly_order_summary.css' %}"/>
+{% endblock %}
+
+{% block content %}
+<div class="order-container">
+  <div class="container-fluid m-auto px-md-4 py-4">
+
+    <!-- Header Section -->
+    <div class="order-header mb-5">
+      <div class="header-content">
+        <div class="header-icon">
+          <i class="bi bi-arrow-repeat"></i>
+        </div>
+        <h5 class="order-title">
+          {% if exchange.purpose == 1 %}Exchange Request
+          {% elif exchange.purpose == 2 %}Return Request
+          {% else %}Pickup Request{% endif %}
+        </h5>
+        <p class="order-subtitle">
+          Request #{{ exchange.id }} for Order #{{ order_data.id }}
+        </p>
+      </div>  
+    </div>
+
+    <form class="order-form">
+      <div class="row g-4">
+
+        <!-- Product Details (only items in this request) -->
+        <div class="col-12 col-lg-5" style="max-height:116vh;padding:16px;">
+          <div class="products-group overflow-auto h-100"
+               style="scrollbar-width:none;border-radius:10px;padding:20px 5px;background:aliceblue;">
+            <h3 class="px-2 mb-3 d-flex align-items-center"
+                style="font-size:16px;font-weight:600;">
+              <i class="bi bi-box-seam me-2"></i>
+              Requested Items
+              <span class="item-badge ms-2">{{ items|length }} Items</span>
+            </h3>
+
+            <div>
+              {% if not items %}
+                <p class="text-danger text-center mt-5">No Items Found Yet.</p>
+              {% endif %}
+
+              {% for item in items %}
+              <div class="col m-2 cart-item" data-item-id="{{ item.id }}">
+                <div class="product-card h-100 flex flex-row">
+                  <div class="product-image-container">
+                    <img 
+                      src="{% static item.image %}"
+                      alt="{{ item.name }}"
+                      class="product-image img-fluid cursor-pointer"
+                      loading="eager"
+                      onclick="window.location.href='/product/{{ item.product_id }}/'"
+                    >
+                  </div>
+
+                  <div class="product-info py-2">
+                    <h4 class="product-name fs-6 mb-1 cursor-pointer"
+                        onclick="window.location.href='/product/{{ item.product_id }}/'">
+                      {{ item.name }}
+                    </h4>
+
+                    <div class="product-attributes d-flex flex-wrap mb-2" style="gap:6px !important;">
+                      <span class="attribute me-2 text-center">
+                        <i class="bi bi-box me-1"></i>
+                        Qty: <span class="attribute-value">{{ item.quantity }}</span>
+                      </span>
+                    </div>
+
+                    <div class="price-stack mb-2">
+                      <div class="d-flex align-items-center justify-content-between gap-2">
+                        <span class="original-price"
+                              style="text-decoration:line-through;color:#d00;font-weight:500;">
+                          ₹{{ item.original_price|floatformat:2 }}/{{ item.size }}
+                        </span>
+                        {% if item.discount_amount > 0 %}
+                        <p class="discount-label mb-0" style="color:#1c7c1c;font-weight:500;">
+                          {{ item.discount|floatformat:2 }}% Off
+                        </p>
+                        {% endif %}
+                      </div>
+                      <span class="discounted-price"
+                            style="font-weight:600;font-size:1.1em;color:#222;">
+                        ₹{{ item.price|floatformat:2 }}/{{ item.size }}
+                      </span>
+                    </div>
+
+                    <div class="mt-1 small text-muted">
+                      Reason: {{ exchange_or_return.reason }}
+                    </div>
+                  </div>
+                </div>
+              </div>
+              {% endfor %}
+            </div>
+          </div>
+        </div>
+
+        <!-- Right side: summary, payment, user, actions -->
+        <div class="col-12 col-lg-7">
+          <div class="order-details-section">
+
+            <!-- Price Summary Card -->
+            <div class="summary-card">
+              <div class="summary-header">
+                <h3 class="section-title">
+                  <i class="bi bi-calculator me-2"></i>
+                  Price Breakdown
+                </h3>
+              </div>
+
+              <div class="summary-body">
+                <div class="price-row">
+                  <div class="price-label">
+                    <i class="bi bi-tag me-2"></i>
+                    Listing Price
+                  </div>
+                  <div class="price-value">
+                    ₹{{ summary.listing_price|floatformat:2 }}
+                  </div>
+                </div>
+
+                <div class="price-row">
+                  <div class="price-label">
+                    <i class="bi bi-truck me-2"></i>
+                    Discount
+                  </div>
+                  <div class="price-value delivery-fee">
+                    {{ summary.discount|floatformat:2 }}
+                  </div>
+                </div>
+
+                <div class="price-row">
+                  <div class="price-label">
+                    <i class="bi bi-truck me-2"></i>
+                    Delivery Fee
+                  </div>
+                  <div class="price-value delivery-fee">
+                    {% if summary.delivery_fee == 0 %}
+                      <p class="mb-0 text-success">FREE</p>
+                    {% else %}
+                      <p class="mb-0 text-danger">{{ summary.delivery_fee }}</p>
+                    {% endif %}
+                  </div>
+                </div>
+
+                <div class="price-row">
+                  <div class="price-label">
+                    <i class="bi bi-shield-check me-2"></i>
+                    Taxes & Fees
+                  </div>
+                  <div class="price-value tax-fee">
+                    Included
+                  </div>
+                </div>
+
+                <div class="price-divider"></div>
+
+                <div class="price-row total">
+                  <div class="price-label">
+                    <i class="bi bi-cash-coin me-2"></i>
+                    Total Amount
+                  </div>
+                  <div class="price-value total-amount">
+                    ₹{{ summary.total_price|floatformat:2 }}
+                  </div>
+                </div>
+
+                {% if summary.discount > 0 %}
+                <div class="savings-highlight">
+                  <i class="bi bi-piggy-bank me-2"></i>
+                  You're saving ₹{{ summary.discount|floatformat:2 }}!
+                </div>
+                {% endif %}
+              </div>
+            </div>
+
+            <!-- Payment Details -->
+            <div class="summary-card">
+              <div class="summary-header">
+                <h3 class="section-title">
+                  <i class="bi bi-credit-card me-2"></i>
+                  Payment Details
+                </h3>
+              </div>
+              {% if payment %}
+              <div class="d-flex">Payment Method:&nbsp;<p>{{ payment.method }}</p></div>
+              <div class="d-flex">Payment Status:&nbsp;<p>{{ payment.status }}</p></div>
+              <div class="d-flex">Amount:&nbsp;<p>{{ payment.amount }}</p></div>
+              {% endif %}
+            </div>
+
+            <!-- User & Delivery Info -->
+            <div class="user-details-card">
+              <div class="card-header">
+                <h3 class="section-title">
+                  <i class="bi bi-person-circle me-2"></i>
+                  Account & Delivery Information
+                </h3>
+              </div>
+
+              <div class="user-info-grid">
+                <div class="info-item">
+                  <i class="bi bi-person-fill text-secondary me-2 fs-5"></i>
+                  <div>
+                    <div class="small text-muted">Full Name</div>
+                    <div>{{ user.get_full_name|default:"Not provided" }}</div>
+                  </div>
+                </div>
+
+                {% if user.phone_number %}
+                <div class="info-item">
+                  <i class="bi bi-telephone-fill text-secondary me-2 fs-5"></i>
+                  <div>
+                    <div class="small text-muted">Phone</div>
+                    <div>{{ user.phone_number }}</div>
+                  </div>
+                </div>
+                {% endif %}
+
+                <div class="col-12">
+                  <label class="small text-muted mb-1">Pickup / Delivery Address</label>
+                  <textarea 
+                    class="form-control"
+                    rows="3"
+                    disabled
+                  >{{ order_data.address }}</textarea>
+                </div>
+              </div>
+            </div>
+
+            <!-- Actions -->
+            <div class="order-actions mx-4">
+              <button type="button"
+                      class="back-btn btn btn-primary px-4"
+                      onclick="window.history.back()">
+                <i class="bi bi-arrow-left"></i>
+                Back
+              </button>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </form>
+
+    <hr>
+    <div class="text-center" onclick="openchat()" style="color:blue;">
+      <i class="bi bi-chat mx-1"></i>Chat us
+    </div>
+    <hr>
+
+    <!-- Trust Indicators -->
+    <div class="trust-section mt-5">
+      <div class="row g-3">
+        <div class="col-6 col-md-3">
+          <div class="trust-item">
+            <i class="bi bi-shield-check"></i>
+            <span>Secure Payment</span>
+          </div>
+        </div>
+        <div class="col-6 col-md-3">
+          <div class="trust-item">
+            <i class="bi bi-truck"></i>
+            <span>Fast Delivery</span>
+          </div>
+        </div>
+        <div class="col-6 col-md-3">
+          <div class="trust-item">
+            <i class="bi bi-arrow-repeat"></i>
+            <span>Easy Returns</span>
+          </div>
+        </div>
+        <div class="col-6 col-md-3">
+          <div class="trust-item">
+            <i class="bi bi-headset"></i>
+            <span>24/7 Support</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+{% endblock %}

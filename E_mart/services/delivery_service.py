@@ -1,6 +1,6 @@
 from E_mart.models import DeliveryOrPickup,DeliveryPerson,ExchangeOrReturn
 from E_mart.services import order_service,deliveryperson_service
-from E_mart.constants.default_values import DeliveryStatus,Purpose,ExchangeOrReturnStatus,ExOrRePurpose
+from E_mart.constants.default_values import DeliveryStatus,Purpose,OrderStatus
 from django.utils import timezone
 from datetime import timedelta
 
@@ -127,3 +127,39 @@ def get_total_complete_pickups_of_worker(worker):
         purpose = Purpose.PICKUP.value,
         status = DeliveryStatus.PICKEDUP.value
     )
+
+def get_all_delivery_by_order(order):
+    delivery = DeliveryOrPickup.objects.filter(order = order, is_active = True,purpose = Purpose.DELIVERY.value,).first()
+    data={
+        'id':delivery.id,
+        'assigned_at':delivery.assigned_at,
+        'delivered_at':delivery.delivered_at,
+        'purpose':Purpose(delivery.purpose).name,
+        'status_value':delivery.status,
+        'status':DeliveryStatus(delivery.status).name
+    }
+    return data
+
+def get_delivery_pickup_obj_by_id(id):
+    return DeliveryOrPickup.objects.filter(id=id).first()
+
+def update_delivery_or_pickup_status(id, status):
+    delivery = DeliveryOrPickup.objects.filter(id=id).first()
+    delivery.order.status = OrderStatus(status).value
+    delivery.order.save()
+    if(delivery.order.status == OrderStatus.CANCELLED.value):
+        delivery.status = DeliveryStatus.FAILED.value
+        delivery.save()
+    elif(delivery.order.status == OrderStatus.CONFIRMED.value):
+        delivery.status = DeliveryStatus.ASSIGNED.value
+        delivery.save()
+    elif(delivery.order.status == OrderStatus.OUTFORDELIVERY.value):
+        delivery.status = DeliveryStatus.IN_PROGRESS.value
+        delivery.save()
+    elif(delivery.order.status == OrderStatus.DELIVERED.value):
+        delivery.status = DeliveryStatus.DELIVERED.value
+        delivery.save()
+    else:
+        pass
+    status=DeliveryStatus(delivery.status).name
+    return status

@@ -2,11 +2,11 @@ from django.views import View
 from django.shortcuts import render,redirect
 from E_mart.services import product_service,cart_service,order_service,payment_service,delivery_service,deliveryperson_service
 from django.utils.decorators import method_decorator
-from E_mart.constants.decorators import enduser_required,admin_required
+from E_mart.constants.decorators import enduser_required,admin_required,delivery_worker_required
 from django.views.decorators.csrf import csrf_exempt
 from django.http import JsonResponse
 import json
-from E_mart.constants.default_values import OrderStatus
+from E_mart.constants.default_values import OrderStatus,DeliveryStatus,Purpose
 
 
 
@@ -245,3 +245,56 @@ class AdminOrderAssignedView(View):
             order.save()
             return JsonResponse({'success':True, 'message':'Assigned successfully!'})
         return JsonResponse({'success':False, 'message':'Assigned is failed!'})
+    
+@method_decorator(delivery_worker_required, name='dispatch')
+class DeliveryOrderDetails(View):
+    def get(self,request,order_id):
+        order = order_service.get_order_by_id(order_id)
+        delivery = delivery_service.get_all_delivery_by_order(order)
+        context = {
+            "order": order,
+            "delivery": delivery
+        }
+        return render(request, "delivery/order_details.html", context)
+    
+@method_decorator(delivery_worker_required,name='dispatch')
+@method_decorator(csrf_exempt,name='dispatch')
+class DeliveryOrPickupStatusUpdateView(View):
+    def get(self, request, delivery_id):
+        order_enums = order_service.get_order_enums()
+        delivery = delivery_service.get_delivery_pickup_obj_by_id(delivery_id)
+        status={
+            'name':OrderStatus(delivery.order.status).name,
+            'value':OrderStatus(delivery.order.status).value
+        }
+        data={
+            'enums':order_enums,
+            'status':status
+        }
+        return JsonResponse({'success':True,'data':data})
+    
+    def post(self, request, delivery_id):
+        body_data = json.loads(request.body)
+        status = int(body_data.get('status'))
+                
+        if not status:
+            return JsonResponse({
+                'success': False, 
+                'data': {'message': 'No status provided'}
+            }, status=400)
+        
+        try:
+            
+            status = delivery_service.update_delivery_or_pickup_status(delivery_id, status)
+            return JsonResponse({
+                'success': True, 
+                'data': {'message': 'Status updated successfully','status':status}
+            }) 
+        except Exception as e:
+            print("Update error:", str(e))
+            return JsonResponse({
+                'success': False, 
+                'data': {'message': f'Error: {str(e)}'}
+            }, status=500)
+        
+        

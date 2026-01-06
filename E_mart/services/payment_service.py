@@ -5,7 +5,7 @@ from E_mart.constants.default_values import PaymentStatus,PaymentMethod,OrderSta
 def check_order_is_paid(order_id):
     order = order_service.get_order_by_id(order_id)
     return Payment.objects.filter(
-        order=order
+        order=order,
     ).exclude(
         status__in=[PaymentStatus.PENDING.value, PaymentStatus.FAILED.value]
     ).exclude(
@@ -181,3 +181,4 @@ def api_create_payment(order, payment_data):
             raise
     
     return payment
+
