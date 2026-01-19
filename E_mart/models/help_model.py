@@ -8,5 +8,6 @@ class Help(models.Model):
     problem = models.TextField()
     reported_at = models.DateTimeField(auto_now_add=True)
     status = models.IntegerField(choices=((hs.value,hs.name) for hs in HelpStatus), default=1)
+    is_active = models.BooleanField(default=True)
     def __str__(self):
         return f"Problem for {self.user.username} ({self.status})"

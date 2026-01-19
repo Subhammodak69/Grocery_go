@@ -194,18 +194,65 @@
               </div>
             </div>
             <div class="summary-card">
-              <div class="summary-header">
-                <h3 class="section-title">
-                  <i class="bi bi-calculator me-2"></i>
-                  Payment Details
+              <div class="summary-header mb-4">
+                <h3 class="section-title d-flex align-items-center text-white mb-0">
+                  <i class="bi bi-check-circle-fill me-2 fs-3"></i>
+                  Payment Successful
                 </h3>
               </div>
-              {%if payment %}
-              <div class="d-flex">Payment Method:<p>{{payment.method}}</p></div>
-              <div class="d-flex">Payment status:<p>{{payment.status}}</p></div>
-              <div class="d-flex">Amount:<p>{{payment.amount}}</p></div>
+              {% if payment %}
+              <div class="row g-3 mb-3">
+                <div class="col-md-6">
+                  <div class="d-flex align-items-center">
+                    <i class="bi bi-credit-card-2-front-fill text-primary me-2 fs-5"></i>
+                    <div>
+                      <small class="text-muted d-block">Method</small>
+                      <strong>{{ payment.method }}</strong>
+                    </div>
+                  </div>
+                </div>
+                <div class="col-md-6">
+                  <div class="d-flex align-items-center justify-content-end">
+                    <i class="bi bi-check-lg text-success me-2 fs-5"></i>
+                    <div>
+                      <small class="text-muted d-block">Status</small>
+                      <strong>{{ payment.status }}</strong>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              
+              <hr class="my-4">
+              
+              <div class="row g-3 mb-4">
+                <div class="col-md-8">
+                  <div class="d-flex align-items-center">
+                    <i class="bi bi-clock-history text-info me-2 fs-5"></i>
+                    <div>
+                      <small class="text-muted d-block">Transaction Date</small>
+                      <strong>{{ payment.created_at|date:"M d, Y" }} at {{ payment.created_at|time:"h:i A" }}</strong>
+                    </div>
+                  </div>
+                </div>
+                <div class="col-md-4">
+                  <div class="text-md-end">
+                    <small class="text-muted d-block">Amount</small>
+                    <div class="h2 text-success mb-0 fw-bold">₹{{ payment.amount }}</div>
+                  </div>
+                </div>
+              </div>
+              
+              {% if payment.transaction_id %}
+              <div class="alert alert-info d-flex align-items-center">
+                <i class="bi bi-info-circle me-2"></i>
+                <div>
+                  <strong>Transaction ID:</strong> {{ payment.transaction_id }}
+                </div>
+              </div>
+              {% endif %}
               {% endif %}
             </div>
+
             {%if not order_data.is_paid %}
               <button type="button" class="btn btn-primary mx-3 p-2 mb-4" onclick="window.location.href='/create/payment/{{order_data.id}}/'">
                 <i class="bi bi-credit-card me-1"></i>

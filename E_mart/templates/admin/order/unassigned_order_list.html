@@ -1,0 +1,56 @@
+{% extends "admin/home.html" %}
+{% load static %}
+{% block title %}Orders List{% endblock %}
+{% block content %}
+<script src="{% static 'js/admin/order/assigned.js' %}"></script>
+<div class="overflow-auto p-4 rounded h-100">
+    <div class="d-flex align-items-center justify-content-between mb-3">
+        <h4>UnAssigned Orders List</h4>
+    </div>
+    <table class="table table-striped table-bordered w-100">
+        <thead class="table-dark">
+            <tr>
+                <th>OrderId</th>
+                <th>Customer</th>
+                <th>Delivery_Address</th>
+                <th>Status</th>
+                <th>Active</th>
+                <th>Created at</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for order in orders %}
+            <tr>
+                <td>{{order.id}}</td>
+                <td>{{order.full_name}}</td>
+                <td>{{order.delivery_address}}</td>
+                <td>{{order.status}}</td>
+                <td>
+                    <div class="form-check form-switch">
+                        <input class="form-check-input toggle-active" type="checkbox" {% if order.is_active %}checked{% endif %} />
+                    </div>
+                </td>
+                <td>{{order.created_at}}</td>
+                <td>
+                    <select class="assigned-to-select form-select form-select-sm" data-order-id="{{ order.id }}">
+                        <option value="" selected>--Assigned Please---</option>
+                        {% for worker in workers %}
+                        <option value="{{ worker.id }}">{{ worker.full_name }}</option>
+                        {% endfor %}
+                    </select>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+<style>
+    td {
+        max-width: 150px;        
+        white-space: nowrap;     
+        overflow: hidden;       
+        text-overflow: ellipsis; 
+    }
+</style>
+{% endblock %}

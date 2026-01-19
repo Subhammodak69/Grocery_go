@@ -1,0 +1,176 @@
+{% extends 'admin/home.html' %}
+{% load static %}
+{% block title %}Update Admin Order{% endblock %}
+{% block content %}
+<script src="{% static 'js/admin/order/order_update.js' %}"></script>
+<div class="card shadow-sm m-auto mt-4 p-4 rounded" style="max-width: 900px;">
+    <h2 class="mb-4 text-center fw-bold" style="color: #007bff;">Update Order #{{ order.id }}</h2>
+    
+    <div class="row mb-4">
+        <div class="col-md-6">
+            <span class="badge bg-primary fs-6 px-3 py-2">Order ID: {{ order.id }}</span>
+        </div>
+        <div class="col-md-6 text-end">
+            <span class="badge bg-success fs-6 px-3 py-2">Created: {{ order.created_at|date:"M d, Y H:i" }}</span>
+        </div>
+    </div>
+
+    <form class="px-3" id="adminOrderUpdateForm" onsubmit="return false;" novalidate>
+        <div class="mb-3">
+            <label for="user" class="form-label fw-semibold">User*</label>
+            <select id="user" name="user" class="form-select" required>
+                <option value=''>--Select--</option>
+                {% for user in users %}
+                <option value="{{ user.id }}" {% if user.id == order.user.id %}selected{% endif %}>
+                    {{ user.username }} ({{ user.email }})
+                </option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <div class="mb-4">
+            <div class="d-flex align-items-center justify-content-between mb-3">
+                <label class="form-label fw-semibold">Order Items</label>
+                <small class="text-muted">Modify quantities or add new items</small>
+            </div>
+            
+            <div class="row mb-3">
+                <div class="col-12">
+                    <div id="currentItems" class="border p-3 rounded mb-3" style="max-height: 300px; overflow-y: auto;">
+                        {% for item in order.items %}
+                        <div class="row align-items-center mb-3 p-2 border-bottom current-item" data-product-id="{{ item.product_id }}">
+                            <div class="col-2">
+                                <img src="{% static item.image %}" alt="{{ item.name }}" class="img-fluid rounded" style="height: 50px; width: 50px; object-fit: cover;">
+                            </div>
+                            <div class="col-4">
+                                <strong>{{ item.name }}</strong>
+                                <span class="discounted-price">₹{{ item.price }}/{{ item.size }}</span>
+                            </div>
+                            <div class="col-3">
+                                <div class="input-group input-group-sm" style="width: 120px;">
+                                    <span class="input-group-text">Qty</span>
+                                    <input type="number" class="form-control current-quantity" 
+                                           value="{{ item.quantity }}" min="0" max="99"
+                                           data-product-id="{{ item.product_id }}"
+                                           data-product-price="{{ item.original_price }}"
+                                           data-product-sale-price="{{ item.price }}">
+                                </div>
+                            </div>
+                            <div class="col-3">
+                                <button type="button" class="btn btn-outline-danger btn-sm remove-item">
+                                    <i class="fas fa-trash"></i> Remove
+                                </button>
+                            </div>
+                        </div>
+                        {% empty %}
+                        <div class="text-center py-4 text-muted">
+                            <i class="fas fa-inbox fa-2x mb-2 d-block"></i>
+                            No current items
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+
+            <div class="border p-3 rounded" style="max-height: 350px; overflow-y: auto;">
+                <div class="row mb-3">
+                    <div class="col-12">
+                        <label class="form-label fw-semibold mb-2 d-block">Add New Items</label>
+                    </div>
+                </div>
+                {% for item in products %}
+                <div class="row align-items-center mb-3 p-2 border-bottom new-product-row" data-product-id="{{ item.id }}">
+                    <div class="col-2">
+                        <img src="{% static item.image %}" alt="{{ item.name }}" class="img-fluid rounded" style="height: 50px; width: 50px; object-fit: cover;">
+                    </div>
+                    <div class="col-4">
+                        <strong>{{ item.name }}</strong>
+                        <span class="original-price">₹{{ item.original_price }}</span>
+                        <p class="discount-label mb-0">{{ item.discount|floatformat:2 }}%</p>
+                        <span class="discounted-price">₹{{ item.price }}/{{ item.size }}</span>
+                    </div>
+                    <div class="col-3">
+                        <div class="input-group input-group-sm" style="width: 100px;">
+                            <span class="input-group-text">Qty</span>
+                            <input type="number" class="form-control product-quantity" 
+                                   min="0" max="99" value="0"
+                                   data-product-id="{{ item.id }}"
+                                   data-product-price="{{ item.original_price }}"
+                                   data-product-sale-price="{{ item.price }}">
+                        </div>
+                    </div>
+                    <div class="col-3">
+                        <div class="form-check">
+                            <input class="form-check-input product-checkbox" type="checkbox" id="product_{{ item.id }}">
+                            <label class="form-check-label small" for="product_{{ item.id }}">Add</label>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-md-6 mb-3">
+                <label for="status" class="form-label fw-semibold">Status*</label>
+                <select id="status" name="status" class="form-select" required>
+                    {% for status in order_statuses %}
+                    <option value="{{status.value}}" {% if status.value == order.status %}selected{% endif %}>
+                        {{status.name}}
+                    </option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-md-6 mb-3">
+                <label for="delivery_address" class="form-label fw-semibold">Delivery Address</label>
+                <textarea id="delivery_address" name="delivery_address" class="form-control" style="border-radius: 6px;">{{ order.delivery_address }}</textarea>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-md-3 mb-3">
+                <label for="total_price" class="form-label fw-semibold">Total Price*</label>
+                <input type="number" step="0.01" id="total_price" name="total_price" class="form-control" value="{{ order.total_price }}" required readonly>
+            </div>
+            <div class="col-md-3 mb-3">
+                <label for="discount" class="form-label fw-semibold">Discount</label>
+                <input type="number" step="0.01" id="discount" name="discount" class="form-control" value="{{ order.discount }}" required readonly>
+            </div>
+            <div class="col-md-3 mb-3">
+                <label for="delivery_fee" class="form-label fw-semibold">Delivery Fee*</label>
+                <input type="number" step="0.01" id="delivery_fee" name="delivery_fee" class="form-control" value="{{ order.delivery_fee }}" required readonly>
+            </div>
+            <div class="col-md-3 mb-3">
+                <label for="listing_price" class="form-label fw-semibold">Listing Price*</label>
+                <input type="number" step="0.01" id="listing_price" name="listing_price" class="form-control" value="{{ order.listing_price }}" required readonly>
+            </div>
+        </div>
+
+        <div class="form-check form-switch mb-4">
+            <input class="form-check-input" type="checkbox" id="is_active" name="is_active" {% if order.is_active %}checked{% endif %}>
+            <label class="form-check-label fw-semibold" for="is_active">Active</label>
+        </div>
+
+        <div class="d-flex gap-2">
+            <button type="submit" onclick="order_update({{ order.id }})" class="btn btn-primary fw-bold flex-fill" style="padding: 12px; font-size: 18px; border-radius: 8px;">
+                Update Order
+            </button>
+            <a href="{% url 'admin_order_list' %}" class="btn btn-secondary fw-bold" style="padding: 12px 20px; border-radius: 8px;">
+                Cancel
+            </a>
+        </div>
+    </form>
+    <div id="message" class="text-center mt-4 fw-semibold m-auto"></div>
+</div>
+
+<style>
+    #message.error { color: #dc3545; margin: 20px auto; }
+    #message.success { color: #28a745; margin: 20px auto; }
+    .product-checkbox:checked + .form-check-label { font-weight: 600; color: #007bff; }
+    .border-bottom { border-bottom: 1px solid #dee2e6 !important; }
+    .input-group-text { background-color: #f8f9fa; border-radius: 6px 0 0 6px; }
+    .product-quantity, .current-quantity { border-left: none; border-radius: 0 6px 6px 0; }
+    .current-item { background-color: #f8f9fa; }
+    .remove-item:hover { transform: scale(0.95); }
+</style>
+{% endblock %}

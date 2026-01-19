@@ -3,8 +3,8 @@ from django.views.generic import View
 from django.http import JsonResponse
 from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import csrf_exempt
-from E_mart.constants.decorators import enduser_required
-from E_mart.services import order_service,orderitem_service,exchange_or_return_service,payment_service
+from E_mart.constants.decorators import enduser_required,admin_required
+from E_mart.services import order_service,orderitem_service,exchange_or_return_service,payment_service,user_service,product_service,deliveryperson_service,delivery_service
 import json
 
 @method_decorator(enduser_required,name='dispatch')
@@ -58,4 +58,126 @@ class ExchangeReturnDetailsView(View):
             'summary': summary,
             'payment': payment,
         })
+    
+
+
+#admin
+
+@method_decorator(admin_required, name='dispatch')
+class AdminExchangeListView(View):
+    def get(self, request):
+        exchanges = exchange_or_return_service.get_all_exchanges() 
+        return render(request, 'admin/exchange_request/exchange_list.html', {'exchanges': exchanges})
+
+@method_decorator(admin_required, name='dispatch')
+@method_decorator(csrf_exempt, name='dispatch')
+class AdminExchangeCreateView(View):
+    def get(self, request):
+        orders = order_service.get_all_orders()
+        users = user_service.get_all_users()
+        products = product_service.get_all_products()
+        return render(request, 'admin/exchange_request/exchange_create.html', {
+            'orders': orders, 'users': users, 'products': products
+        })
+    
+    def post(self, request):
+        try:
+            order_id = request.POST.get('order')
+            order_item_id = request.POST.get('order_item')
+            user_id = request.POST.get('user')
+            product_id = request.POST.get('product')
+            reason = request.POST.get('reason')
+            status = request.POST.get('status')
+            purpose = request.POST.get('purpose')
+            is_active = request.POST.get('is_active', 'true').lower() == 'true'
+
+            if not all([order_id, order_item_id, user_id, product_id, reason, status, purpose]):
+                return JsonResponse({'error': 'Missing required fields'}, status=400)
+
+            exchange_or_return_service.exchange_create(
+                order_id, order_item_id, user_id, product_id, reason, 
+                status, purpose, is_active
+            )
+            return JsonResponse({'message': 'Exchange request created successfully!'})
+        except Exception as e:
+            return JsonResponse({'error': str(e)}, status=500)
+
+@method_decorator(admin_required, name='dispatch')
+@method_decorator(csrf_exempt, name='dispatch')
+class AdminExchangeUpdateView(View):
+    def get(self, request, exchange_id):
+        exchange = exchange_or_return_service.get_exchange_by_id(exchange_id)
+        orders = order_service.get_all_orders()
+        users = user_service.get_all_users()
+        products = product_service.get_all_products()
+        return render(request, 'admin/exchange_request/exchange_update.html', {
+            'exchange': exchange, 'orders': orders, 'users': users, 'products': products
+        })
+    
+    def post(self, request, exchange_id):
+        try:
+            order_id = request.POST.get('order')
+            order_item_id = request.POST.get('order_item')
+            user_id = request.POST.get('user')
+            product_id = request.POST.get('product')
+            reason = request.POST.get('reason')
+            status = request.POST.get('status')
+            purpose = request.POST.get('purpose')
+            is_active = request.POST.get('is_active', 'true').lower() == 'true'
+
+            exchange_or_return_service.exchange_update(
+                exchange_id, order_id, order_item_id, user_id, product_id, 
+                reason, status, purpose, is_active
+            )
+            return JsonResponse({'message': 'Exchange request updated successfully!'})
+        except Exception as e:
+            return JsonResponse({'error': str(e)}, status=500)
+
+@method_decorator(admin_required, name='dispatch')
+@method_decorator(csrf_exempt, name='dispatch')
+class AdminExchangeToggleActiveView(View):
+    def post(self, request):
+        data = json.loads(request.body)
+        is_active = data.get('is_active')
+        exchange_id = data.get('exchange_id')
+        exchange = exchange_or_return_service.toggle_active_exchange(exchange_id, is_active)
+        return JsonResponse({
+            'success': True,
+            'exchange_id': exchange.id,
+            'is_active': exchange.is_active
+        })
+
+@method_decorator(admin_required, name='dispatch')
+@method_decorator(csrf_exempt, name='dispatch')
+class GetOrderItemsView(View):
+    def get(self, request, order_id):
+        items = order_service.get_order_items(order_id)
+        return JsonResponse(items, safe=False)
+    
+
+@method_decorator(admin_required,name='dispatch')
+@method_decorator(csrf_exempt,name='dispatch')
+class AdminPickupsAssignedView(View):
+    def get(self,request):
+        exchanges = exchange_or_return_service.get_all_exchanges() 
+        workers = deliveryperson_service.get_available_delivery_boys()
+        workers_data = [
+            {
+                'id':worker.id,
+                'full_name':f"{worker.user.first_name} {worker.user.last_name}"
+            }
+            for worker in workers
+        ]
+        return render(request,'admin/order/unassigned_pickups.html',{'exchanges':exchanges,'workers':workers_data})
+    
+    def post(self, request):
+        data = json.loads(request.body)
+        exchange_id = data.get('exchange_id')
+        assigned_to = data.get('assigned_to')
+        if not all([exchange_id,assigned_to]):
+            return JsonResponse({'error': 'Missing required fields'}, status=400)
+        pickups = delivery_service.create_admin_pickups(exchange_id,assigned_to)
+        print(pickups)
+        return JsonResponse({'success':True, 'message':"Assinged Successfully"})
+
         

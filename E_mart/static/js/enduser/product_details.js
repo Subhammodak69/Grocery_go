@@ -195,7 +195,7 @@ function create_review() {
       };
       reader.readAsDataURL(file);
     } else {
-      console.log("not selected");
+      // console.log("not selected");
       sendReviewData(product_id, '', rating, review);
     }
   }
@@ -304,6 +304,6 @@ function sendReviewData(product_id, photo_url, rating, review) {
   }
 })
 .catch(error => {
-  console.error('Fetch error:', error);
+  console.log(JSON.stringify(error));
 });
 }

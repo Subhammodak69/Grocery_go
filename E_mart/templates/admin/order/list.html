@@ -93,41 +93,7 @@
         </tbody>
     </table>
 </div>
-<script>
-    document.addEventListener('DOMContentLoaded', function() {
-        // Add change event listener to all delivery boy selects
-        document.querySelectorAll('.assigned-to-select').forEach(function(selectElem) {
-            selectElem.addEventListener('change', function(event) {
-                const orderId = this.getAttribute('data-order-id');
-                const selectedDboyId = this.value;
 
-                console.log('Order ID:', orderId, 'Assigned To Delivery Boy ID:', selectedDboyId);
-
-                fetch('/admin/update-order-assignee/', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({order_id: orderId, assigned_to: selectedDboyId})
-                })
-                .then(response => response.json())
-                .then(data => {
-                    console.log(JSON.stringify(data));
-                    if (data.success){
-                        alert('Success:'+ data.message);
-                        window.location.reload();
-                    }else{
-                        alert('Error:'+ data.message);
-                        window.location.reload();
-                    }
-                })
-                .catch(error => {
-                    console.error('Error:', error);
-                });
-            });
-        });
-    });
-</script>
 <style>
     td {
   max-width: 150px;        

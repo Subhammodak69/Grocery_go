@@ -93,7 +93,7 @@
     </div>
   </div>
 
-  
+  {% if request.user.is_authenticated %}
   <div class="mt-5 pt-4 border-top">
     <!-- reviews & Reviews -->
     <div class="mt-4">
@@ -195,6 +195,7 @@
       <p id ="no-review" class="text-red-600 font-semibold">No reviews found yet.</p>
     {% endif %}
   </div>
+  {% endif %}
 </div>
 <div class="mt-5 py-4 mb-3 border-top border-bottom">
   <h2 class="h5 fw-semibold mb-3">Additional Information</h2>

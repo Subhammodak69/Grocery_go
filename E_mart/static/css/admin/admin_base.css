@@ -16,6 +16,26 @@
         width: 0px !important;
     }
 
+    .original-price {
+  text-decoration: line-through;
+  color: #d00;
+  font-size: 16px;
+  font-family: inherit;
+  font-weight: 300;
+}
+.discounted-price {
+  font-size: 14px;
+  color: #222;
+  font-family: inherit;
+  font-weight: 400;
+}
+.discount-label {
+  margin: 0 0 4px 0;
+  color: #1c7c1c;
+  font-size: 14px;
+  font-weight: 700;
+}
+
     .sidebar-header {
         color: white;
         font-weight: 600;

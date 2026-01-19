@@ -32,10 +32,6 @@
           <i class="bi bi-speedometer2 me-2"></i>
           <span>Dashboard</span>
         </a>
-        <a href="/admin/orders/" class="nav-link d-flex align-items-center">
-          <i class="bi bi-people me-2"></i>
-          <span>Orders</span>
-        </a>
         <a href="/admin/users/" class="nav-link d-flex align-items-center">
           <i class="bi bi-people me-2"></i>
           <span>Users</span>
@@ -56,6 +52,26 @@
           <i class="bi bi-box-seam me-2"></i>
           <span>Products</span>
         </a>
+        <a href="/admin/orders/" class="nav-link d-flex align-items-center">
+          <i class="bi bi-people me-2"></i>
+          <span>Orders</span>
+        </a>
+        <a href="/admin/unassigned/orders/" class="nav-link d-flex align-items-center">
+          <i class="bi bi-people me-2"></i>
+          <span>UnAssigned Orders</span>
+        </a>
+        <a href="/admin/deliveries-or-pickups/" class="nav-link d-flex align-items-center">
+          <i class="bi bi-people me-2"></i>
+          <span>Delivery Or Pickups</span>
+        </a>
+        <a href="/admin/unassigned/pickups/" class="nav-link d-flex align-items-center">
+          <i class="bi bi-people me-2"></i>
+          <span>UnAssigned Pickups</span>
+        </a>
+        <a href="/admin/exchange-requests/" class="nav-link d-flex align-items-center">
+          <i class="bi bi-people me-2"></i>
+          <span>Exchnage Or Returns</span>
+        </a>
       </div>
     </nav>
 
@@ -71,7 +87,6 @@
       </header>
       <main class="flex-grow-1 p-2">
        {% block content %}
-
 
        {% endblock %}
       </main>

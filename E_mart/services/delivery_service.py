@@ -1,5 +1,5 @@
-from E_mart.models import DeliveryOrPickup,DeliveryPerson,ExchangeOrReturn
-from E_mart.services import order_service,deliveryperson_service
+from E_mart.models import DeliveryOrPickup,DeliveryPerson
+from E_mart.services import order_service,deliveryperson_service,exchange_or_return_service,worker_service
 from E_mart.constants.default_values import DeliveryStatus,Purpose,OrderStatus
 from django.utils import timezone
 from datetime import timedelta
@@ -17,14 +17,18 @@ def get_delivery_worker_obj_by_user_id(user):
 def assigned_worker(order_id,assigned_to):
     order = order_service.get_order_by_id(order_id)
     assigned_user = deliveryperson_service.get_delivery_person_by_id(assigned_to)
-    return DeliveryOrPickup.objects.create(
-        order = order,
-        address = order.delivery_address,
-        delivery_person = assigned_user,
-        status = DeliveryStatus.ASSIGNED.value,
-        purpose = Purpose.DELIVERY.value,
-        delivered_at = timezone.now()+timedelta(hours=24)
-    )
+    print(assigned_user)
+    if assigned_user:
+        return DeliveryOrPickup.objects.create(
+            order = order,
+            address = order.delivery_address,
+            delivery_person = assigned_user,
+            status = DeliveryStatus.ASSIGNED.value,
+            purpose = Purpose.DELIVERY.value,
+            delivered_at = timezone.now()+timedelta(hours=24)
+        )
+    else:
+        return False
 
 def get_last_7_days_stats(worker):
     today = timezone.now().date()
@@ -163,3 +167,19 @@ def update_delivery_or_pickup_status(id, status):
         pass
     status=DeliveryStatus(delivery.status).name
     return status
+
+
+def get_all_deliveryorpickup_orders():
+    return DeliveryOrPickup.objects.all()
+
+def create_admin_pickups(exchange_id,assigned_to):
+    exchnage = exchange_or_return_service.get_exchange_by_id(exchange_id)
+    print("exchange",exchnage)
+    worker = worker_service.get_worker_by_user_obj(assigned_to)
+    print("worker=>",worker)
+    return DeliveryOrPickup.objects.create(
+        order = exchnage.order,
+        address = exchnage.order.delivery_address,
+        status = DeliveryStatus.ASSIGNED.value,
+        purpose = Purpose.PICKUP.value
+    )

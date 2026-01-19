@@ -31,7 +31,7 @@ class Cart(models.Model):
 
     def get_fee_price(self):
         total = self.get_total_price()
-        return Decimal('0') if total >= Decimal('500') else Decimal('20')  # delivery charge corrected to 40
+        return Decimal('0') if total >= Decimal('500') else Decimal('40')
 
 class CartItem(models.Model):
     cart = models.ForeignKey(Cart, related_name='items', on_delete=models.CASCADE)

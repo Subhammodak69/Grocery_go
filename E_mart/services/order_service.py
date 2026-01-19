@@ -1,10 +1,11 @@
 from E_mart.models import Order,OrderItem,CartItem,Product,Payment
-from E_mart.services import cart_service,payment_service,product_service
+from E_mart.services import cart_service,payment_service,user_service,delivery_service
 from decimal import Decimal
 from E_mart.constants.default_values import OrderStatus,PaymentStatus
 from django.utils import timezone
 from datetime import timedelta
 from django.core.exceptions import PermissionDenied, ObjectDoesNotExist
+from django.db.models import Q
 
 def create_order(user, address, final_price, delivery_fee, discount):
     """
@@ -178,8 +179,22 @@ def delete_order(order_id, user):
         product.stock += item.quantity
         product.save() 
 
-def get_order_by_id(order_id):
-    return Order.objects.filter(id = order_id, is_active = True).first()
+def get_order_admin_data_by_id(order_id):
+    order = Order.objects.filter(id = order_id, is_active = True).first()
+    data = {
+        'id':order.id,
+        'user':order.user,
+        'status':order.status,
+        'delivery_address':order.delivery_address,
+        'total_price':order.total_price,
+        'discount':order.discount,
+        'delivery_fee':order.delivery_fee,
+        'items':get_order_items_data(order),
+        'listing_price':order.listing_price,
+        'count':len(get_order_items_data(order)),
+        'is_active':order.is_active
+    }
+    return data
 
 
 def get_orderitems_by_order_id(order_id):
@@ -237,3 +252,195 @@ def get_price_summary(order):
         'total_price':order.total_price,
     }
     return data
+
+
+#admin needed
+
+def get_all_orders():
+    return Order.objects.all()
+
+def get_order_by_id(order_id):
+    return Order.objects.filter(id = order_id).first()
+
+def order_create(user_id, status, total_price, discount, delivery_fee, 
+                 listing_price, delivery_address, is_active, items=None):
+    user = user_service.get_active_user_obj_by_id(user_id)
+    order = Order.objects.create(
+        user=user,
+        status=int(status),
+        total_price=Decimal(total_price),
+        discount=Decimal(discount or 0),
+        delivery_fee=Decimal(delivery_fee),
+        listing_price=Decimal(listing_price),
+        delivery_address=delivery_address or None,
+        is_active=is_active
+    )
+    
+    if items:
+        for item_data in items:
+            product_id = item_data.get('product_id')
+            quantity = item_data.get('quantity', 1)
+            if product_id:
+                try:
+                    product = Product.objects.get(id=product_id)
+                    
+                    # Simple stock check
+                    if product.stock >= quantity:
+                        item = OrderItem.objects.create(
+                            order=order,
+                            product=product,
+                            quantity=quantity,
+                            is_active=True
+                        )
+                        # Fix: Use quantity and save!
+                        product.stock = product.stock - quantity
+                        product.save()
+                    else:
+                        print(f"Not enough stock for product {product_id}")
+                        # You can skip this item or raise error
+                        
+                except Product.DoesNotExist:
+                    print(f"Product {product_id} not found")
+    
+    return order
+
+
+
+def order_update(order_id, user_id, status, total_price, discount, 
+                 delivery_fee, listing_price, delivery_address, is_active, 
+                 current_items, new_items):
+    order = Order.objects.get(id=order_id)
+    user = user_service.get_active_user_obj_by_id(user_id)
+    
+    # Store original order items quantities for stock restore
+    original_items_quantities = {}
+    for item in order.order_items.all():
+        original_items_quantities[item.product_id] = item.quantity
+    
+    # Update order fields
+    order.user = user
+    order.status = int(status)
+    order.total_price = Decimal(total_price)
+    order.discount = Decimal(discount or 0)
+    order.delivery_fee = Decimal(delivery_fee)
+    order.listing_price = Decimal(listing_price)
+    order.delivery_address = delivery_address or None
+    order.is_active = is_active
+    order.save()
+    
+    # Get current product IDs from frontend
+    current_product_ids = [item.get('product_id') for item in current_items if item.get('product_id')]
+    
+    # Get ALL existing order items from database
+    existing_items = order.order_items.all()
+    existing_product_ids = [str(item.product_id) for item in existing_items]
+    
+    # 1. DELETE REMOVED ITEMS (not in current_items) - RESTORE STOCK
+    removed_product_ids = set(existing_product_ids) - set(current_product_ids)
+    if removed_product_ids:
+        for product_id in removed_product_ids:
+            product = Product.objects.get(id=product_id)
+            old_qty = original_items_quantities.get(int(product_id), 0)
+            product.stock = product.stock + old_qty  # ADD BACK STOCK
+            product.save()
+        
+        OrderItem.objects.filter(
+            order=order,
+            product_id__in=removed_product_ids
+        ).delete()
+    
+    # 2. UPDATE EXISTING ITEMS from current_items - HANDLE STOCK CHANGE
+    for item_data in current_items:
+        product_id = item_data.get('product_id')
+        quantity = item_data.get('quantity', 0)
+        
+        if product_id and quantity > 0:
+            try:
+                product = Product.objects.get(id=product_id)
+                order_item, created = OrderItem.objects.update_or_create(
+                    order=order,
+                    product=product,
+                    defaults={'quantity': quantity}
+                )
+                
+                # Calculate stock change
+                old_qty = original_items_quantities.get(int(product_id), 0)
+                stock_change = old_qty - quantity  # Positive = add stock, Negative = reduce stock
+                product.stock = product.stock + stock_change
+                product.save()
+                
+            except Product.DoesNotExist:
+                print(f"Product {product_id} not found")
+    
+    # 3. ADD NEW ITEMS from new_items - REDUCE STOCK
+    for item_data in new_items:
+        product_id = item_data.get('product_id')
+        quantity = item_data.get('quantity', 1)
+        
+        if product_id and quantity > 0:
+            try:
+                product = Product.objects.get(id=product_id)
+                
+                # Check if product already exists
+                if not OrderItem.objects.filter(order=order, product_id=product_id).exists():
+                    # Check stock availability
+                    if product.stock >= quantity:
+                        OrderItem.objects.create(
+                            order=order,
+                            product=product,
+                            quantity=quantity
+                        )
+                        product.stock = product.stock - quantity  # REDUCE STOCK
+                        product.save()
+                    else:
+                        print(f"Not enough stock for product {product_id}")
+                        
+            except Product.DoesNotExist:
+                print(f"Product {product_id} not found")
+    
+    return order
+
+
+
+
+def toggle_active_order(order_id, is_active):
+    order = Order.objects.get(id=order_id)
+    order.is_active = bool(is_active)
+    order.save()
+    return order
+
+def get_order_items(order_id):
+    """Get order items for AJAX dropdown population"""
+    order = Order.objects.get(id=order_id)
+    items = order.order_items.select_related('product').values(
+        'id',
+        'quantity',
+        'product__name'
+    )
+    
+    # Transform data for frontend
+    result = []
+    for item in items:
+        result.append({
+            'id': item['id'],
+            'product_name': item['product__name'],
+            'quantity': item['quantity']
+        })
+    return result
+
+
+def get_all_order_status():
+    data = [
+        {
+            'value':status.value,
+            'name':status.name
+        }
+        for status in OrderStatus
+    ]
+    return data
+
+
+def get_all_unassigned_orders():
+    assigned_orders = delivery_service.get_all_deliveryorpickup_orders()
+    assigned_ids = list(assigned_orders.values_list('id', flat=True))
+    return Order.objects.filter(~Q(id__in=assigned_ids))

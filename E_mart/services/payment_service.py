@@ -87,9 +87,7 @@ def get_payment_data_by_order_id(order_id):
     order = order_service.get_order_by_id(order_id)
     return Payment.objects.filter(order = order, is_active = True).first()
 
-def api_create_payment(order, payment_data):
-    print("payment_data:=>  ", payment_data)
-    
+def api_create_payment(order, payment_data):    
     # Get method from payment_data
     method_str = payment_data.get('method')
     
@@ -181,4 +179,17 @@ def api_create_payment(order, payment_data):
             raise
     
     return payment
+
+
+def get_payment_data_by_order(order):
+    payment = Payment.objects.filter(order = order, is_active = True).first()
+    data = {
+        'id':payment.id,
+        'status':PaymentStatus(payment.status).name,
+        'method':PaymentMethod(payment.method).name,
+        'amount':payment.amount,
+        'created_at':payment.created_at,
+        'transaction_id':payment.transaction_id
+    }
+    return data
 

@@ -1,0 +1,60 @@
+{% extends "admin/home.html" %}
+{% load static %}
+{% block title %}Orders List{% endblock %}
+{% block content %}
+<script src="{% static 'js/admin/order/order_list.js' %}"></script>
+<div class="overflow-auto p-4 rounded h-100">
+    <div class="d-flex align-items-center justify-content-between mb-3">
+        <h4>Orders List</h4>
+        <button class="btn btn-success" onclick="create_order()">+Create Order</button>
+    </div>
+    <table class="table table-striped table-bordered w-100">
+        <thead class="table-dark">
+            <tr>
+                <th>ID</th>
+                <th>User</th>
+                <th>Status</th>
+                <th>Total Price</th>
+                <th>Delivery Fee</th>
+                <th>Created At</th>
+                <th>Items Count</th>
+                <th>Is Active</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for order in orders %}
+            <tr>
+                <td>{{ order.id }}</td>
+                <td>{{ order.user.username }}</td>
+                <td>
+                    <span class="badge bg-{% if order.status == 1 %}primary{% elif order.status == 2 %}warning{% elif order.status == 3 %}success{% else %}secondary{% endif %}">
+                        {{ order.get_status_display }}
+                    </span>
+                </td>
+                <td>₹{{ order.total_price }}</td>
+                <td>₹{{ order.delivery_fee }}</td>
+                <td>{{ order.created_at|date:"M d, Y" }}</td>
+                <td>{{ order.items.count }}</td>
+                <td>
+                    <div class="form-check form-switch" onclick="isactive_toggle({{ order.id }})">
+                        <input class="form-check-input toggle-active" type="checkbox" data-order-id="{{ order.id }}" {% if order.is_active %}checked{% endif %} />
+                    </div>
+                </td>
+                <td>
+                    <button class="btn btn-warning btn-sm" onclick="update_order({{ order.id }})">Update</button>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+<style>
+    td {
+        max-width: 150px;        
+        white-space: nowrap;     
+        overflow: hidden;       
+        text-overflow: ellipsis; 
+    }
+</style>
+{% endblock %}

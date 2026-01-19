@@ -1,6 +1,6 @@
 {% extends 'enduser/base.html' %}
 {% load static %}
-{% block title %} Your Pickups | GroceryGo {% endblock %}
+{% block title %} Your Exchnage and Returns | GroceryGo {% endblock %}
 
 {% block extra_css %}
 <link rel="stylesheet" href="{% static 'css/enduser/cart.css' %}">
@@ -10,10 +10,10 @@
 {% block content %}
 <div class="container-9 py-4 px-4" style="min-height: 100vh; background:white;">
   <div class="cart-header mb-4">
-    <h2 class="cart-title"><i class="fas fa-shopping-bag me-2"></i>Your Pickups</h2>
+    <h2 class="cart-title"><i class="fas fa-shopping-bag me-2"></i>Your Exchnage and Returns</h2>
     <p class="cart-subtitle text-gray">
-      {% if pickups %}{{ pickups|length }} item{{ pickups|length|pluralize }} in your pickups
-      {% else %}You have no pickups yet{% endif %}
+      {% if pickups %}{{ pickups|length }} item{{ pickups|length|pluralize }} in your Exchnages and Returns
+      {% else %}You have no Exchnages and Returns yet{% endif %}
     </p>
   </div>
 
@@ -106,7 +106,9 @@
         <div class="order-card-price">
           ₹{{ pickup.total|floatformat:2 }}
         </div>
-
+        <div class="position-absolute bottom-0 end-0 mb-2 me-3 px-1 text-white bg-success px-3 rounded shadow-sm" style="padding-bottom:3px; bottom: 10px; right: 20px;">
+          {{pickup.purpose|lower}}
+        </div>
         <div class="order-card-status
             {% if pickup.status_value == 4 %}delivered
             {% elif pickup.status_value == 5 %}cancelled

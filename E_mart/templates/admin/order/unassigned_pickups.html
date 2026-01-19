@@ -1,0 +1,69 @@
+{% extends "admin/home.html" %}
+{% load static %}
+{% block title %}Unassinged Pickups List{% endblock %}
+{% block content %}
+<script src="{% static 'js/admin/order/assigned.js' %}"></script>
+
+<div class="overflow-auto p-4 rounded h-100">
+    <div class="d-flex align-items-center justify-content-between mb-3">
+        <h4>UnAssigned Pickups List</h4>
+    </div>
+    <table class="table table-striped table-bordered w-100">
+        <thead class="table-dark">
+            <tr>
+                <th>ID</th>
+                <th>Order ID</th>
+                <th>Order Item</th>
+                <th>User</th>
+                <th>Product</th>
+                <th>Reason</th>
+                <th>Status</th>
+                <th>Purpose</th>
+                <th>Request Date</th>
+                <th>Is Active</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for exchange in exchanges %}
+            <tr>
+                <td>{{ exchange.id }}</td>
+                <td>{{ exchange.order.id }}</td>
+                <td>{{ exchange.order_item.id }}</td>
+                <td>{{ exchange.user.username }}</td>
+                <td>{{ exchange.product.name }}</td>
+                <td title="{{ exchange.reason }}">{{ exchange.reason|truncatechars:30 }}</td>
+                <td>
+                    <span class="badge bg-{% if exchange.status == 1 %}warning{% elif exchange.status == 2 %}info{% elif exchange.status == 3 %}success{% else %}secondary{% endif %}">
+                        {{ exchange.get_status_display }}
+                    </span>
+                </td>
+                <td>{{ exchange.get_purpose_display }}</td>
+                <td>{{ exchange.request_date|date:"M d, Y" }}</td>
+                <td>
+                    <div class="form-check form-switch" onclick="isactive_toggle({{ exchange.id }})">
+                        <input class="form-check-input toggle-active" type="checkbox" data-exchange-id="{{ exchange.id }}" {% if exchange.is_active %}checked{% endif %} />
+                    </div>
+                </td>
+                <td>
+                    <select class="assigned-to-select form-select form-select-sm" data-exchange-id="{{ exchange.id }}">
+                        <option value="" selected>--Assigned Please---</option>
+                        {% for worker in workers %}
+                        <option value="{{ worker.id }}">{{ worker.full_name }}</option>
+                        {% endfor %}
+                    </select>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+<style>
+    td {
+        max-width: 150px;        
+        white-space: nowrap;     
+        overflow: hidden;       
+        text-overflow: ellipsis; 
+    }
+</style>
+{% endblock %}

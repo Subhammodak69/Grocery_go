@@ -12,7 +12,7 @@ class ExchangeOrReturn(models.Model):
     status = models.IntegerField(choices=((es.value,es.name)for es in ExchangeOrReturnStatus), default=1)
     processed_date = models.DateTimeField(null=True, blank=True)
     purpose = models.IntegerField(choices=((eo.value,eo.name)for eo in ExOrRePurpose), default=1)
-
+    is_active = models.BooleanField(default=True)
 
     class Meta:
         db_table = 'exchange_requests'

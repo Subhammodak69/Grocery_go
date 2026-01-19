@@ -32,7 +32,22 @@ urlpatterns = [
     path('admin/products/toggle-active/',AdminProductToggleActiveView.as_view(), name='admin_product_toggle_active'),
 
     path('admin/orders/',AdminOrderListView.as_view(), name='admin_order_list'), 
-    path('admin/update-order-assignee/',AdminOrderAssignedView.as_view(), name='admin_order_assigned'),
+    path('admin/orders/create/',AdminOrderCreateView.as_view(), name='admin_order_create'),
+    path('admin/orders/update/<int:order_id>/',AdminOrderUpdateView.as_view(), name='admin_order_update'),
+    path('admin/orders/toggle-active/',AdminOrderToggleActiveView.as_view(), name='admin_order_toggle_active'),
+    path('admin/unassigned/orders/',AdminOrderAssignedView.as_view(), name='admin_order_assigned'),
+
+    # path('admin/deliveries-or-pickups/',AdminDeliveryOrPickupListView.as_view(), name='admin_delivery_pickup_list'), 
+    # path('admin/deliveries-or-pickups/create/',AdminDeliveryOrPickupView.as_view(), name='admin_delivery_pickup_create'),
+    # path('admin/deliveries-or-pickups/update/<int:order_id>/',AdminDeliveryOrPickupUpdateView.as_view(), name='admin_delivery_pickup_update'),
+    # path('admin/deliveries-or-pickups/toggle-active/',AdminDeliveryOrPickupToggleActiveView.as_view(), name='admin_delivery_pickup_toggle_active'),
+    path('admin/unassigned/pickups/',AdminPickupsAssignedView.as_view(),name = 'admin_unassinged_pickups'),
+
+    path('admin/exchange-requests/', AdminExchangeListView.as_view(), name='admin_exchange_list'),
+    path('admin/exchange-requests/create/', AdminExchangeCreateView.as_view(), name='admin_exchange_create'),
+    path('admin/exchange-requests/update/<int:exchange_id>/', AdminExchangeUpdateView.as_view(), name='admin_exchange_update'),
+    path('admin/exchange-requests/toggle-active/', AdminExchangeToggleActiveView.as_view(), name='admin_exchange_toggle_active'),
+    path('admin/exchange/get-order-items/<int:order_id>/', GetOrderItemsView.as_view(), name='get_order_items'),
 
     #enduser
 

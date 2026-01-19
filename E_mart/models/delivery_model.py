@@ -16,7 +16,7 @@ class DeliveryPerson(models.Model):
         return self.user.username
 
 class DeliveryOrPickup(models.Model):
-    order = models.OneToOneField(Order, on_delete=models.CASCADE)
+    order = models.ForeignKey(Order, on_delete=models.CASCADE)
     address = models.TextField(blank=False, null=False)
     delivery_person = models.ForeignKey(DeliveryPerson, on_delete=models.SET_NULL, null=True, blank=True)
     status = models.IntegerField(choices=((ds.value,ds.name) for ds in DeliveryStatus), default= 1)
