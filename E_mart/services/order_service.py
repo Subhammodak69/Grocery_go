@@ -5,7 +5,6 @@ from E_mart.constants.default_values import OrderStatus,PaymentStatus
 from django.utils import timezone
 from datetime import timedelta
 from django.core.exceptions import PermissionDenied, ObjectDoesNotExist
-from django.db.models import Q
 
 def create_order(user, address, final_price, delivery_fee, discount):
     """
@@ -442,5 +441,5 @@ def get_all_order_status():
 
 def get_all_unassigned_orders():
     assigned_orders = delivery_service.get_all_deliveryorpickup_orders()
-    assigned_ids = list(assigned_orders.values_list('id', flat=True))
-    return Order.objects.filter(~Q(id__in=assigned_ids))
+    assigned_order_ids = list(assigned_orders.values_list('order', flat=True))
+    return Order.objects.exclude(id__in=assigned_order_ids)

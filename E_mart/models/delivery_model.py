@@ -13,7 +13,7 @@ class DeliveryPerson(models.Model):
         db_table = 'deliverypersons'
         
     def __str__(self):
-        return self.user.username
+        return f"ID: {self.user.id} is_active: {self.is_active}"
 
 class DeliveryOrPickup(models.Model):
     order = models.ForeignKey(Order, on_delete=models.CASCADE)

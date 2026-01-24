@@ -4,8 +4,6 @@ document.addEventListener('DOMContentLoaded', function() {
         const orderId = selectElem.getAttribute('data-order-id');
         const selectedDboyId = selectElem.value;
 
-        console.log('Order ID:', orderId, 'Assigned To Delivery Boy ID:', selectedDboyId);
-
         fetch(window.location.href, {
             method: 'POST',
             headers: {
@@ -15,17 +13,15 @@ document.addEventListener('DOMContentLoaded', function() {
         })
         .then(response => response.json())
         .then(data => {
-            console.log(JSON.stringify(data));
             if (data.success){
-                alert('Success: ' + data.message);
+                showMessage('success' , data.message);
             } else {
-                alert('Error: ' + data.message);
+                showMessage('error' , data.message);
             }
             window.location.reload();
         })
         .catch(error => {
-            console.error('Error:', error);
-            alert('Order assignment failed. Please try again.');
+            showMessage('error','Order assignment failed. Please try again.');
         });
     }
 
@@ -33,8 +29,6 @@ document.addEventListener('DOMContentLoaded', function() {
     function handleExchangeAssignment(selectElem) {
         const exchangeId = selectElem.getAttribute('data-exchange-id');
         const selectedDboyId = selectElem.value;
-
-        console.log('Exchange ID:', exchangeId, 'Assigned To Delivery Boy ID:', selectedDboyId);
 
         fetch(window.location.href, {
             method: 'POST',
@@ -47,15 +41,14 @@ document.addEventListener('DOMContentLoaded', function() {
         .then(data => {
             console.log(JSON.stringify(data));
             if (data.success){
-                alert('Success: ' + data.message);
+                showMessage('success', data.message);
             } else {
-                alert('Error: ' + data.message);
+                showMessage('error' , data.message);
             }
             window.location.reload();
         })
         .catch(error => {
-            console.error('Error:', error);
-            alert('Exchange assignment failed. Please try again.');
+            showMessage('error','Exchange assignment failed. Please try again.');
         });
     }
 

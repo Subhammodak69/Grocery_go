@@ -1,0 +1,76 @@
+{% extends 'admin/home.html' %}
+{% load static %}
+{% block title %}Create Delivery/Pickup{% endblock %}
+{% block content %}
+<script src="{% static 'js/admin/delivery/delivery_create.js' %}"></script>
+<div class="card shadow-sm m-auto mt-4 p-4 rounded" style="max-width: 600px;">
+    <h2 class="mb-4 text-center fw-bold" style="color: #007bff;">Create Delivery/Pickup</h2>
+    <form class="px-3" id="adminDeliveryForm" onsubmit="return false;" novalidate>
+        <div class="mb-3">
+            <label for="order" class="form-label fw-semibold">Order*</label>
+            <select id="order" name="order" class="form-select" required>
+                <option value=''>Select Order</option>
+                {% for order in orders %}
+                <option value="{{ order.id }}">{{ order.id }} - {{ order.user.username }} (₹{{ order.total_price }})</option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <div class="mb-3">
+            <label for="address" class="form-label fw-semibold">Address*</label>
+            <textarea id="address" name="address" class="form-control" placeholder="Enter complete delivery address" required style="border-radius: 6px; min-height: 80px;"></textarea>
+        </div>
+
+        <div class="mb-3">
+            <label for="delivery_person" class="form-label fw-semibold">Delivery Person</label>
+            <select id="delivery_person" name="delivery_person" class="form-select">
+                <option value=''>Select Delivery Person (Optional)</option>
+                {% for person in delivery_persons %}
+                <option value="{{ person.id }}">{{ person.name }} ({{ person.phone|default:"No Phone" }})</option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <div class="mb-3">
+            <label for="status" class="form-label fw-semibold">Status*</label>
+            <select id="status" name="status" class="form-select" required>
+                <option value=''>Select Status</option>
+                <option value="1">Pending</option>
+                <option value="2">Assigned</option>
+                <option value="3">In Transit</option>
+                <option value="4">Delivered</option>
+                <option value="5">Cancelled</option>
+            </select>
+        </div>
+
+        <div class="mb-3">
+            <label for="purpose" class="form-label fw-semibold">Purpose*</label>
+            <select id="purpose" name="purpose" class="form-select" required>
+                <option value=''>Select Purpose</option>
+                <option value="1">Delivery</option>
+                <option value="2">Pickup</option>
+            </select>
+        </div>
+
+        <div class="mb-3">
+            <label for="delivered_at" class="form-label fw-semibold">Delivered At (Optional)</label>
+            <input type="datetime-local" id="delivered_at" name="delivered_at" class="form-control" style="border-radius: 6px;">
+        </div>
+
+        <div class="form-check form-switch mb-3">
+            <input class="form-check-input" type="checkbox" id="is_active" name="is_active" checked>
+            <label class="form-check-label fw-semibold" for="is_active">Active</label>
+        </div>
+
+        <button type="submit" onclick="delivery_create()" class="btn btn-primary fw-bold mt-3 w-100" style="padding: 12px; font-size: 18px; border-radius: 8px;">
+            Create Delivery/Pickup
+        </button>
+    </form>
+    <div id="message" class="text-center mt-4 fw-semibold m-auto"></div>
+</div>
+
+<style>
+    #message.error { color: #dc3545; margin: 20px auto; }
+    #message.success { color: #28a745; margin: 20px auto; }
+</style>
+{% endblock %}

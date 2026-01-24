@@ -48,7 +48,7 @@
     .sidebar-menu .nav-link {
         color: white;
         text-transform: capitalize;
-        padding: 10px 1.5rem;
+        padding: 20px 1.5rem;
         border-bottom: 1px solid #334155;
         transition: background-color 0.2s ease;
     }
@@ -79,7 +79,7 @@
     }
 
     .topbar {
-        height: 60px;
+        height: 65px;
         border-bottom: 1px solid #ddd;
         background: #233046;
         color: white;

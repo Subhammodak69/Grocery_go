@@ -147,7 +147,6 @@ class OrderDetailsView(View):
         summary = order_service.get_order_price_summary(order_id) 
         order = order_service.get_order_by_id(order_id)
         payment = payment_service.get_payment_data_by_order(order)
-        print(payment)
         context = { 
             'order_data': order_data,
             'summary':summary,

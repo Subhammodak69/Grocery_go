@@ -1,8 +1,10 @@
-from E_mart.models import DeliveryOrPickup,DeliveryPerson
+from E_mart.models import DeliveryOrPickup,DeliveryPerson,Order
 from E_mart.services import order_service,deliveryperson_service,exchange_or_return_service,worker_service
-from E_mart.constants.default_values import DeliveryStatus,Purpose,OrderStatus
+from E_mart.constants.default_values import DeliveryStatus,Purpose,OrderStatus,ExchangeOrReturnStatus
 from django.utils import timezone
 from datetime import timedelta
+import datetime
+from django.shortcuts import get_object_or_404
 
 def get_delivery_person_by_order(order):
     item = DeliveryOrPickup.objects.filter(order = order).first()
@@ -17,7 +19,6 @@ def get_delivery_worker_obj_by_user_id(user):
 def assigned_worker(order_id,assigned_to):
     order = order_service.get_order_by_id(order_id)
     assigned_user = deliveryperson_service.get_delivery_person_by_id(assigned_to)
-    print(assigned_user)
     if assigned_user:
         return DeliveryOrPickup.objects.create(
             order = order,
@@ -174,12 +175,64 @@ def get_all_deliveryorpickup_orders():
 
 def create_admin_pickups(exchange_id,assigned_to):
     exchnage = exchange_or_return_service.get_exchange_by_id(exchange_id)
-    print("exchange",exchnage)
-    worker = worker_service.get_worker_by_user_obj(assigned_to)
-    print("worker=>",worker)
-    return DeliveryOrPickup.objects.create(
+    worker = worker_service.get_worker_obj(assigned_to)
+    pickup = DeliveryOrPickup.objects.create(
         order = exchnage.order,
+        delivery_person = worker,
         address = exchnage.order.delivery_address,
         status = DeliveryStatus.ASSIGNED.value,
         purpose = Purpose.PICKUP.value
     )
+    exchnage.status = ExchangeOrReturnStatus.APPROVED.value
+    exchnage.save()
+    return pickup
+
+
+def get_all_deliveries():
+    return DeliveryOrPickup.objects.select_related('order', 'delivery_person').all()
+
+def get_delivery_by_id(delivery_id):
+    return get_object_or_404(DeliveryOrPickup, id=delivery_id)
+
+def delivery_create(order_id, address, delivery_person_id, status, purpose, delivered_at, is_active):
+    order = get_object_or_404(Order, id=order_id)
+    delivery_person = get_object_or_404(DeliveryPerson, id=delivery_person_id) if delivery_person_id else None
+    
+    delivered_at_date = None
+    if delivered_at:
+        delivered_at_date = datetime.strptime(delivered_at, '%Y-%m-%dT%H:%M') if 'T' in delivered_at else None
+    
+    DeliveryOrPickup.objects.create(
+        order=order,
+        address=address,
+        delivery_person=delivery_person,
+        status=status,
+        purpose=purpose,
+        delivered_at=delivered_at_date,
+        is_active=is_active
+    )
+
+def delivery_update(delivery_id, order_id, address, delivery_person_id, status, purpose, delivered_at, is_active):
+    delivery = get_delivery_by_id(delivery_id)
+    order = get_object_or_404(Order, id=order_id)
+    delivery_person = get_object_or_404(DeliveryPerson, id=delivery_person_id) if delivery_person_id else None
+    
+    delivered_at_date = None
+    if delivered_at:
+        delivered_at_date = datetime.strptime(delivered_at, '%Y-%m-%dT%H:%M') if 'T' in delivered_at else None
+    
+    delivery.order = order
+    delivery.address = address
+    delivery.delivery_person = delivery_person
+    delivery.status = status
+    delivery.purpose = purpose
+    delivery.delivered_at = delivered_at_date
+    delivery.is_active = is_active
+    delivery.save()
+    return delivery
+
+def toggle_active_delivery(delivery_id, is_active):
+    delivery = get_delivery_by_id(delivery_id)
+    delivery.is_active = is_active
+    delivery.save()
+    return delivery

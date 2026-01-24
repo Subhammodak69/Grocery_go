@@ -37,10 +37,10 @@ urlpatterns = [
     path('admin/orders/toggle-active/',AdminOrderToggleActiveView.as_view(), name='admin_order_toggle_active'),
     path('admin/unassigned/orders/',AdminOrderAssignedView.as_view(), name='admin_order_assigned'),
 
-    # path('admin/deliveries-or-pickups/',AdminDeliveryOrPickupListView.as_view(), name='admin_delivery_pickup_list'), 
-    # path('admin/deliveries-or-pickups/create/',AdminDeliveryOrPickupView.as_view(), name='admin_delivery_pickup_create'),
-    # path('admin/deliveries-or-pickups/update/<int:order_id>/',AdminDeliveryOrPickupUpdateView.as_view(), name='admin_delivery_pickup_update'),
-    # path('admin/deliveries-or-pickups/toggle-active/',AdminDeliveryOrPickupToggleActiveView.as_view(), name='admin_delivery_pickup_toggle_active'),
+    path('admin/deliveries-or-pickups/',AdminDeliveryOrPickupListView.as_view(), name='admin_delivery_pickup_list'),
+    path('admin/deliveries-or-pickups/create/',AdminDeliveryOrPickupCreateView.as_view(), name='admin_delivery_pickup_create'),
+    path('admin/deliveries-or-pickups/update/<int:delivery_id>/',AdminDeliveryOrPickupUpdateView.as_view(), name='admin_delivery_pickup_update'),
+    path('admin/deliveries-or-pickups/toggle-active/',AdminDeliveryOrPickupToggleActiveView.as_view(), name='admin_delivery_pickup_toggle_active'),
     path('admin/unassigned/pickups/',AdminPickupsAssignedView.as_view(),name = 'admin_unassinged_pickups'),
 
     path('admin/exchange-requests/', AdminExchangeListView.as_view(), name='admin_exchange_list'),
@@ -48,6 +48,7 @@ urlpatterns = [
     path('admin/exchange-requests/update/<int:exchange_id>/', AdminExchangeUpdateView.as_view(), name='admin_exchange_update'),
     path('admin/exchange-requests/toggle-active/', AdminExchangeToggleActiveView.as_view(), name='admin_exchange_toggle_active'),
     path('admin/exchange/get-order-items/<int:order_id>/', GetOrderItemsView.as_view(), name='get_order_items'),
+    path('api/admin/notifications/', AdminNotificationsView.as_view(), name='admin-notifications-api'),
 
     #enduser
 
@@ -78,6 +79,7 @@ urlpatterns = [
     path('exchange-return/create/<int:order_id>/', ExchangeReturnCreateView.as_view(), name='exchange_return_create'),
     path('exchanges-or-returns/', ExchangeReturnListView.as_view(), name='exchange_return_list'),
     path('exchanges-or-returns/<int:pk>/', ExchangeReturnDetailsView.as_view(), name='exchange_return_details'),
+
     #delivery worker
     path('delivery-worker/',DeliveryWorkerHomeView.as_view(), name='delivery_worker_home'),
     path('delivery-worker/profile/',DeliveryWorkerProfileView.as_view(), name='delivery_worker_profile'),

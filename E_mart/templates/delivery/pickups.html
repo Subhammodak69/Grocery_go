@@ -18,7 +18,7 @@
   {% if pickups %}
     <div class="pickups-list">
       {% for pickup in pickups %}
-        <div class="order-card-horiz" onclick="window.location.href = '/pickup/{{ pickup.id }}/'">
+        <div class="order-card-horiz" onclick="window.location.href = '/delivery-worker/order-details/{{ pickup.order.id }}/'" style="max-height: 180px; cursor: pointer;">
           <div class="order-card-left">
             <!-- PHOTO FIELD - Dynamic Grid (Same as deliveries) -->
             <div class="order-photo-block">

@@ -1,5 +1,5 @@
 from E_mart.models import ExchangeOrReturn,Order,OrderItem
-from E_mart.services import order_service
+from E_mart.services import order_service,delivery_service
 from E_mart.constants.default_values import ExchangeOrReturnStatus,ExOrRePurpose
 
 def create_exchange_or_return(*, order_id, order_item_ids, user, purpose, reason):
@@ -97,6 +97,10 @@ def toggle_active_exchange(exchange_id, is_active):
     exchange.is_active = bool(is_active)
     exchange.save()
     return exchange
+
+
+def get_all_unassigned_exchanges():
+    return ExchangeOrReturn.objects.filter(status = ExchangeOrReturnStatus.PENDING.value, is_active = True)
 
 
 

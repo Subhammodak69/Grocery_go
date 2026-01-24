@@ -25,7 +25,6 @@ class ExchangeReturnCreateView(View):
             'order': order,
             'order_items':order_items
         }
-        print(context)
         return render(request,'enduser/exchange_or_return.html', context)
 
     def post(self, request, order_id):
@@ -41,14 +40,13 @@ class ExchangeReturnCreateView(View):
             reason=reason
         )
 
-        return redirect(request.path)
+        return redirect('/exchanges-or-returns/')
     
 class ExchangeReturnDetailsView(View):
     def get(self,request,pk):
         exchange_or_return = exchange_or_return_service.get_exchange_return_by_id_for_user(pk,request.user) 
         order_data = order_service.get_order_full_data(exchange_or_return.order.id)
         items = order_service.get_order_items_data(exchange_or_return.order)
-        print(items)
         summary = order_service.get_price_summary(exchange_or_return.order)
         payment = payment_service.get_payment_data_by_order_id(exchange_or_return.order.id)
         return render(request, 'enduser/pickup_order_details.html', {
@@ -159,7 +157,7 @@ class GetOrderItemsView(View):
 @method_decorator(csrf_exempt,name='dispatch')
 class AdminPickupsAssignedView(View):
     def get(self,request):
-        exchanges = exchange_or_return_service.get_all_exchanges() 
+        exchanges = exchange_or_return_service.get_all_unassigned_exchanges() 
         workers = deliveryperson_service.get_available_delivery_boys()
         workers_data = [
             {
@@ -171,13 +169,14 @@ class AdminPickupsAssignedView(View):
         return render(request,'admin/order/unassigned_pickups.html',{'exchanges':exchanges,'workers':workers_data})
     
     def post(self, request):
-        data = json.loads(request.body)
-        exchange_id = data.get('exchange_id')
-        assigned_to = data.get('assigned_to')
-        if not all([exchange_id,assigned_to]):
-            return JsonResponse({'error': 'Missing required fields'}, status=400)
-        pickups = delivery_service.create_admin_pickups(exchange_id,assigned_to)
-        print(pickups)
-        return JsonResponse({'success':True, 'message':"Assinged Successfully"})
-
+        try:
+            data = json.loads(request.body)
+            exchange_id = data.get('exchange_id')
+            assigned_to = data.get('assigned_to')
+            if not all([exchange_id,assigned_to]):
+                return JsonResponse({'error': 'Missing required fields'}, status=400)
+            pickups = delivery_service.create_admin_pickups(exchange_id,assigned_to)
+            return JsonResponse({'success':True, 'message':"Assinged Successfully"})
+        except Exception as e:
+            return JsonResponse({'error': str(e)}, status=500)
         

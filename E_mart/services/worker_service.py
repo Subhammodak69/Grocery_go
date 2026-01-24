@@ -44,3 +44,6 @@ def update_worker(worker_id,email,first_name,last_name,phone_number):
 
 def get_worker_by_user_obj(user):
     return DeliveryPerson.objects.filter(user = user, is_active = True).first()
+
+def get_worker_obj(assigned_to):
+    return DeliveryPerson.objects.filter(id=assigned_to,is_active = True).first()

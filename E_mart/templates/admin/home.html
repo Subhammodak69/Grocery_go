@@ -10,6 +10,7 @@
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.min.css">
   <link rel="stylesheet" href="{% static 'css/admin/admin_base.css' %}" />
   <script src="{% static 'js/admin/admin_base.js' %}"></script>
+  <script src="{% static 'js/admin/home.js' %}"></script>
   <script src="{% static 'js/auto_reload.js' %}"></script>
 </head>
 <body>
@@ -23,7 +24,7 @@
     <nav id="sidebar" class="sidebar d-flex flex-column" style="width: 300px;">
       <div class="sidebar-header d-flex gap-2">
         <div class="d-flex align-items-center justify-content-center" style="height:30px; width:30px; border-radius:50%; background:white;">
-          <i class="bi bi-person" style="color:black;font-size:larger;"></i>
+          <i class="bi bi-person-fill" style="color:black;font-size:larger;"></i>
         </div>
         <span>{{user.get_full_name}}</span>(Admin)
       </div>
@@ -33,44 +34,44 @@
           <span>Dashboard</span>
         </a>
         <a href="/admin/users/" class="nav-link d-flex align-items-center">
-          <i class="bi bi-people me-2"></i>
+          <i class="bi bi-person-lines-fill me-2"></i>
           <span>Users</span>
         </a>
         <a href="/admin/delivery-workers/" class="nav-link d-flex align-items-center">
-          <i class="bi bi-people me-2"></i>
+          <i class="bi bi-truck-flatbed me-2"></i>
           <span>Workers</span>
         </a>
         <a href="/admin/categories/" class="nav-link d-flex align-items-center">
-          <i class="bi bi-tags me-2"></i>
+          <i class="bi bi-grid-3x3-gap-fill me-2"></i>
           <span>Categories</span>
         </a>
         <a href="/admin/posters/" class="nav-link d-flex align-items-center">
-          <i class="bi bi-image me-2"></i>
+          <i class="bi bi-image-alt me-2"></i>
           <span>Posters</span>
         </a>
         <a href="/admin/products/" class="nav-link d-flex align-items-center">
-          <i class="bi bi-box-seam me-2"></i>
+          <i class="bi bi-cart-fill me-2"></i>
           <span>Products</span>
         </a>
         <a href="/admin/orders/" class="nav-link d-flex align-items-center">
-          <i class="bi bi-people me-2"></i>
+          <i class="bi bi-bag-check-fill me-2"></i>
           <span>Orders</span>
         </a>
-        <a href="/admin/unassigned/orders/" class="nav-link d-flex align-items-center">
-          <i class="bi bi-people me-2"></i>
+        <a href="/admin/unassigned/orders/" class="nav-link d-flex align-items-center position-relative">
+          <i class="bi bi-exclamation-triangle-fill me-2 text-warning"></i>
           <span>UnAssigned Orders</span>
         </a>
         <a href="/admin/deliveries-or-pickups/" class="nav-link d-flex align-items-center">
-          <i class="bi bi-people me-2"></i>
+          <i class="bi bi-arrow-left-right me-2"></i>
           <span>Delivery Or Pickups</span>
         </a>
-        <a href="/admin/unassigned/pickups/" class="nav-link d-flex align-items-center">
-          <i class="bi bi-people me-2"></i>
-          <span>UnAssigned Pickups</span>
-        </a>
         <a href="/admin/exchange-requests/" class="nav-link d-flex align-items-center">
-          <i class="bi bi-people me-2"></i>
-          <span>Exchnage Or Returns</span>
+          <i class="bi bi-arrow-repeat me-2"></i>
+          <span>Exchange Or Returns</span>
+        </a>
+        <a href="/admin/unassigned/pickups/" class="nav-link d-flex align-items-center position-relative">
+          <i class="bi bi-question-diamond-fill me-2 text-warning"></i>
+          <span>UnAssigned Pickups</span>
         </a>
       </div>
     </nav>
@@ -86,9 +87,8 @@
         </div>
       </header>
       <main class="flex-grow-1 p-2">
-       {% block content %}
-
-       {% endblock %}
+         {% block content %}
+         {% endblock %}
       </main>
     </div>
   </div>
@@ -110,9 +110,7 @@
 
   const currentPath = window.location.pathname;
   const navLinks = document.querySelectorAll('.sidebar-menu .nav-link');
-
   navLinks.forEach(link => {
-      // If link href matches current path, add "active" class
       if (link.getAttribute('href') === currentPath) {
           link.classList.add('active');
       }
