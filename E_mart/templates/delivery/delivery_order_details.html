@@ -169,12 +169,12 @@ $(document).ready(function() {
     const $selectStatus = $('#selectStatus');
     const deliveryId = {{ delivery.id }}; 
 
-    fetch(`/api/delivery-or-pickup/${deliveryId}/status/update/`)
+    fetch(`/api/delivery/${deliveryId}/status/update/`)
         .then(response => response.json())
         .then(data => {
             const enums = data.data.enums;
             const currentStatusValue = data.data.status.value;
-            
+            console.log(enums+"  "+currentStatusValue);
             $selectStatus.empty();
             
             enums.forEach(status => {
@@ -192,7 +192,7 @@ $(document).ready(function() {
         const newStatus = $(this).val();
         
         $.ajax({
-            url: `/api/delivery-or-pickup/${deliveryId}/status/update/`,
+            url: `/api/delivery/${deliveryId}/status/update/`,
             method: 'POST',
             data: JSON.stringify({ status: newStatus }),
             contentType: 'application/json',

@@ -25,13 +25,15 @@ class OrderStatus(Enum):
     DELIVERED = 4
     CANCELLED = 5
     CONFIRMED = 6
+    FAILED = 7
  
 
 class ExchangeOrReturnStatus(Enum):
     PENDING = 1
     APPROVED = 2
     REJECTED = 3
-    EXCHANGED = 4 
+    EXCHANGED = 4
+    RETURNED = 5 
 
 class DeliveryStatus(Enum):
     ASSIGNED = 1

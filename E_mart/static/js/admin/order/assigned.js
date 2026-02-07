@@ -14,14 +14,15 @@ document.addEventListener('DOMContentLoaded', function() {
         .then(response => response.json())
         .then(data => {
             if (data.success){
-                showMessage('success' , data.message);
+                window.location.reload();
             } else {
-                showMessage('error' , data.message);
+                console.log('error' , data.message);
+                window.location.reload();
             }
-            window.location.reload();
         })
         .catch(error => {
-            showMessage('error','Order assignment failed. Please try again.');
+            console.log('error',error.message);
+            window.location.reload();
         });
     }
 
@@ -41,14 +42,15 @@ document.addEventListener('DOMContentLoaded', function() {
         .then(data => {
             console.log(JSON.stringify(data));
             if (data.success){
-                showMessage('success', data.message);
+                window.location.reload();
             } else {
-                showMessage('error' , data.message);
+                console.log('error' , data.message);
+                window.location.reload();
             }
-            window.location.reload();
         })
         .catch(error => {
-            showMessage('error','Exchange assignment failed. Please try again.');
+            console.log('error',error.message);
+            window.location.reload();
         });
     }
 
@@ -61,7 +63,7 @@ document.addEventListener('DOMContentLoaded', function() {
             });
         } else if (selectElem.hasAttribute('data-exchange-id')) {
             selectElem.addEventListener('change', function() {
-                console.log("called !");
+                // console.log("called !");
                 handleExchangeAssignment(this);
             });
         }

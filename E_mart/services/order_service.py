@@ -1,7 +1,7 @@
 from E_mart.models import Order,OrderItem,CartItem,Product,Payment
 from E_mart.services import cart_service,payment_service,user_service,delivery_service
 from decimal import Decimal
-from E_mart.constants.default_values import OrderStatus,PaymentStatus
+from E_mart.constants.default_values import OrderStatus,PaymentStatus,DeliveryStatus
 from django.utils import timezone
 from datetime import timedelta
 from django.core.exceptions import PermissionDenied, ObjectDoesNotExist
@@ -230,14 +230,25 @@ def get_all_orders(status):
         return Order.objects.all()
     return Order.objects.filter(status = OrderStatus[status].value)
 
-def get_order_enums():
+def get_order_enums_for_delivery():
+    enums_data = [
+        {
+            'value': enum.value,
+            'name': enum.name
+        }
+        for enum in OrderStatus
+        if enum.name not in [OrderStatus.PENDING.name, OrderStatus.PROCESSING.name, OrderStatus.CONFIRMED.name]
+    ]
+    return enums_data
+
+def get_order_enums_for_pickup():
     enums_data = [
         {
             'value': enum.value,
             'name': enum.name
         }
         for enum in OrderStatus 
-        if enum.name not in [OrderStatus.PENDING.name, OrderStatus.PROCESSING.name, OrderStatus.CONFIRMED.name]
+        if enum.name not in [OrderStatus.PENDING.name, OrderStatus.PROCESSING.name, OrderStatus.CONFIRMED.name,OrderStatus.OUTFORDELIVERY.name]
     ]
     return enums_data
 

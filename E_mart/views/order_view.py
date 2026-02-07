@@ -6,7 +6,7 @@ from E_mart.constants.decorators import enduser_required,admin_required,delivery
 from django.views.decorators.csrf import csrf_exempt
 from django.http import JsonResponse
 import json
-from E_mart.constants.default_values import OrderStatus
+from E_mart.constants.default_values import OrderStatus,DeliveryStatus
 
 
 
@@ -197,22 +197,76 @@ class OrderPermanentDeleteView(View):
 class DeliveryOrderDetails(View):
     def get(self,request,order_id):
         order = order_service.get_order_by_id(order_id)
-        delivery = delivery_service.get_all_delivery_by_order(order)
+        delivery = delivery_service.get_delivery_data_by_order(order)
         context = {
             "order": order,
             "delivery": delivery
         }
-        return render(request, "delivery/order_details.html", context)
+        return render(request, "delivery/delivery_order_details.html", context)
+    
+@method_decorator(delivery_worker_required, name='dispatch')
+class PickupOrderDetails(View):
+    def get(self,request,order_id):
+        order = order_service.get_order_by_id(order_id)
+        print("order",order)
+        pickup = delivery_service.get_pickup_data_by_order(order)
+        context = {
+            "order": order,
+            "pickup": pickup
+        }
+        return render(request, "delivery/pickup_order_details.html", context)
     
 @method_decorator(delivery_worker_required,name='dispatch')
 @method_decorator(csrf_exempt,name='dispatch')
-class DeliveryOrPickupStatusUpdateView(View):
+class DeliveryStatusUpdateView(View):
     def get(self, request, delivery_id):
-        order_enums = order_service.get_order_enums()
+        order_enums = order_service.get_order_enums_for_delivery()
         delivery = delivery_service.get_delivery_pickup_obj_by_id(delivery_id)
         status={
             'name':OrderStatus(delivery.order.status).name,
             'value':OrderStatus(delivery.order.status).value
+        }
+        data={
+            'enums':order_enums,
+            'status':status
+        }
+        return JsonResponse({'success':True,'data':data})
+    
+    def post(self, request, delivery_id):
+        body_data = json.loads(request.body)
+        status = int(body_data.get('status'))
+                
+        if not status:
+            return JsonResponse({
+                'success': False, 
+                'data': {'message': 'No status provided'}
+            }, status=400)
+        
+        try:
+            
+            status = delivery_service.update_delivery_or_pickup_status(delivery_id, status)
+            return JsonResponse({
+                'success': True, 
+                'data': {'message': 'Status updated successfully','status':status}
+            }) 
+        except Exception as e:
+            print("Update error:", str(e))
+            return JsonResponse({
+                'success': False, 
+                'data': {'message': f'Error: {str(e)}'}
+            }, status=500)
+        
+        
+@method_decorator(delivery_worker_required,name='dispatch')
+@method_decorator(csrf_exempt,name='dispatch')
+class PickupStatusUpdateView(View):
+    def get(self, request, pickup_id):
+        order_enums = order_service.get_order_enums_for_pickup() 
+        delivery = delivery_service.get_delivery_pickup_obj_by_id(pickup_id)
+        print(delivery.order.status)
+        status={
+            'name':OrderStatus(delivery.status).name,
+            'value':OrderStatus(delivery.status).value
         }
         data={
             'enums':order_enums,

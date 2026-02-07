@@ -28,7 +28,7 @@ async function delivery_update() {
     formData.append('is_active', is_active);
 
     try {
-        const response = await fetch(`/admin/delivery/${deliveryId}/update/`, {
+        const response = await fetch(`/admin/deliveries-or-pickups/update/${deliveryId}/`, {
             method: 'POST',
             credentials: 'include',
             body: formData
@@ -43,7 +43,7 @@ async function delivery_update() {
         messageEl.classList.add('success');
 
         setTimeout(() => {
-            window.location.href = '/admin/delivery/';
+            window.location.href = '/admin/deliveries-or-pickups/';
         }, 1000);
     } catch (err) {
         messageEl.textContent = err.message;

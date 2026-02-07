@@ -85,8 +85,10 @@ urlpatterns = [
     path('delivery-worker/profile/',DeliveryWorkerProfileView.as_view(), name='delivery_worker_profile'),
     path('deliveries/',DeliveriesListView.as_view(), name='deliveries_list'),
     path('pickups/',PickUpsListView.as_view(), name='pickups_list'),
-    path("delivery-worker/order-details/<int:order_id>/", DeliveryOrderDetails.as_view(), name="worker_order_details"),
-    path('api/delivery-or-pickup/<int:delivery_id>/status/update/', DeliveryOrPickupStatusUpdateView.as_view(), name='delivery_status_update'),
+    path("delivery-worker/delivery/order-details/<int:order_id>/", DeliveryOrderDetails.as_view(), name="worker_delivery_order_details"),
+    path("delivery-worker/pickup/order-details/<int:order_id>/", PickupOrderDetails.as_view(), name="worker_pickup_order_details"),
+    path('api/delivery/<int:delivery_id>/status/update/', DeliveryStatusUpdateView.as_view(), name='delivery_status_update'),
+    path('api/pickup/<int:pickup_id>/status/update/', PickupStatusUpdateView.as_view(), name='pickup_status_update'),
 
     path('admin/delivery-worker/create/',AdminWorkerCreateView.as_view(), name='delivery_worker_create'), 
     path('admin/delivery-worker/update/<int:worker_id>/',AdminWorkerUpdateView.as_view(), name='delivery_worker_update'),

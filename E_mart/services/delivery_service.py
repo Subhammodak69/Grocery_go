@@ -5,6 +5,7 @@ from django.utils import timezone
 from datetime import timedelta
 import datetime
 from django.shortcuts import get_object_or_404
+from django.db import models
 
 def get_delivery_person_by_order(order):
     item = DeliveryOrPickup.objects.filter(order = order).first()
@@ -83,11 +84,17 @@ def get_deliveries_by_deliveryPerson(worker):
         delivery_person=worker,
         purpose=Purpose.DELIVERY.value,
         is_active=True
+    ).exclude(
+        status__in=[
+            DeliveryStatus.DELIVERED.value,
+            DeliveryStatus.FAILED.value
+        ]
     ).prefetch_related(
         'order__order_items__product',
         'order__user'
     ).select_related('delivery_person__user', 'order').order_by('-assigned_at')
-    
+    statuses = [delivery.status for delivery in deliveries]
+    print(statuses)
     return deliveries
 
 def get_pickups_by_deliveryPerson(worker):
@@ -133,8 +140,19 @@ def get_total_complete_pickups_of_worker(worker):
         status = DeliveryStatus.PICKEDUP.value
     )
 
-def get_all_delivery_by_order(order):
+def get_delivery_data_by_order(order):
     delivery = DeliveryOrPickup.objects.filter(order = order, is_active = True,purpose = Purpose.DELIVERY.value,).first()
+    data={
+        'id':delivery.id,
+        'assigned_at':delivery.assigned_at,
+        'delivered_at':delivery.delivered_at,
+        'purpose':Purpose(delivery.purpose).name,
+        'status_value':delivery.status,
+        'status':DeliveryStatus(delivery.status).name
+    }
+    return data
+def get_pickup_data_by_order(order):
+    delivery = DeliveryOrPickup.objects.filter(order = order, is_active = True,purpose = Purpose.PICKUP.value,).first()
     data={
         'id':delivery.id,
         'assigned_at':delivery.assigned_at,
@@ -219,7 +237,7 @@ def delivery_update(delivery_id, order_id, address, delivery_person_id, status, 
     
     delivered_at_date = None
     if delivered_at:
-        delivered_at_date = datetime.strptime(delivered_at, '%Y-%m-%dT%H:%M') if 'T' in delivered_at else None
+        delivered_at = models.DateTimeField(null=True, blank=True)
     
     delivery.order = order
     delivery.address = address

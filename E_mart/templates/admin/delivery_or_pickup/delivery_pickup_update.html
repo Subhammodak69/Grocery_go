@@ -2,7 +2,7 @@
 {% load static %}
 {% block title %}Update Delivery/Pickup{% endblock %}
 {% block content %}
-<script src="{% static 'js/admin/delivery/delivery_update.js' %}"></script>
+<script src="{% static 'js/admin/delivery_or_pickup/delivery_pickup_update.js' %}"></script>
 <div class="card shadow-sm m-auto mt-4 p-4 rounded" style="max-width: 600px;">
     <h2 class="mb-4 text-center fw-bold" style="color: #007bff;">Update Delivery/Pickup</h2>
     <form class="px-3" id="adminDeliveryForm" onsubmit="return false;" novalidate>
@@ -30,7 +30,7 @@
                 <option value=''>Select Delivery Person (Optional)</option>
                 {% for person in delivery_persons %}
                 <option value="{{ person.id }}" {% if person.id == delivery.delivery_person.id %}selected{% endif %}>
-                    {{ person.name }} ({{ person.phone|default:"No Phone" }})
+                    {{ person.user.first_name }} {{person.user.last_name}} ({{ person.user.phone|default:"No Phone" }})
                 </option>
                 {% endfor %}
             </select>
