@@ -34,6 +34,7 @@ class ExchangeOrReturnStatus(Enum):
     REJECTED = 3
     EXCHANGED = 4
     RETURNED = 5 
+    IN_PROGRESS = 6
 
 class DeliveryStatus(Enum):
     ASSIGNED = 1
@@ -41,6 +42,7 @@ class DeliveryStatus(Enum):
     DELIVERED = 3
     FAILED = 4 
     PICKEDUP = 5
+    RETURNED = 6
 
 class Purpose(Enum):
     DELIVERY = 1

@@ -793,9 +793,9 @@
     flex: 1;
   }
   
-  .progress-step span {
+  /* .progress-step span {
     display: none;
-  }
+  } */
 }
 
 /* Mobile (576px - 767px) */

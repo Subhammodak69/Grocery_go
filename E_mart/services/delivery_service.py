@@ -1,6 +1,6 @@
 from E_mart.models import DeliveryOrPickup,DeliveryPerson,Order
 from E_mart.services import order_service,deliveryperson_service,exchange_or_return_service,worker_service
-from E_mart.constants.default_values import DeliveryStatus,Purpose,OrderStatus,ExchangeOrReturnStatus
+from E_mart.constants.default_values import DeliveryStatus,Purpose,ExchangeOrReturnStatus
 from django.utils import timezone
 from datetime import timedelta
 import datetime
@@ -100,18 +100,34 @@ def get_deliveries_by_deliveryPerson(worker):
 def get_pickups_by_deliveryPerson(worker):
     """
     Get active delivery orders assigned to a specific delivery person.
-    Prefetches related order, order_items, and products for efficient template rendering.
     """
     pickups = DeliveryOrPickup.objects.filter(
         delivery_person=worker,
         purpose=Purpose.PICKUP.value,
         is_active=True
-    ).prefetch_related(
-        'order__order_items__product',
-        'order__user'
-    ).select_related('delivery_person__user', 'order').order_by('-assigned_at')
+    ).exclude(
+        status__in = [DeliveryStatus.PICKEDUP.value,DeliveryStatus.RETURNED.value,DeliveryStatus.DELIVERED.value]
+    ).order_by('-assigned_at')
     
-    return pickups
+    # Convert to list and add data
+    result = []
+    for pickup in pickups:
+        exchange_or_return = exchange_or_return_service.get_exchnage_or_return(pickup)
+        exchange_or_return_items = exchange_or_return_service.get_exchnage_or_return_items(exchange_or_return)
+        
+        # Add as dict if you want serialized data
+        pickup_data = {
+            'pickup': pickup,
+            'purpose':Purpose(pickup.purpose).name,
+            'exchange_or_return': exchange_or_return,
+            'request_date':exchange_or_return.request_date,
+            'status':ExchangeOrReturnStatus(exchange_or_return.status).name,
+            'total':exchange_or_return.total,
+            'items': exchange_or_return_items
+        }
+        result.append(pickup_data)
+    return result
+
 
 def get_total_delivery_or_pickup_by_worker(worker):
     deliveries = DeliveryOrPickup.objects.filter(
@@ -158,34 +174,20 @@ def get_pickup_data_by_order(order):
         'assigned_at':delivery.assigned_at,
         'delivered_at':delivery.delivered_at,
         'purpose':Purpose(delivery.purpose).name,
-        'status_value':delivery.status,
         'status':DeliveryStatus(delivery.status).name
     }
     return data
+
 
 def get_delivery_pickup_obj_by_id(id):
     return DeliveryOrPickup.objects.filter(id=id).first()
 
 def update_delivery_or_pickup_status(id, status):
-    delivery = DeliveryOrPickup.objects.filter(id=id).first()
-    delivery.order.status = OrderStatus(status).value
-    delivery.order.save()
-    if(delivery.order.status == OrderStatus.CANCELLED.value):
-        delivery.status = DeliveryStatus.FAILED.value
-        delivery.save()
-    elif(delivery.order.status == OrderStatus.CONFIRMED.value):
-        delivery.status = DeliveryStatus.ASSIGNED.value
-        delivery.save()
-    elif(delivery.order.status == OrderStatus.OUTFORDELIVERY.value):
-        delivery.status = DeliveryStatus.IN_PROGRESS.value
-        delivery.save()
-    elif(delivery.order.status == OrderStatus.DELIVERED.value):
-        delivery.status = DeliveryStatus.DELIVERED.value
-        delivery.save()
-    else:
-        pass
-    status=DeliveryStatus(delivery.status).name
-    return status
+    delivery_pickup = DeliveryOrPickup.objects.filter(id = id,is_active = True).first()
+    delivery_pickup.status = DeliveryStatus(status).value
+    delivery_pickup.save()
+    # print(DeliveryStatus(delivery_pickup.status).name)
+    return DeliveryStatus(delivery_pickup.status).name
 
 
 def get_all_deliveryorpickup_orders():
@@ -254,3 +256,11 @@ def toggle_active_delivery(delivery_id, is_active):
     delivery.is_active = is_active
     delivery.save()
     return delivery
+
+def get_delivery_count_by_worker(user):
+    delivery_person = DeliveryPerson.objects.get(user = user,is_active = True)
+    return DeliveryOrPickup.objects.filter(delivery_person = delivery_person, is_active = True,purpose = Purpose.DELIVERY.value, status__in = [DeliveryStatus.ASSIGNED.value,DeliveryStatus.IN_PROGRESS.value,DeliveryStatus.FAILED.value] ).count()
+
+def get_pickup_count_by_worker(user):
+    delivery_person = DeliveryPerson.objects.get(user = user,is_active = True)
+    return DeliveryOrPickup.objects.filter(delivery_person = delivery_person, is_active = True,purpose = Purpose.PICKUP.value, status__in = [DeliveryStatus.ASSIGNED.value,DeliveryStatus.IN_PROGRESS.value,DeliveryStatus.FAILED.value] ).count()

@@ -6,6 +6,7 @@ from django.views.decorators.csrf import csrf_exempt
 from E_mart.constants.decorators import enduser_required,admin_required
 from E_mart.services import order_service,orderitem_service,exchange_or_return_service,payment_service,user_service,product_service,deliveryperson_service,delivery_service
 import json
+from E_mart.constants.default_values import ExchangeOrReturnStatus
 
 @method_decorator(enduser_required,name='dispatch')
 class ExchangeReturnListView(View):
@@ -41,20 +42,17 @@ class ExchangeReturnCreateView(View):
         )
 
         return redirect('/exchanges-or-returns/')
-    
+
+@method_decorator(enduser_required,name='dispatch')
 class ExchangeReturnDetailsView(View):
     def get(self,request,pk):
         exchange_or_return = exchange_or_return_service.get_exchange_return_by_id_for_user(pk,request.user) 
-        order_data = order_service.get_order_full_data(exchange_or_return.order.id)
-        items = order_service.get_order_items_data(exchange_or_return.order)
-        summary = order_service.get_price_summary(exchange_or_return.order)
-        payment = payment_service.get_payment_data_by_order_id(exchange_or_return.order.id)
+        items = exchange_or_return_service.get_exchnage_or_return_items(exchange_or_return) 
+        address = exchange_or_return.order.delivery_address
         return render(request, 'enduser/pickup_order_details.html', {
             'exchange_or_return': exchange_or_return,
-            'order_data': order_data,
             'items': items,
-            'summary': summary,
-            'payment': payment,
+            'address':address
         })
     
 
@@ -73,9 +71,8 @@ class AdminExchangeCreateView(View):
     def get(self, request):
         orders = order_service.get_all_orders()
         users = user_service.get_all_users()
-        products = product_service.get_all_products()
         return render(request, 'admin/exchange_request/exchange_create.html', {
-            'orders': orders, 'users': users, 'products': products
+            'orders': orders, 'users': users
         })
     
     def post(self, request):
@@ -107,9 +104,15 @@ class AdminExchangeUpdateView(View):
         exchange = exchange_or_return_service.get_exchange_by_id(exchange_id)
         orders = order_service.get_all_orders()
         users = user_service.get_all_users()
-        products = product_service.get_all_products()
+        enums = [
+            {
+                'name':i.name,
+                'value':i.value
+            }
+            for i in ExchangeOrReturnStatus
+        ]
         return render(request, 'admin/exchange_request/exchange_update.html', {
-            'exchange': exchange, 'orders': orders, 'users': users, 'products': products
+            'exchange': exchange, 'orders': orders, 'users': users,'enums':enums
         })
     
     def post(self, request, exchange_id):

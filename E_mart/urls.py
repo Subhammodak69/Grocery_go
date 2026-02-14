@@ -89,9 +89,9 @@ urlpatterns = [
     path("delivery-worker/pickup/order-details/<int:order_id>/", PickupOrderDetails.as_view(), name="worker_pickup_order_details"),
     path('api/delivery/<int:delivery_id>/status/update/', DeliveryStatusUpdateView.as_view(), name='delivery_status_update'),
     path('api/pickup/<int:pickup_id>/status/update/', PickupStatusUpdateView.as_view(), name='pickup_status_update'),
-
     path('admin/delivery-worker/create/',AdminWorkerCreateView.as_view(), name='delivery_worker_create'), 
     path('admin/delivery-worker/update/<int:worker_id>/',AdminWorkerUpdateView.as_view(), name='delivery_worker_update'),
     path('admin/delivery-workers/',AdminWorkerListView.as_view(), name='delivery_worker_update'), 
     path('admin/delivery-workers/toggle-active/',AdminworkerToggleActiveView.as_view(), name='delivery_worker_update'), 
+    path('api/delivery-worker/notifications/',DeliveryOrPickupNotifications.as_view(),name='api_delivery_pickup_notification'),
 ]

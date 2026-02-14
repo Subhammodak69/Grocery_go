@@ -1,4 +1,4 @@
-from E_mart.models import Payment
+from E_mart.models import Payment,Order
 from E_mart.services import order_service
 from E_mart.constants.default_values import PaymentStatus,PaymentMethod,OrderStatus
 
@@ -183,6 +183,9 @@ def api_create_payment(order, payment_data):
 
 def get_payment_data_by_order(order):
     payment = Payment.objects.filter(order = order, is_active = True).first()
+    if not payment:
+        data = []
+        return data
     data = {
         'id':payment.id,
         'status':PaymentStatus(payment.status).name,
@@ -193,3 +196,19 @@ def get_payment_data_by_order(order):
     }
     return data
 
+
+def check_payment_done_or_not_by_order(order):
+    return Payment.objects.filter(order = order,is_active = True).first()
+
+
+def create_COD_payment(order):
+    order = Order.objects.filter(id = order.id,is_active = True).first()
+    if not order:
+        return
+    return Payment.objects.create(
+        order = order,
+        user = order.user,
+        method = PaymentMethod.COD.value,
+        status = PaymentStatus.COMPLETED.value,
+        amount = order.total_price
+        )

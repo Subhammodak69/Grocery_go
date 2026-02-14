@@ -16,13 +16,7 @@
             </select>
         </div>
 
-        <div class="mb-3">
-            <label for="order_item" class="form-label fw-semibold">Order Item*</label>
-            <select id="order_item" name="order_item" class="form-select" required>
-                <option value=''>Select Order Item</option>
-            </select>
-        </div>
-
+        
         <div class="mb-3">
             <label for="user" class="form-label fw-semibold">User*</label>
             <select id="user" name="user" class="form-select" required>
@@ -33,15 +27,6 @@
             </select>
         </div>
 
-        <div class="mb-3">
-            <label for="product" class="form-label fw-semibold">Product*</label>
-            <select id="product" name="product" class="form-select" required>
-                <option value=''>Select Product</option>
-                {% for product in products %}
-                <option value="{{ product.id }}">{{ product.name }} ({{ product.size }})</option>
-                {% endfor %}
-            </select>
-        </div>
 
         <div class="mb-3">
             <label for="reason" class="form-label fw-semibold">Reason*</label>

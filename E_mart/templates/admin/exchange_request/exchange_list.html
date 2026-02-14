@@ -13,9 +13,7 @@
             <tr>
                 <th>ID</th>
                 <th>Order ID</th>
-                <th>Order Item</th>
                 <th>User</th>
-                <th>Product</th>
                 <th>Reason</th>
                 <th>Status</th>
                 <th>Purpose</th>
@@ -29,9 +27,7 @@
             <tr>
                 <td>{{ exchange.id }}</td>
                 <td>{{ exchange.order.id }}</td>
-                <td>{{ exchange.order_item.id }}</td>
                 <td>{{ exchange.user.username }}</td>
-                <td>{{ exchange.product.name }}</td>
                 <td title="{{ exchange.reason }}">{{ exchange.reason|truncatechars:30 }}</td>
                 <td>
                     <span class="badge bg-{% if exchange.status == 1 %}warning{% elif exchange.status == 2 %}info{% elif exchange.status == 3 %}success{% else %}secondary{% endif %}">

@@ -21,17 +21,6 @@
         </div>
 
         <div class="mb-3">
-            <label for="order_item" class="form-label fw-semibold">Order Item*</label>
-            <select id="order_item" name="order_item" class="form-select" required>
-                {% for item in exchange.order.order_items.all %}
-                <option value="{{ item.id }}" {% if item.id == exchange.order_item.id %}selected{% endif %}>
-                    {{ item.id }} - {{ item.product.name }} (Qty: {{ item.quantity }})
-                </option>
-                {% endfor %}
-            </select>
-        </div>
-
-        <div class="mb-3">
             <label for="user" class="form-label fw-semibold">User*</label>
             <select id="user" name="user" class="form-select" required>
                 {% for user in users %}
@@ -42,16 +31,6 @@
             </select>
         </div>
 
-        <div class="mb-3">
-            <label for="product" class="form-label fw-semibold">Product*</label>
-            <select id="product" name="product" class="form-select" required>
-                {% for product in products %}
-                <option value="{{ product.id }}" {% if product.id == exchange.product.id %}selected{% endif %}>
-                    {{ product.name }} ({{ product.size }})
-                </option>
-                {% endfor %}
-            </select>
-        </div>
 
         <div class="mb-3">
             <label for="reason" class="form-label fw-semibold">Reason*</label>
@@ -69,10 +48,9 @@
         <div class="mb-3">
             <label for="status" class="form-label fw-semibold">Status*</label>
             <select id="status" name="status" class="form-select" required>
-                <option value="1" {% if exchange.status == 1 %}selected{% endif %}>Pending</option>
-                <option value="2" {% if exchange.status == 2 %}selected{% endif %}>Processing</option>
-                <option value="3" {% if exchange.status == 3 %}selected{% endif %}>Approved</option>
-                <option value="4" {% if exchange.status == 4 %}selected{% endif %}>Rejected</option>
+                {% for enum in enums %}
+                <option value="{{enum.value}}" {% if exchange.status == enum.value %}selected{% endif %}>{{enum.name}}</option>
+                {% endfor %}
             </select>
         </div>
 
@@ -115,6 +93,94 @@
                 .catch(error => console.error('Error:', error));
         }
     });
+
+
+
+
+
+    async function exchange_update() {
+        // Get form elements
+        const form = document.getElementById('adminExchangeForm');
+        const messageDiv = document.getElementById('message');
+        const submitBtn = form.querySelector('button[type="submit"]');
+        
+        // Show loading state
+        const originalText = submitBtn.innerHTML;
+        submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Updating...';
+        submitBtn.disabled = true;
+        messageDiv.innerHTML = '';
+        
+        try {
+            // Collect form data
+            const formData = new FormData(form);
+            
+            // Convert checkbox to proper boolean value
+            const isActiveCheckbox = document.getElementById('is_active');
+            formData.set('is_active', isActiveCheckbox.checked.toString());
+            
+            // Send POST request
+            const response = await fetch('', {
+                method: 'POST',
+                body: formData,
+                headers: {
+                    'X-CSRFToken': getCookie('csrftoken'), // Django CSRF protection
+                }
+            });
+            
+            const data = await response.json();
+            
+            if (response.ok) {
+                // Success - show message and redirect
+                messageDiv.innerHTML = `
+                    <div class="alert alert-success alert-dismissible fade show" role="alert">
+                        <i class="bi bi-check-circle-fill me-2"></i>
+                        ${data.message || 'Exchange request updated successfully!'}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                    </div>
+                `;
+                
+                // Redirect after 1.5 seconds
+                setTimeout(() => {
+                    window.location.href = '/admin/exchange-requests/';
+                }, 1500);
+                
+            } else {
+                // Error response
+                throw new Error(data.error || 'Something went wrong!');
+            }
+            
+        } catch (error) {
+            // Network or other errors
+            messageDiv.innerHTML = `
+                <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                    <i class="bi bi-exclamation-triangle-fill me-2"></i>
+                    Error: ${error.message}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+            `;
+        } finally {
+            // Reset button state
+            submitBtn.innerHTML = originalText;
+            submitBtn.disabled = false;
+        }
+    }
+
+    // Helper function to get CSRF token (required for Django)
+    function getCookie(name) {
+        let cookieValue = null;
+        if (document.cookie && document.cookie !== '') {
+            const cookies = document.cookie.split(';');
+            for (let i = 0; i < cookies.length; i++) {
+                const cookie = cookies[i].trim();
+                if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+    }
+
 </script>
 
 <style>

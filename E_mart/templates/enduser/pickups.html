@@ -24,13 +24,13 @@
         <div class="order-card-left">
           <!-- PHOTO FIELD -->
           <div class="order-photo-block">
-            {% with pickup.orderitems as items %}
+            {% with pickup.items as items %}
             {% with items|length as item_count %}
 
             {% if item_count == 1 %}
               {% with items.0 as item %}
               <img
-                src="{% if item.image %}{% static item.image %}{% else %}{% static 'no_image.png' %}{% endif %}"
+                src="{% if item.order_item.product.image %}{% static item.order_item.product.image %}{% else %}{% static 'no_image.png' %}{% endif %}"
                 class="order-img-single"
                 alt="{{ item.name }}">
               {% endwith %}
@@ -38,7 +38,7 @@
             {% elif item_count == 2 %}
               {% for item in items %}
                 <img
-                  src="{% if item.image %}{% static item.image %}{% else %}{% static 'no_image.png' %}{% endif %}"
+                  src="{% if item.order_item.product.image %}{% static item.order_item.product.image %}{% else %}{% static 'no_image.png' %}{% endif %}"
                   class="order-img-grid order-img-grid-2 order-img-pos-{{ forloop.counter }}"
                   alt="{{ item.name }}">
               {% endfor %}
@@ -46,13 +46,13 @@
             {% elif item_count == 3 %}
               {% for item in items|slice:":2" %}
                 <img
-                  src="{% if item.image %}{% static item.image %}{% else %}{% static 'no_image.png' %}{% endif %}"
+                  src="{% if item.order_item.product.image %}{% static item.order_item.product.image %}{% else %}{% static 'no_image.png' %}{% endif %}"
                   class="order-img-grid order-img-grid-2 order-img-pos-{{ forloop.counter }}"
                   alt="{{ item.name }}">
               {% endfor %}
               {% with items.2 as item %}
               <img
-                src="{% if item.image %}{% static item.image %}{% else %}{% static 'no_image.png' %}{% endif %}"
+                src="{% if item.order_item.product.image %}{% static item.order_item.product.image %}{% else %}{% static 'no_image.png' %}{% endif %}"
                 class="order-img-grid order-img-grid-3 order-img-pos-3"
                 alt="{{ item.name }}">
               {% endwith %}
@@ -60,7 +60,7 @@
             {% elif item_count == 4 %}
               {% for item in items|slice:":4" %}
                 <img
-                  src="{% if item.image %}{% static item.image %}{% else %}{% static 'no_image.png' %}{% endif %}"
+                  src="{% if item.order_item.product.image %}{% static item.order_item.product.image %}{% else %}{% static 'no_image.png' %}{% endif %}"
                   class="order-img-grid order-img-grid-4 order-img-pos-{{ forloop.counter }}"
                   alt="{{ item.name }}">
               {% endfor %}
@@ -68,13 +68,13 @@
             {% elif item_count > 4 %}
               {% for item in items|slice:":3" %}
                 <img
-                  src="{% if item.image %}{% static item.image %}{% else %}{% static 'no_image.png' %}{% endif %}"
+                  src="{% if item.order_item.product.image %}{% static item.order_item.product.image %}{% else %}{% static 'no_image.png' %}{% endif %}"
                   class="order-img-grid order-img-grid-4 order-img-pos-{{ forloop.counter }}"
                   alt="{{ item.name }}">
               {% endfor %}
               {% with items.3 as item %}
               <img
-                src="{% if item.image %}{% static item.image %}{% else %}{% static 'no_image.png' %}{% endif %}"
+                src="{% if item.order_item.product.image %}{% static item.order_item.product.image %}{% else %}{% static 'no_image.png' %}{% endif %}"
                 class="order-img-grid order-img-grid-4 order-img-pos-4"
                 alt="{{ item.name }}">
               {% endwith %}
@@ -90,8 +90,8 @@
           <!-- INFO FIELD -->
           <div class="order-main-info">
             <div class="order-title">
-              {% for item in pickup.orderitems %}
-                {{ item.name }}{% if not forloop.last %}, {% endif %}
+              {% for item in pickup.items %}
+                {{ item.order_item.product.name }}{% if not forloop.last %}, {% endif %}
               {% endfor %}
             </div>
             <div class="order-address">
@@ -106,8 +106,8 @@
         <div class="order-card-price">
           ₹{{ pickup.total|floatformat:2 }}
         </div>
-        <div class="position-absolute bottom-0 end-0 mb-2 me-3 px-1 text-white bg-success px-3 rounded shadow-sm" style="padding-bottom:3px; bottom: 10px; right: 20px;">
-          {{pickup.purpose|lower}}
+        <div class="position-absolute bottom-0 end-0 mb-2 me-3 px-1 text-muted" style="padding-bottom:3px; bottom: 10px; right: 20px;">
+          Requesting for {{pickup.purpose|lower}}
         </div>
         <div class="order-card-status
             {% if pickup.status_value == 4 %}delivered

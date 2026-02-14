@@ -1,12 +1,12 @@
 from django.views import View
 from django.shortcuts import render,redirect
-from E_mart.services import product_service,cart_service,order_service,payment_service,delivery_service,deliveryperson_service,user_service,worker_service
+from E_mart.services import product_service,cart_service,order_service,payment_service,delivery_service,deliveryperson_service,user_service,exchange_or_return_service
 from django.utils.decorators import method_decorator
 from E_mart.constants.decorators import enduser_required,admin_required,delivery_worker_required
 from django.views.decorators.csrf import csrf_exempt
 from django.http import JsonResponse
 import json
-from E_mart.constants.default_values import OrderStatus,DeliveryStatus
+from E_mart.constants.default_values import OrderStatus,DeliveryStatus,ExchangeOrReturnStatus
 
 
 
@@ -206,13 +206,18 @@ class DeliveryOrderDetails(View):
     
 @method_decorator(delivery_worker_required, name='dispatch')
 class PickupOrderDetails(View):
-    def get(self,request,order_id):
+    def get(self, request, order_id):
         order = order_service.get_order_by_id(order_id)
-        print("order",order)
         pickup = delivery_service.get_pickup_data_by_order(order)
+        exchange_data = exchange_or_return_service.get_exchange_data_by_order(order)
+        
         context = {
-            "order": order,
-            "pickup": pickup
+            "order_data": order,
+            "pickup": pickup,
+            "exchange": exchange_data,
+            "items": exchange_data.exchange_return_items.all() if exchange_data else [],
+            "user": exchange_data.user if exchange_data else None,
+            "address": order.delivery_address if order else "",
         }
         return render(request, "delivery/pickup_order_details.html", context)
     
@@ -220,14 +225,14 @@ class PickupOrderDetails(View):
 @method_decorator(csrf_exempt,name='dispatch')
 class DeliveryStatusUpdateView(View):
     def get(self, request, delivery_id):
-        order_enums = order_service.get_order_enums_for_delivery()
+        delivery_enums = order_service.get_order_enums_for_delivery()
         delivery = delivery_service.get_delivery_pickup_obj_by_id(delivery_id)
         status={
-            'name':OrderStatus(delivery.order.status).name,
-            'value':OrderStatus(delivery.order.status).value
+            'name':OrderStatus(delivery.status).name,
+            'value':OrderStatus(delivery.status).value
         }
         data={
-            'enums':order_enums,
+            'enums':delivery_enums,
             'status':status
         }
         return JsonResponse({'success':True,'data':data})
@@ -243,8 +248,22 @@ class DeliveryStatusUpdateView(View):
             }, status=400)
         
         try:
-            
+            delivery = delivery_service.get_delivery_by_id(delivery_id)
             status = delivery_service.update_delivery_or_pickup_status(delivery_id, status)
+            if(status == 'IN_PROGRESS'):
+                delivery.order.status = OrderStatus.OUTFORDELIVERY.value
+                delivery.order.save()
+            elif(status == 'DELIVERED'):
+                is_paid = payment_service.check_payment_done_or_not_by_order(delivery.order)
+                print(is_paid)
+                if not is_paid:
+                    print("go to payment")
+                    payment_service.create_COD_payment(delivery.order) 
+                delivery.order.status = OrderStatus.DELIVERED.value
+                delivery.order.save()
+            elif(status == 'FAILED'):
+                delivery.order.status = OrderStatus.FAILED.value
+                delivery.order.save()
             return JsonResponse({
                 'success': True, 
                 'data': {'message': 'Status updated successfully','status':status}
@@ -260,21 +279,30 @@ class DeliveryStatusUpdateView(View):
 @method_decorator(delivery_worker_required,name='dispatch')
 @method_decorator(csrf_exempt,name='dispatch')
 class PickupStatusUpdateView(View):
-    def get(self, request, pickup_id):
-        order_enums = order_service.get_order_enums_for_pickup() 
-        delivery = delivery_service.get_delivery_pickup_obj_by_id(pickup_id)
-        print(delivery.order.status)
-        status={
-            'name':OrderStatus(delivery.status).name,
-            'value':OrderStatus(delivery.status).value
+    def get(self, request, pickup_id):  # Changed from order_id to pickup_id
+        print("Pickup status enums loaded")
+        
+        # Get pickup object (assuming you have this service method)
+        pickup = delivery_service.get_delivery_pickup_obj_by_id(pickup_id)
+        
+        # Get pickup status enums (similar to your delivery enums)
+        pickup_enums = order_service.get_enums_for_pickup() # or order_service.get_pickup_enums()
+        
+        # Format current status like your example
+        status = {
+            'name': DeliveryStatus(pickup.status).name,  # Use your actual enum class
+            'value': DeliveryStatus(pickup.status).value
         }
-        data={
-            'enums':order_enums,
-            'status':status
+        
+        data = {
+            'enums': pickup_enums,
+            'status': status
         }
-        return JsonResponse({'success':True,'data':data})
-    
-    def post(self, request, delivery_id):
+        
+        return JsonResponse({'success': True, 'data': data})
+
+        
+    def post(self, request, pickup_id):
         body_data = json.loads(request.body)
         status = int(body_data.get('status'))
                 
@@ -285,8 +313,21 @@ class PickupStatusUpdateView(View):
             }, status=400)
         
         try:
-            
-            status = delivery_service.update_delivery_or_pickup_status(delivery_id, status)
+            pickup = delivery_service.get_delivery_by_id(pickup_id)
+            exchange_or_return = exchange_or_return_service.get_exchnage_or_return(pickup)
+            status = delivery_service.update_delivery_or_pickup_status(pickup_id, status)
+            if(status == 'IN_PROGRESS'):
+                exchange_or_return.status = ExchangeOrReturnStatus.IN_PROGRESS.value
+                exchange_or_return.save()
+            elif(status == 'PICKEDUP'):
+                exchange_or_return.status = ExchangeOrReturnStatus.EXCHANGED.value
+                exchange_or_return.save()
+            elif(status == 'FAILED'):
+                exchange_or_return.status = ExchangeOrReturnStatus.REJECTED.value
+                exchange_or_return.save()
+            elif(status == 'RETURNED'):
+                exchange_or_return.status = ExchangeOrReturnStatus.RETURNED.value
+                exchange_or_return.save()
             return JsonResponse({
                 'success': True, 
                 'data': {'message': 'Status updated successfully','status':status}

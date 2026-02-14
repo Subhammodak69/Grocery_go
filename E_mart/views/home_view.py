@@ -55,4 +55,14 @@ class DeliveryWorkerHomeView(View):
         }
 
         return render(request, "delivery/home.html", context)
+    
+@method_decorator(delivery_worker_required, name='dispatch')
 
+class DeliveryOrPickupNotifications(View):
+    def get(self,request):
+        delivery_count = delivery_service.get_delivery_count_by_worker(request.user)
+        pickup_count = delivery_service.get_pickup_count_by_worker(request.user)
+        return JsonResponse({
+            'pending_deliveries_count': delivery_count,
+            'pending_pickups_count': pickup_count
+        })

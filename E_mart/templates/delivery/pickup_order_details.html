@@ -5,18 +5,26 @@
 <div class="container-fluid py-4 w-100">
   <div class="row justify-content-center w-100 m-auto">
     <div class="col-12 mx-auto p-0">
+      
       <!-- Header -->
       <div class="d-flex justify-content-between align-items-center mb-4">
         <div>
-          <h2 class="mb-1 text-primary fw-bold">Order #{{ order.id }}</h2>
+          <h2 class="mb-1 text-primary fw-bold">
+            {% if exchange.purpose == 1 %}Exchange 
+            {% elif exchange.purpose == 2 %}Return 
+            {% else %}Pickup {% endif %}Request #{{ exchange.id }}
+          </h2>
           <p class="text-muted mb-0">
-            Created: {{ order.created_at|date:"M d, Y H:i" }} | 
-            Customer: <span class="fw-semibold">{{ order.user.username }}</span>
+            Created: {{ exchange.request_date|date:"M d, Y H:i" }} | 
+            Order: <span class="fw-semibold">#{{ order_data.id }}</span> | 
+            Customer: <span class="fw-semibold">{{ order_data.user.username|default:user.get_full_name }}</span>
           </p>
         </div>
-        <select id="selectStatus" class="form-select" aria-label="Delivery Status" style="max-width:300px;cursor:pointer;">
-          <!-- Options loaded dynamically -->
+        {% if pickup %}
+        <select id="selectPickupStatus" class="form-select" aria-label="Pickup Status" style="max-width:300px;cursor:pointer;">
+          <!-- Options loaded dynamically via your PickupStatusUpdateView -->
         </select>
+        {% endif %}
       </div>
 
       <div class="row g-4">
@@ -25,39 +33,39 @@
           <div class="p-4 shadow-sm border-0 h-100">
             <div class="card-header bg-light border-0 pb-0">
               <h5 class="px-4 py-2 card-title mb-0 fw-semibold text-dark">
-                <i class="bi bi-receipt me-2 text-success"></i>Order Summary
+                <i class="bi bi-receipt me-2 text-primary"></i>Request Summary
               </h5>
             </div>
             <div class="card-body pt-2">
               <div class="row text-center text-lg-start">
-                <div class="col-6 col-lg-4">
-                  <div class="small text-muted">Total Price</div>
-                  <div class="h5 text-success fw-bold">₹{{ order.total_price }}</div>
+                <div class="col-6 col-lg-6">
+                  <div class="small text-muted">Total Amount</div>
+                  <div class="h5 text-primary fw-bold">₹{{ exchange.total|floatformat:2 }}</div>
                 </div>
-                <div class="col-6 col-lg-4">
-                  <div class="small text-muted">Discount</div>
-                  <div class="h6 text-success fw-semibold">-₹{{ order.discount }}</div>
-                </div>
-                <div class="col-6 col-lg-4">
-                  <div class="small text-muted">Pickup Fee</div>
-                  <div class="h6 text-warning fw-semibold">₹{{ order.delivery_fee }}</div>
+                <div class="col-6 col-lg-6">
+                  <div class="small text-muted">Request Status</div>
+                  <div class="h6 fw-semibold">
+                    <span class="badge bg-warning px-3 py-2 fs-6">
+                      {{ exchange.get_status_display }}
+                    </span>
+                  </div>
                 </div>
               </div>
               <hr class="my-3">
               <div class="row">
                 <div class="col-6">
-                  <small class="text-muted">Listing Price</small>
+                  <small class="text-muted">Customer Reason</small>
                 </div>
-                <div class="col-6 text-end">
-                  <span class="h6 fw-bold">₹{{ order.listing_price }}</span>
+                <div class="col-12 mt-1">
+                  <p class="mb-0 text-dark small lh-sm">{{ exchange.reason|truncatechars:80 }}</p>
                 </div>
               </div>
               <div class="row">
                 <div class="col-6">
                   <small class="text-muted">Pickup Address</small>
                 </div>
-                <div class="col-6 text-end">
-                  <small class="text-dark">{{ pickup.delivery_address|truncatechars:30 }}</small>
+                <div class="col-12 mt-1">
+                  <small class="text-dark">{{ address|truncatechars:60|linebreaks }}</small>
                 </div>
               </div>
             </div>
@@ -69,32 +77,40 @@
           <div class="p-4 shadow-sm border-0 h-100">
             <div class="card-header bg-light border-0 pb-0">
               <h5 class="px-4 py-2 card-title mb-0 fw-semibold text-dark">
-                <i class="bi bi-basket me-2 text-success"></i>Pickup Items
+                <i class="bi bi-basket me-2 text-success"></i>
+                Requested Items ({{ items|length }})
               </h5>
             </div>
             <div class="card-body pt-3">
-              {% if pickup.order_items.exists %}
-                <div class="table-responsive">
+              {% if items %}
+                <div class="table-responsive" style="max-height: 350px; overflow-y: auto;">
                   <table class="table table-hover mb-0">
                     <thead class="table-light">
                       <tr>
-                        <th class="border-0 fw-semibold">Product</th>
-                        <th class="border-0 fw-semibold text-end">Quantity</th>
+                        <th class="border-0 fw-semibold w-50">Product</th>
+                        <th class="border-0 fw-semibold text-end">Qty</th>
                         <th class="border-0 fw-semibold text-end">Price</th>
                       </tr>
                     </thead>
                     <tbody>
-                      {% for item in pickup.order_items.all %}
+                      {% for item in items %}
                         <tr>
                           <td>
-                            <div>
-                              <div class="fw-semibold">{{ item.product.name }}</div>
-                              <small class="text-muted">{{ item.product.price }}</small>
+                            <div class="d-flex align-items-center">
+                              <img src="{% static item.order_item.product.image %}" 
+                                   alt="{{ item.order_item.product.name }}" 
+                                   class="rounded me-2" 
+                                   style="width:40px;height:40px;object-fit:cover;"
+                                   onerror="this.src='/static/images/no-image.png'">
+                              <div>
+                                <div class="fw-semibold small">{{ item.order_item.product.name|truncatechars:25 }}</div>
+                                <small class="text-muted">{{ item.order_item.product.size }}</small>
+                              </div>
                             </div>
                           </td>
                           <td class="text-end fw-semibold">{{ item.quantity }}</td>
-                          <td class="text-end fw-bold text-success">
-                            ₹{{ item.product.price|floatformat:2 }}
+                          <td class="text-end fw-bold text-primary small">
+                            ₹{{ item.order_item.product.price|floatformat:2 }}
                           </td>
                         </tr>
                       {% endfor %}
@@ -104,7 +120,7 @@
               {% else %}
                 <div class="text-center py-5">
                   <i class="bi bi-inbox display-4 text-muted"></i>
-                  <p class="text-muted mt-3">No items in this pickup</p>
+                  <p class="text-muted mt-3">No items in this request</p>
                 </div>
               {% endif %}
             </div>
@@ -112,21 +128,22 @@
         </div>
       </div>
 
-      <!-- Pickup Card -->
+      <!-- Pickup Details Card -->
       <div class="row mt-4">
         <div class="col-12">
           <div class="p-4 shadow-sm border-0">
-            <div class="card-header bg-gradient bg-success text-white border-0">
-              <h5 class="px-4 py-2 card-title mb-0">
-                <i class="bi bi-box-seam me-2"></i>Pickup Details
+            <div class="card-header bg-gradient bg-warning text-dark border-0">
+              <h5 class="px-4 py-2 card-title mb-0 fw-semibold">
+                <i class="bi bi-truck me-2"></i>Pickup Details
               </h5>
             </div>
             <div class="card-body pt-4">
+              {% if pickup %}
               <div class="row g-4">
                 <div class="col-md-3">
                   <div class="text-center">
                     <div class="fs-6 px-3 py-2 mb-2">Current Status</div>
-                    <div class="badge status bg-success fs-6 px-3 py-2 rounded-pill">
+                    <div class="badge status bg-success fs-6 px-3 py-2 rounded-pill" id="pickup-status-badge">
                       {{ pickup.status }}
                     </div>
                   </div>
@@ -134,31 +151,68 @@
                 <div class="col-md-3">
                   <div class="text-center">
                     <div class="fs-6 px-3 py-2">Purpose</div>
-                    <div class="h4 fw-bold text-success mb-1">{{ pickup.purpose }}</div>
+                    <div class="h4 fw-bold text-warning mb-1">{{ pickup.purpose }}</div>
                   </div>
                 </div>
                 <div class="col-md-3">
                   <div class="mt-2">
                     <small class="text-muted d-block">Assigned At</small>
-                    <span>{{ pickup.assigned_at|date:"M d, Y H:i" }}</span>
+                    <span id="assigned-at">{{ pickup.assigned_at|date:"M d, Y H:i"|default:"Not Assigned" }}</span>
                   </div>
                 </div>
                 <div class="col-md-3">
                   <div>
-                    <small class="text-muted d-block">Picked At</small>
-                    <span class="fw-semibold">{{ pickup.picked_at|date:"M d, Y H:i"|default:"Pending" }}</span>
+                    <small class="text-muted d-block">Completed At</small>
+                    <span class="fw-semibold" id="delivered-at">{{ pickup.delivered_at|date:"M d, Y H:i"|default:"Pending" }}</span>
                   </div>
                 </div>
               </div>
+              {% else %}
+              <div class="text-center py-5">
+                <i class="bi bi-clock-history display-4 text-muted"></i>
+                <p class="text-muted mt-3">No pickup assignment yet</p>
+              </div>
+              {% endif %}
+              
               <hr class="my-4">
-              <div class="row">
+              
+              <!-- Customer Actions -->
+              <div class="row align-items-center">
                 <div class="col-md-8">
-                  <h6 class="fw-bold mb-2">Pickup Address</h6>
-                  <p class="mb-0 text-dark lh-sm">{{ pickup.address }}</p>
+                  <h6 class="fw-bold mb-2">
+                    Customer: {{ user.get_full_name|default:user.username|default:"N/A" }}
+                  </h6>
+                  {% if user.phone_number %}
+                  <p class="mb-0">
+                    <i class="bi bi-telephone me-2 text-success"></i>
+                    {{ user.phone_number }}
+                  </p>
+                  {% endif %}
+                </div>
+                <div class="col-md-4 text-end">
+                  <a href="mailto:{{ user.email|default:'support@grocerygo.com' }}" 
+                     class="btn btn-outline-primary me-2">
+                    <i class="bi bi-envelope me-1"></i>Email
+                  </a>
+                  <button class="btn btn-outline-success" onclick="openchat()">
+                    <i class="bi bi-chat me-1"></i>Chat
+                  </button>
                 </div>
               </div>
             </div>
           </div>
+        </div>
+      </div>
+
+      <!-- Action Buttons -->
+      <div class="row mt-4">
+        <div class="col-12 text-end">
+          <a href="#" class="btn btn-outline-secondary me-2">
+            <i class="bi bi-list me-1"></i>All Requests
+          </a>
+          <a href="#" class="btn btn-primary">
+            <i class="bi bi-arrow-left me-1"></i>Back to Order
+          </a>
         </div>
       </div>
     </div>
@@ -167,66 +221,133 @@
 
 <script>
 $(document).ready(function() {
-    const $selectStatus = $('#selectStatus');
-    const pickupId = {{ pickup.id|safe }}; // Fixed: Use pickup.id instead of delivery.id
-
-    // Load status options
-    fetch(`/api/pickup/${pickupId}/status/update/`) // Fixed: More descriptive endpoint name
-        .then(response => response.json())
-        .then(data => {
-            const enums = data.data.enums;
-            const currentStatusValue = data.data.current_status;
-
-            $selectStatus.empty();
-            
-            enums.forEach(status => {
-                const $option = $(`<option value="${status.value}">${status.name}</option>`);
-                if (parseInt(status.value) === parseInt(currentStatusValue)) {
-                    $option.prop('selected', true);
-                }
-                $selectStatus.append($option);
+    const $selectStatus = $('#selectPickupStatus');
+    const pickupId = {{ pickup.id|default:0 }}; 
+    const currentStatusElement = $('#pickup-status-badge');
+    
+    if ($selectStatus.length && pickupId) {
+        // 1. Load status options - MATCHES your PickupStatusUpdateView GET
+        fetch(`/api/pickup/${pickupId}/status/update/`)
+            .then(response => response.json())
+            .then(data => {
+                const enums = data.data.enums;
+                const currentStatusValue = data.data.status.value;
+                
+                $selectStatus.empty();
+                
+                // Show only higher statuses than current
+                enums.forEach(status => {
+                    if (parseInt(status.value) >= parseInt(currentStatusValue)) {
+                        const $option = $(`<option value="${status.value}">${status.name}</option>`);
+                        if (parseInt(status.value) === parseInt(currentStatusValue)) {
+                            $option.prop('selected', true);
+                        }
+                        $selectStatus.append($option);
+                    }
+                });
+            })
+            .catch(error => {
+                console.error('Error loading pickup statuses:', error);
+                showMessage('error', 'Failed to load status options');
             });
-        })
-        .catch(error => {
-            console.error('Error loading statuses:', error);
-            showMessage('error', 'Failed to load status options!');
-        });
 
-    // Handle status change
-    $selectStatus.on('change', function() {
-        const newStatus = $(this).val();
-        
-        $.ajax({
-            url: `/api/pickup/${pickupId}/status/update/`,
-            method: 'POST',
-            data: JSON.stringify({ status: newStatus }),
-            contentType: 'application/json',
-            headers: {
-                'X-CSRFToken': $('[name=csrfmiddlewaretoken]').val() // Add CSRF token for Django
-            },
-            success: function(response) { 
-                // Update both pickup and delivery status badges
-                $('.badge.status').text(response.data.status_name || newStatus);
-                $('.badge.delivery-status').text(response.data.delivery_status || newStatus);
-                showMessage('success', 'Status updated successfully!');
-            },
-            error: function(xhr) {
-                console.error('Status update failed:', xhr.responseText);
-                showMessage('error', 'Status update failed! Please try again.');
-            }
+        // 2. Update status - MATCHES your PickupStatusUpdateView POST exactly
+        $selectStatus.on('change', function() {
+            const newStatus = $(this).val();
+            
+            if (!newStatus) return;
+            
+            $.ajax({
+                url: `/api/pickup/${pickupId}/status/update/`,
+                method: 'POST',
+                data: JSON.stringify({ status: newStatus }),
+                contentType: 'application/json',
+                beforeSend: function() {
+                    $selectStatus.prop('disabled', true).addClass('loading');
+                },
+                success: function(response) {     
+                    // Update UI with YOUR backend response format
+                    currentStatusElement.text(response.data.status);
+                    
+                    // Update timestamps if available
+                    if (response.data.status === 'RETURNED' || response.data.status === 'PICKEDUP') {
+                        $('#delivered-at').text(new Date().toLocaleString('en-IN', { 
+                            month: 'short', day: 'numeric', year: 'numeric', hour: '2-digit', minute: '2-digit' 
+                        }));
+                    }
+                    
+                    showMessage('success', response.data.message || "Pickup status updated successfully!");
+                    setTimeout(()=>{
+                      window.history.back();
+                    },2000);
+                    // Disable dropdown and show success state
+                    $selectStatus.html(`<option>✅ ${response.data.status}</option>`);
+                  
+                },
+                error: function(xhr) {
+                    $selectStatus.prop('disabled', false).removeClass('loading');
+                    const errorMsg = xhr.responseJSON?.data?.message || "Status update failed!";
+                    showMessage('error', errorMsg);
+                    $selectStatus.val(data.data.status.value); // Reset to current
+                }
+            });
         });
-    });
+    }
 });
 
+function showMessage(type, message) {
+    const alertClass = type === 'success' ? 'alert-success' : 'alert-danger';
+    const icon = type === 'success' ? 'bi-check-circle' : 'bi-exclamation-triangle';
+    
+    // Remove existing alerts
+    $('.custom-alert').remove();
+    
+    const alertHtml = `
+        <div class="alert ${alertClass} alert-dismissible fade show position-fixed custom-alert" 
+             style="top: 20px; right: 20px; z-index: 9999; min-width: 300px; max-width: 400px;">
+            <i class="${icon} me-2"></i>${message}
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    `;
+    $('body').append(alertHtml);
+    
+    // Auto remove after 5 seconds
+    setTimeout(() => {
+        $('.custom-alert').fadeOut();
+    }, 5000);
+}
 </script>
 
 <style>
 @media(max-width:400px){
-    .status, .delivery-status {
-        position: absolute;
-        top: 28%;
-        right: 10%;
-    }
+  .status {
+    position: absolute;
+    top: 28%;
+    right: 10%;
+  }
+}
+
+
+.table-responsive {
+  scrollbar-width: thin;
+  scrollbar-color: #dee2e6 transparent;
+}
+
+.table-responsive::-webkit-scrollbar {
+  height: 8px;
+}
+
+.table-responsive::-webkit-scrollbar-thumb {
+  background: #dee2e6;
+  border-radius: 4px;
+}
+
+.card-body img {
+  transition: transform 0.2s;
+}
+
+.card-body img:hover {
+  transform: scale(1.05);
 }
 </style>
 {% endblock %}

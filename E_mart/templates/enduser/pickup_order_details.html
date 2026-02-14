@@ -51,22 +51,22 @@
                 <div class="product-card h-100 flex flex-row">
                   <div class="product-image-container">
                     <img 
-                      src="{% static item.image %}"
-                      alt="{{ item.name }}"
+                      src="{% static item.order_item.product.image %}"
+                      alt="{{ item.order_item.product.name }}"
                       class="product-image img-fluid cursor-pointer"
                       loading="eager"
-                      onclick="window.location.href='/product/{{ item.product_id }}/'"
+                      onclick="window.location.href='/product/{{ item.order_item.product.id }}/'"
                     >
                   </div>
 
                   <div class="product-info py-2">
                     <h4 class="product-name fs-6 mb-1 cursor-pointer"
-                        onclick="window.location.href='/product/{{ item.product_id }}/'">
-                      {{ item.name }}
+                        onclick="window.location.href='/product/{{ item.order_item.product.id }}/'">
+                      {{ item.order_item.product.name }}
                     </h4>
 
                     <div class="product-attributes d-flex flex-wrap mb-2" style="gap:6px !important;">
-                      <span class="attribute me-2 text-center">
+                      <span class="attribute me-2">
                         <i class="bi bi-box me-1"></i>
                         Qty: <span class="attribute-value">{{ item.quantity }}</span>
                       </span>
@@ -76,17 +76,17 @@
                       <div class="d-flex align-items-center justify-content-between gap-2">
                         <span class="original-price"
                               style="text-decoration:line-through;color:#d00;font-weight:500;">
-                          ₹{{ item.original_price|floatformat:2 }}/{{ item.size }}
+                          ₹{{ item.order_item.product.original_price|floatformat:2 }}/{{ item.order_item.product.size }}
                         </span>
-                        {% if item.discount_amount > 0 %}
+                        {% if item.order_item.product.discount_amount > 0 %}
                         <p class="discount-label mb-0" style="color:#1c7c1c;font-weight:500;">
-                          {{ item.discount|floatformat:2 }}% Off
+                          {{ item.order_item.product.discount|floatformat:2 }}% Off
                         </p>
                         {% endif %}
                       </div>
                       <span class="discounted-price"
                             style="font-weight:600;font-size:1.1em;color:#222;">
-                        ₹{{ item.price|floatformat:2 }}/{{ item.size }}
+                        ₹{{ item.order_item.product.price|floatformat:2 }}/{{item.order_item.product.size }}
                       </span>
                     </div>
 
@@ -104,96 +104,30 @@
         <!-- Right side: summary, payment, user, actions -->
         <div class="col-12 col-lg-7">
           <div class="order-details-section">
-
+            {%if exchange_or_return.status == '1'%}
             <!-- Price Summary Card -->
             <div class="summary-card">
               <div class="summary-header">
                 <h3 class="section-title">
                   <i class="bi bi-calculator me-2"></i>
-                  Price Breakdown
+                  Returnable Amount
                 </h3>
               </div>
 
               <div class="summary-body">
-                <div class="price-row">
-                  <div class="price-label">
-                    <i class="bi bi-tag me-2"></i>
-                    Listing Price
-                  </div>
-                  <div class="price-value">
-                    ₹{{ summary.listing_price|floatformat:2 }}
-                  </div>
-                </div>
-
-                <div class="price-row">
-                  <div class="price-label">
-                    <i class="bi bi-truck me-2"></i>
-                    Discount
-                  </div>
-                  <div class="price-value delivery-fee">
-                    {{ summary.discount|floatformat:2 }}
-                  </div>
-                </div>
-
-                <div class="price-row">
-                  <div class="price-label">
-                    <i class="bi bi-truck me-2"></i>
-                    Delivery Fee
-                  </div>
-                  <div class="price-value delivery-fee">
-                    {% if summary.delivery_fee == 0 %}
-                      <p class="mb-0 text-success">FREE</p>
-                    {% else %}
-                      <p class="mb-0 text-danger">{{ summary.delivery_fee }}</p>
-                    {% endif %}
-                  </div>
-                </div>
-
-                <div class="price-row">
-                  <div class="price-label">
-                    <i class="bi bi-shield-check me-2"></i>
-                    Taxes & Fees
-                  </div>
-                  <div class="price-value tax-fee">
-                    Included
-                  </div>
-                </div>
-
-                <div class="price-divider"></div>
-
                 <div class="price-row total">
+                  
                   <div class="price-label">
                     <i class="bi bi-cash-coin me-2"></i>
                     Total Amount
                   </div>
                   <div class="price-value total-amount">
-                    ₹{{ summary.total_price|floatformat:2 }}
+                    ₹{{exchange_or_return.total|floatformat:2 }}
                   </div>
                 </div>
-
-                {% if summary.discount > 0 %}
-                <div class="savings-highlight">
-                  <i class="bi bi-piggy-bank me-2"></i>
-                  You're saving ₹{{ summary.discount|floatformat:2 }}!
-                </div>
-                {% endif %}
               </div>
             </div>
-
-            <!-- Payment Details -->
-            <div class="summary-card">
-              <div class="summary-header">
-                <h3 class="section-title">
-                  <i class="bi bi-credit-card me-2"></i>
-                  Payment Details
-                </h3>
-              </div>
-              {% if payment %}
-              <div class="d-flex">Payment Method:&nbsp;<p>{{ payment.method }}</p></div>
-              <div class="d-flex">Payment Status:&nbsp;<p>{{ payment.status }}</p></div>
-              <div class="d-flex">Amount:&nbsp;<p>{{ payment.amount }}</p></div>
-              {% endif %}
-            </div>
+            {%endif%}
 
             <!-- User & Delivery Info -->
             <div class="user-details-card">
@@ -229,7 +163,7 @@
                     class="form-control"
                     rows="3"
                     disabled
-                  >{{ order_data.address }}</textarea>
+                  >{{address }}</textarea>
                 </div>
               </div>
             </div>

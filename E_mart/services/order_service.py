@@ -1,7 +1,7 @@
 from E_mart.models import Order,OrderItem,CartItem,Product,Payment
 from E_mart.services import cart_service,payment_service,user_service,delivery_service
 from decimal import Decimal
-from E_mart.constants.default_values import OrderStatus,PaymentStatus,DeliveryStatus
+from E_mart.constants.default_values import OrderStatus,PaymentStatus,ExchangeOrReturnStatus,DeliveryStatus
 from django.utils import timezone
 from datetime import timedelta
 from django.core.exceptions import PermissionDenied, ObjectDoesNotExist
@@ -140,7 +140,6 @@ def get_order_full_data(order_id):
         'status':order.status,
         'status_value':OrderStatus(order.status).value,
         'orderitems':get_order_items_data(order),
-        'is_paid':payment_service.check_order_is_paid(order.id)
     }
     return order_data
 
@@ -236,19 +235,19 @@ def get_order_enums_for_delivery():
             'value': enum.value,
             'name': enum.name
         }
-        for enum in OrderStatus
-        if enum.name not in [OrderStatus.PENDING.name, OrderStatus.PROCESSING.name, OrderStatus.CONFIRMED.name]
+        for enum in DeliveryStatus
+        if enum.name not in [DeliveryStatus.PICKEDUP.name,DeliveryStatus.RETURNED.name]
     ]
     return enums_data
 
-def get_order_enums_for_pickup():
+def get_enums_for_pickup():
     enums_data = [
         {
             'value': enum.value,
             'name': enum.name
         }
-        for enum in OrderStatus 
-        if enum.name not in [OrderStatus.PENDING.name, OrderStatus.PROCESSING.name, OrderStatus.CONFIRMED.name,OrderStatus.OUTFORDELIVERY.name]
+        for enum in DeliveryStatus
+        if enum.name not in [DeliveryStatus.DELIVERED.name]
     ]
     return enums_data
 
@@ -453,4 +452,4 @@ def get_all_order_status():
 def get_all_unassigned_orders():
     assigned_orders = delivery_service.get_all_deliveryorpickup_orders()
     assigned_order_ids = list(assigned_orders.values_list('order', flat=True))
-    return Order.objects.exclude(id__in=assigned_order_ids)
+    return Order.objects.exclude(id__in=assigned_order_ids).exclude(status = OrderStatus.CANCELLED.value)
