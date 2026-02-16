@@ -128,12 +128,12 @@ class AdminLoginView(View):
             return JsonResponse({'error': 'Email and password are required.'}, status=400)
 
         user = user_service.check_admin_login(email, password)
-        login(request,user)
-
         if user is None:
             return JsonResponse({'error': 'Invalid credentials.'}, status=401)
 
         if not user.is_staff:
             return JsonResponse({'error': 'User is not an admin.'}, status=403)
+        
+        login(request,user)
 
         return JsonResponse({'message': 'Login successful', 'email': user.email})
