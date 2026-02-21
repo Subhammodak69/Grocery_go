@@ -2,6 +2,7 @@
     overflow: auto;
     height: 100vh;
     padding: 10px;
+    max-width:1200px!important;
     }
 .order-card-horiz {
   overflow: hidden;

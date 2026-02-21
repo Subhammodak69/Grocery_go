@@ -347,7 +347,7 @@
 }
 
 .summary-header {
-  background: #089f70;
+  background: #00afff;
   color: white;
   padding: 1.25rem 1.5rem;
 }
@@ -433,7 +433,7 @@
   justify-content: space-between;
   align-items: center;
   padding: 1.25rem 1.5rem;
-  background: #089f70;
+  background: #00afff;
   border-bottom: 1px solid var(--border-color);
 }
 

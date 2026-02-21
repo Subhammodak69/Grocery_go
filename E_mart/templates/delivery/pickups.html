@@ -16,11 +16,12 @@
   </div>
 
   {% if pickups %}
-    <div class="orders-list">
+    <div class="orders-list"style="max-width: 1200px;
+    margin: auto;">
     {% for pickup_data in pickups %}
       {% with pickup_data.pickup as pickup %}
       {% with pickup_data.items as items %}
-      <div class="order-card-horiz" onclick="window.location.href = '/delivery-worker/pickup/order-details/{{ pickup_data.exchange_or_return.order.id }}/'">
+      <div class="order-card-horiz mb-2" onclick="window.location.href = '/delivery-worker/pickup/order-details/{{ pickup_data.exchange_or_return.order.id }}/'">
         <div class="order-card-left">
           <!-- PHOTO FIELD -->
           <div class="order-photo-block">
