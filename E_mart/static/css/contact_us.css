@@ -3,13 +3,13 @@
     background: linear-gradient(135deg, #00c6ff, #0072ff);
     color: white;
     padding: 3rem 2rem;
-    border-radius: 0 0 40px 40px;
+    border-radius: 10px 10px;
     margin-bottom: 3rem;
   }
   
   .contact-card {
     background: white;
-    border-radius: 24px;
+    border-radius: 10px;
     padding: 2rem;
     box-shadow: 0 10px 30px -10px rgba(0,0,0,0.05);
     border: 1px solid #edf2f7;

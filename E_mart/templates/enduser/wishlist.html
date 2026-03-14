@@ -24,8 +24,8 @@
   </div>
 </div>
 
-<div class="cart-container-9" style="background:#f8fafd; min-height:100vh; padding:1.5rem !important;">
-  <div class="container-fluid px-3 px-md-4 py-3" style="max-width:1400px; margin:0 auto;">
+<div class="cart-container-9" style="background:#f8fafd; min-height:100vh;">
+  <div class="container-fluid px-md-4 py-3" style="max-width:1400px; margin:0 auto;">
     
     <!-- Header with breadcrumb style -->
     <div class="d-flex align-items-center gap-2 mb-4">
@@ -43,16 +43,21 @@
         <div style="position:sticky; top:100px;">
           <!-- Profile summary card -->
           <div style="background:white; border-radius:10px; box-shadow:0 10px 25px -8px rgba(0,0,0,0.04); padding:1.5rem; border:1px solid #edf2f7; margin-bottom:1.5rem;">
-            <div style="display:flex; align-items:center; gap:1rem;">
-              <div style="width:56px; height:56px; background:linear-gradient(145deg, #eef2ff, #ffffff); border-radius:28px; display:flex; align-items:center; justify-content:center; border:2px solid #e0e7ff;">
-                <i class="bi bi-person" style="font-size:1.8rem; color:#4f46e5;"></i>
+          <div style="display:flex; align-items:center; gap:1rem; min-width:0; overflow:hidden; flex:1;">
+            <div style="width:56px; height:56px; background:linear-gradient(145deg, #eef2ff, #ffffff); border-radius:28px; display:flex; align-items:center; justify-content:center; border:2px solid #e0e7ff; flex-shrink:0;">
+              <i class="bi bi-person" style="font-size:1.8rem; color:#4f46e5;"></i>
+            </div>
+            <div style="min-width:0; overflow:hidden; flex:1;">
+              <div style="font-weight:700; font-size:1.2rem; color:#0f172a; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">
+                {{ user.get_full_name|default:"User" }}
               </div>
-              <div>
-                <div style="font-weight:700; font-size:1.2rem; color:#0f172a;">{{ user.get_full_name|default:"User" }}</div>
-                <div style="color:#64748b; font-size:0.9rem;">{{ user.email|truncatechars:25 }}</div>
+              <div style="color:#64748b; font-size:0.9rem; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">
+                {{ user.email }}
               </div>
             </div>
           </div>
+        </div>
+
 
           <!-- Navigation cards (modern menu) -->
           <div style="background:white; box-shadow:0 10px 25px -8px rgba(0,0,0,0.04); padding:1rem; border:1px solid #edf2f7;">

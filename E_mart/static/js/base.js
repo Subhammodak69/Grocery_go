@@ -53,7 +53,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
         let html = '';
         data.forEach(product => {
-          html += `<div class="p-2 border-bottom" onclick="window.location.href='/products/${product.category_id}/'">
+          html += `<div class="px-4 py-2 border-bottom" onclick="window.location.href='/products/${product.category_id}/'">
                       <strong>${product.product_name}</strong><br/>
                       <small>${product.category_name}</small>
                   </div>`;
