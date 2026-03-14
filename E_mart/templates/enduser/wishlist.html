@@ -1,96 +1,181 @@
 {% extends "enduser/base.html" %}
 {% load static %}
 
-{% block title %}My Wishlist{% endblock %}
+{% block title %}My Wishlist | GroceryGo{% endblock %}
 
 {% block content %}
-<div class="container-9"style="padding:10px !important;height: 100%; ">
-  <div class="container-9 d-flex justify-content-between rounded  py-4 px-4" style="min-height:80vh;">
-    <!-- Sidebar -->
-    <div class="col-md-4 mb-4">
-      <div class="card-1 bg-white rounded shadow-sm border-0 mb-4" style="width: 100%;">
-        <div class="card-body text-center py-4 px-2">
-        
-          <i class="bi bi-person-circle me-2" style="font-size:25px;"></i>
-
-          <div class="fw-bold fs-5 mb-1">{{ user.get_full_name }}</div>
-        <p class="">{{user.email}}</p>
-          
-        </div>
+<!-- Custom Confirmation Modal -->
+<div id="remove-wishlist-modal" style="display:none; position:fixed; z-index:9999; top:0; left:0; width:100vw; height:100vh; background:rgba(17,24,39,0.6); backdrop-filter:blur(4px); align-items:center; justify-content:center;">
+  <div style="max-width:360px; width:90%; background:#ffffff; border-radius:32px; box-shadow:0 25px 50px -12px rgba(0,0,0,0.25); padding:2rem; position:relative; animation:modalFade 0.2s ease-out;">
+    <style>@keyframes modalFade{0%{opacity:0;transform:scale(0.96)}100%{opacity:1;transform:scale(1)}}</style>
+    <div style="text-align:center;">
+      <div style="width:56px; height:56px; background:#fee2e2; border-radius:28px; display:flex; align-items:center; justify-content:center; margin:0 auto 1.2rem;">
+        <i class="bi bi-heartbreak" style="font-size:1.8rem; color:#dc2626;"></i>
       </div>
-      <div class="list-group shadow-sm">
-        <div class="list-group-item bg-light fw-semibold" onclick="window.location.href='/orders/'">
-          <i class="bi bi-bag-check-fill me-2 text-primary"></i> MY ORDERS
-        
-        </div>
-
-        <div class="list-group-item bg-light fw-semibold" onclick="window.location.href='/user/cart/'">
-          <i class="bi bi-cart-fill me-2 text-primary"></i> My Cart
-          
-        </div>
-        <div class="list-group-item bg-light fw-semibold" onclick="window.location.href='/user/profile/'">
-          <i class="bi bi-person-circle me-2 text-primary"></i> ACCOUNT
-          
-        </div>
+      <p style="font-weight:600; font-size:1.25rem; margin-bottom:0.5rem; color:#1e293b;">Remove from wishlist?</p>
+      <p style="color:#64748b; font-size:0.95rem; margin-bottom:1.5rem;">
+        <span id="modal-item-name" style="font-weight:600; color:#0f172a;"></span> will be removed from your wishlist.
+      </p>
+      <div style="display:flex; gap:0.75rem; justify-content:center;">
+        <button id="modal-cancel-btn" style="flex:1; background:#f1f5f9; border:none; padding:0.75rem; border-radius:40px; font-weight:600; color:#334155; cursor:pointer; transition:0.15s;">Cancel</button>
+        <button id="modal-confirm-remove-btn" style="flex:1; background:#dc2626; border:none; padding:0.75rem; border-radius:40px; font-weight:600; color:white; cursor:pointer; transition:0.15s; box-shadow:0 8px 18px -6px #dc2626;">Remove</button>
       </div>
     </div>
+  </div>
+</div>
 
-    <!-- Wishlist Main Content -->
-    <div class="col-md-7">
-      <div class="bg-white rounded-3 shadow-sm p-3 mb-4">
-        <h4 class="fw-semibold mb-0">My Wishlist <span class="text-muted fs-6">({{ wishlist_items_data|length }})</span></h4>
-      </div>
+<div class="cart-container-9" style="background:#f8fafd; min-height:100vh; padding:1.5rem !important;">
+  <div class="container-fluid px-3 px-md-4 py-3" style="max-width:1400px; margin:0 auto;">
+    
+    <!-- Header with breadcrumb style -->
+    <div class="d-flex align-items-center gap-2 mb-4">
+      <i class="bi bi-heart-fill" style="color:#ef4444; font-size:1.5rem;"></i>
+      <h2 style="font-size:1.5rem; font-weight:500; letter-spacing:-0.02em; color:#0f172a; margin:0;">My Wishlist</h2>
       {% if wishlist_items_data %}
-        <div class="list-group list-group-flush">
-          {% for item in wishlist_items_data %}
-            <div class="list-group-item py-3 d-flex align-items-center" data-item-id="{{ item.id }}" style=" border: 1px solid #ececec; gap: 1.25rem; min-height: 100px;">
-              <!-- Image -->
-              <div class="flex-shrink-0" style="width:64px;">
-                <a href="{% url 'product_details' item.id %}">
-                  <img src="{% static item.image %}" alt="{{ item.name }}" class="img-fluid" style="width:60px; height:60px; object-fit:contain;">
-                </a>
-                {% if item.stock <= 5 %}
-                  <div class="text-danger small mt-1 text-center fw-semibold">Harry!({{item.stock}} stocks available)</div>
-                {% endif %}
+      <span style="background:#eef2ff; color:#4f46e5; padding:0.2rem 1rem; border-radius:40px; font-weight:600; font-size:0.9rem; margin-left:0.5rem;">{{ wishlist_items_data|length }} items</span>
+      {% endif %}
+    </div>
+
+    <div class="row g-4">
+      
+      <!-- Sidebar / Profile Card (modern compact) -->
+      <div class="col-12 col-lg-4">
+        <div style="position:sticky; top:100px;">
+          <!-- Profile summary card -->
+          <div style="background:white; border-radius:10px; box-shadow:0 10px 25px -8px rgba(0,0,0,0.04); padding:1.5rem; border:1px solid #edf2f7; margin-bottom:1.5rem;">
+            <div style="display:flex; align-items:center; gap:1rem;">
+              <div style="width:56px; height:56px; background:linear-gradient(145deg, #eef2ff, #ffffff); border-radius:28px; display:flex; align-items:center; justify-content:center; border:2px solid #e0e7ff;">
+                <i class="bi bi-person" style="font-size:1.8rem; color:#4f46e5;"></i>
               </div>
-              <!-- Details -->
-              <div class="flex-grow-1">
-                <div>
-                  <a href="{% url 'product_details' item.id %}" class="fw-semibold text-decoration-none fs-6" style="color:#1976d2;">{{ item.name }}</a>
-                  {% if item.assured %}
-                    <span class="ms-2" style="color:#2874f0; font-size:0.93em;">
-                      <i class="bi bi-shield-fill-check"></i> Assured
-                    </span>
-                  {% endif %}
-                </div>
-                <div class="small mt-1 text-muted">{{ item.description|truncatewords:17 }}</div>
-              
-                <div class="mt-2">
-                  ₹{{item.price}}/{{item.size}}
-                </div>
-              </div>
-              <!-- Action -->
-              <div class="dlt-btn" onclick="delete_wishlist({{ item.id }})" style="cursor:pointer;">
-                <i class="bi bi-trash text-danger" style="font-size:1rem;"></i>
+              <div>
+                <div style="font-weight:700; font-size:1.2rem; color:#0f172a;">{{ user.get_full_name|default:"User" }}</div>
+                <div style="color:#64748b; font-size:0.9rem;">{{ user.email|truncatechars:25 }}</div>
               </div>
             </div>
-          {% endfor %}
+          </div>
+
+          <!-- Navigation cards (modern menu) -->
+          <div style="background:white; box-shadow:0 10px 25px -8px rgba(0,0,0,0.04); padding:1rem; border:1px solid #edf2f7;">
+            <div onclick="window.location.href='/orders/'" style="display:flex; align-items:center; gap:12px; padding:0.9rem 1rem; border-radius:20px; cursor:pointer; transition:0.15s; margin-bottom:0.25rem; color:#334155; font-weight:500;">
+              <i class="bi bi-bag-check" style="color:#4f46e5; font-size:1.3rem;"></i>
+              <span>My Orders</span>
+              <i class="bi bi-chevron-right" style="margin-left:auto; color:#94a3b8; font-size:0.9rem;"></i>
+            </div>
+            <div onclick="window.location.href='/user/cart/'" style="display:flex; align-items:center; gap:12px; padding:0.9rem 1rem; border-radius:20px; cursor:pointer; transition:0.15s; margin-bottom:0.25rem; color:#334155; font-weight:500;">
+              <i class="bi bi-cart3" style="color:#4f46e5; font-size:1.3rem;"></i>
+              <span>My Cart</span>
+              <i class="bi bi-chevron-right" style="margin-left:auto; color:#94a3b8; font-size:0.9rem;"></i>
+            </div>
+            <div onclick="window.location.href='/user/profile/'" style="display:flex; align-items:center; gap:12px; padding:0.9rem 1rem; border-radius:20px; cursor:pointer; transition:0.15s; color:#334155; font-weight:500;">
+              <i class="bi bi-person-gear" style="color:#4f46e5; font-size:1.3rem;"></i>
+              <span>Account</span>
+              <i class="bi bi-chevron-right" style="margin-left:auto; color:#94a3b8; font-size:0.9rem;"></i>
+            </div>
+          </div>
         </div>
-      {% else %}
-      <p class="p-2  rounded" style="color:#0000ff87;;background: #c8ffff; border: 1px solid #03A9F4;">No Wishlist items found yet.</p>
-        <div class="alert alert-warning text-center py-5 rounded-3 shadow-sm">
-          <i class="bi bi-heartbreak fs-1 text-danger mb-3"></i>
-          <h4 class="fw-semibold mb-2">Your wishlist is empty</h4>
-          <p class="mb-0">Start adding products you love!</p>
-          <a href="{% url 'home' %}" class="btn btn-primary my-3 px-4 ">Shop Now</a>
+      </div>
+
+      <!-- Wishlist Main Content (modern card grid) -->
+      <div class="col-12 col-lg-8">
+        <div>
+          
+          {% if wishlist_items_data %}
+            <div style="display:flex; flex-direction:column; gap:1rem;">
+              {% for item in wishlist_items_data %}
+              <div class="wishlist-item" data-item-id="{{ item.id }}" data-item-name="{{ item.name }}" style="background:#ffffff; border-radius:10px; border:1px solid #edf2f7; padding:1.2rem; transition:all 0.2s; position:relative; display:flex; gap:1.2rem; align-items:center; flex-wrap:wrap;">
+                
+                <!-- Image with hover effect -->
+                <div style="width:90px; height:90px; border-radius:20px; background:#f9fafc; overflow:hidden; border:1px solid #f0f4f9; flex-shrink:0;">
+                  <a href="{% url 'product_details' item.id %}">
+                    <img src="{% static item.image %}" alt="{{ item.name }}" style="width:100%; height:100%; object-fit:cover; transition:transform 0.2s;">
+                  </a>
+                </div>
+
+                <!-- Details (flexible) -->
+                <div style="flex:2; min-width:220px;">
+                  <div style="display:flex; align-items:center; gap:6px; flex-wrap:wrap; margin-bottom:0.25rem;">
+                    <a href="{% url 'product_details' item.id %}" style="font-weight:700; font-size:1.2rem; color:#0f172a; text-decoration:none;">{{ item.name }}</a>
+                    {% if item.assured %}
+                      <span style="background:#e0f2fe; color:#0369a1; padding:0.2rem 0.8rem; border-radius:40px; font-size:0.7rem; font-weight:600; display:inline-flex; align-items:center; gap:4px;">
+                        <i class="bi bi-shield-fill-check" style="font-size:0.8rem;"></i> Assured
+                      </span>
+                    {% endif %}
+                  </div>
+                  
+                  <p style="color:#64748b; font-size:0.9rem; margin-bottom:0.5rem;">{{ item.description|truncatewords:14 }}</p>
+                  
+                  <div style="display:flex; align-items:center; gap:0.8rem; flex-wrap:wrap;">
+                    <span style="font-weight:800; font-size:1.3rem; color:#0f172a;">₹{{ item.price }}</span>
+                    <span style="color:#64748b; font-size:0.9rem;">/ {{ item.size }}</span>
+                    
+                    {% if item.stock <= 5 %}
+                      <span style="background:#fee2e2; color:#b91c1c; font-size:0.7rem; font-weight:700; padding:0.2rem 1rem; border-radius:40px;">Only {{ item.stock }} left!</span>
+                    {% endif %}
+                  </div>
+                </div>
+
+                <!-- Action buttons (modern) -->
+                <div style="margin-left:auto; display:flex; align-items:center; gap:0.8rem;">
+                  <button onclick="window.location.href='{% url 'product_details' item.id %}'" style="background:#f1f5f9; border:none; width:42px; height:42px; border-radius:40px; color:#334155; cursor:pointer; transition:0.15s; display:flex; align-items:center; justify-content:center;">
+                    <i class="bi bi-eye"></i>
+                  </button>
+                  <button class="delete-wishlist-btn" data-item-id="{{ item.id }}" data-item-name="{{ item.name }}" style="background:#fee2e2; border:none; width:42px; height:42px; border-radius:40px; color:#dc2626; cursor:pointer; transition:0.15s; display:flex; align-items:center; justify-content:center;">
+                    <i class="bi bi-trash3"></i>
+                  </button>
+                </div>
+              </div>
+              {% endfor %}
+            </div>
+          {% else %}
+            <!-- Empty state - modern centered -->
+            <div style="text-align:center; padding:3.5rem 1.5rem;">
+              <div style="width:120px; height:120px; background:#f1f4ff; border-radius:60px; display:flex; align-items:center; justify-content:center; margin:0 auto 1.8rem;">
+                <i class="bi bi-heart" style="font-size:3.5rem; color:#4f46e5;"></i>
+              </div>
+              <h4 style="font-weight:700; color:#1e293b; margin-bottom:0.5rem;">Your wishlist is empty</h4>
+              <p style="color:#64748b; max-width:320px; margin:0 auto 2rem;">Save your favorite items here and shop them later!</p>
+              <a href="{% url 'home' %}" style="background:#4f46e5; color:white; padding:0.9rem 2.5rem; border-radius:60px; text-decoration:none; font-weight:600; display:inline-flex; align-items:center; gap:0.7rem; box-shadow:0 10px 18px -6px #4f46e5;">
+                <i class="bi bi-arrow-left"></i> Discover products
+              </a>
+            </div>
+          {% endif %}
+
+          <!-- subtle hint for desktop -->
+          {% if wishlist_items_data %}
+          <div style="margin-top:1.5rem; text-align:center; color:#94a3b8; font-size:0.8rem;">
+            <i class="bi bi-info-circle"></i> Click the eye icon to view product details
+          </div>
+          {% endif %}
         </div>
-      {% endif %}
+      </div>
     </div>
   </div>
 </div>
 
 <script>
-  function delete_wishlist(wishlist_id) {
+  // Modal functionality
+  const modal = document.getElementById('remove-wishlist-modal');
+  const modalItemName = document.getElementById('modal-item-name');
+  const cancelBtn = document.getElementById('modal-cancel-btn');
+  const confirmBtn = document.getElementById('modal-confirm-remove-btn');
+  
+  let currentItemId = null;
+
+  // Open modal function
+  function openRemoveModal(itemId, itemName) {
+    currentItemId = itemId;
+    modalItemName.textContent = itemName;
+    modal.style.display = 'flex';
+  }
+
+  // Close modal function
+  function closeRemoveModal() {
+    modal.style.display = 'none';
+    currentItemId = null;
+  }
+
+  // Delete wishlist item function
+  function deleteWishlistItem(wishlist_id) {
     fetch(`/wishlist/delete-item/${wishlist_id}/`, {
       method: "POST",
       headers: {
@@ -102,98 +187,125 @@
       if (data.success) {
         const itemRow = document.querySelector(`[data-item-id="${wishlist_id}"]`);
         if (itemRow) {
-          itemRow.remove(); // Remove the deleted item from the DOM
+          itemRow.style.opacity = '0';
+          itemRow.style.transform = 'scale(0.95)';
+          setTimeout(() => {
+            itemRow.remove();
+            // If wishlist becomes empty, reload to show empty state
+            if (document.querySelectorAll('.wishlist-item').length === 0) {
+              location.reload();
+            }
+          }, 200);
         }
+        closeRemoveModal();
       } else {
         alert(data.error || "Failed to remove from wishlist.");
+        closeRemoveModal();
       }
     })
-    .catch(() => alert("Server error."));
+    .catch(() => {
+      alert("Server error.");
+      closeRemoveModal();
+    });
   }
+
+  // Event listeners
+  document.addEventListener('DOMContentLoaded', function() {
+    // Attach click handlers to all delete buttons
+    document.querySelectorAll('.delete-wishlist-btn').forEach(btn => {
+      btn.addEventListener('click', function(e) {
+        e.preventDefault();
+        const itemId = this.getAttribute('data-item-id');
+        const itemName = this.getAttribute('data-item-name');
+        openRemoveModal(itemId, itemName);
+      });
+    });
+
+    // Modal cancel button
+    cancelBtn.addEventListener('click', closeRemoveModal);
+
+    // Modal confirm button
+    confirmBtn.addEventListener('click', function() {
+      if (currentItemId) {
+        deleteWishlistItem(currentItemId);
+      }
+    });
+
+    // Close modal when clicking outside
+    modal.addEventListener('click', function(e) {
+      if (e.target === modal) {
+        closeRemoveModal();
+      }
+    });
+
+    // Close modal with Escape key
+    document.addEventListener('keydown', function(e) {
+      if (e.key === 'Escape' && modal.style.display === 'flex') {
+        closeRemoveModal();
+      }
+    });
+  });
+
+  // Hover effect for nav items
+  document.querySelectorAll('[onclick*="window.location"]').forEach(el => {
+    el.addEventListener('mouseenter', function() {
+      if (!this.classList.contains('no-hover')) {
+        this.style.background = '#f8fafc';
+      }
+    });
+    el.addEventListener('mouseleave', function() {
+      if (!this.classList.contains('no-hover')) {
+        this.style.background = 'transparent';
+      }
+    });
+  });
 </script>
 
-
 <style>
-  .dlt-btn{
-    top: 4px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 30px;
-    height: 30px;
-    position: absolute;
-    right: 6px;
-    background: aliceblue;
-    border-radius: 50%;
+  /* modern interactive touches */
+  .wishlist-item {
+    transition: all 0.2s ease;
   }
-
-
-  @media (max-width: 767px) {
-  /* Container padding and margin adjustments */
-
-  /* Stack the main layout blocks vertically instead of side by side */
-  .d-flex.justify-content-between {
-    flex-direction: column !important;
+  .wishlist-item:hover {
+    border-color: #cbd5e1 !important;
+    box-shadow: 0 12px 24px -16px rgba(0,0,0,0.12) !important;
+    transform: translateY(-2px);
   }
-
-  /* Sidebar full width and margin */
-  .col-md-4 {
-    width: 100% !important;
-    margin-bottom: 20px !important;
+  .wishlist-item:hover img {
+    transform: scale(1.03);
   }
-
-  /* Main content full width */
-  .col-md-7 {
-    width: 100% !important;
+  [onclick*="window.location"]:hover {
+    background: #f8fafc !important;
   }
-
-  /* Reduce icon sizes */
-  i.bi-person-fill, 
-  i.bi-bag-check-fill, 
-  i.bi-cart-fill, 
-  i.bi-arrow-right {
-    font-size: 20px !important;
-  }
-
-  /* Adjust font sizes */
-  .fw-bold.fs-5 {
-    font-size: 1.1rem !important;
-  }
-  h4.fw-semibold.mb-0 {
-    font-size: 1.3rem !important;
-  }
-
-  /* Wishlist item layout alterations */
-  .list-group-item.d-flex {
-    flex-direction: column !important;
-    align-items: flex-start !important;
-    gap: 0.5rem !important;
-  }
-  .list-group-item.d-flex > div.flex-shrink-0 {
-    width: 100% !important;
-    text-align: center;
-  }
-  .list-group-item.d-flex > div.flex-grow-1 {
-    width: 100% !important;
+  button:active {
+    transform: scale(0.96);
   }
   
-  /* Image resizing */
-  .img-fluid {
-    width: 80px !important;
-    height: 80px !important;
+  /* mobile overrides (keep original media queries but refined) */
+  @media (max-width: 767px) {
+    .row.g-4 {
+      flex-direction: column;
+    }
+    .col-lg-4, .col-lg-8 {
+      width: 100% !important;
+    }
+    .wishlist-item {
+      flex-direction: column !important;
+      align-items: flex-start !important;
+    }
+    .wishlist-item > div:last-child {
+      margin-left: 0 !important;
+      width: 100%;
+      justify-content: flex-end !important;
+    }
+    .cart-container-9 {
+      padding: 0.75rem !important;
+    }
   }
 
-  /* Button and link touch friendliness */
-  button.btn.btn-link {
-    font-size: 1.1rem !important;
-    padding: 0.3rem 0.6rem !important;
+  /* optional: smooth scroll */
+  html {
+    scroll-behavior: smooth;
   }
-
-  /* General spacing */
-  .py-4, .px-4 {
-    padding: 0.75rem !important;
-  }
-}
-
 </style>
 {% endblock %}
