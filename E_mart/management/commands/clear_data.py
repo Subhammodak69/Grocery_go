@@ -26,8 +26,8 @@ class Command(BaseCommand):
         # SubCategory.objects.all().delete()
         # CartItem.objects.all().delete()
         # Payment.objects.all().delete()
-        # users = User.objects.all()
-        # print(users)
+        # user = User.objects.filter(id=7).first()
+        # print(user.username)
         # Category.objects.filter(id=3).delete()
         
         print("✅ ALL DATA DELETED SUCCESSFULLY!")

@@ -14,3 +14,4 @@ from .wishlist_service import *
 from .worker_service import *
 from .review_service import *
 from .exchange_or_return_service import *
+from .contact_service import *

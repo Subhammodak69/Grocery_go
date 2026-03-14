@@ -1,0 +1,595 @@
+{% extends "enduser/base.html" %}
+{% load static %}
+
+{% block title %}Contact Us | GroceryGo{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/contact_us.css'%}"/>
+{% endblock %}
+
+{% block content %}
+<div class="cart-container-9" style="background:#f8fafd; min-height:100vh; padding:1.5rem !important;">
+  <div class="container-fluid px-3 px-md-4 py-3" style="max-width:1200px; margin:0 auto;">
+    
+    <!-- Hero Section -->
+    <div class="contact-hero text-center">
+      <h1 style="font-size:2.5rem; font-weight:700; margin-bottom:1rem;">How can we <span style="color: #001aff;">help</span> you?</h1>
+      <p style="font-size:1.1rem; max-width:600px; margin:0 auto; color:#cbd5e1;">We're here to assist you with any questions, issues, or feedback you might have.</p>
+    </div>
+
+    <!-- Quick Contact Cards -->
+    <div class="row g-4 mb-5">
+      <div class="col-md-4">
+        <div class="contact-card">
+          <div class="contact-icon">
+            <i class="bi bi-telephone"></i>
+          </div>
+          <h5 style="font-weight:700; color:#0f172a; margin-bottom:0.5rem;">Phone Support</h5>
+          <p style="color:#64748b; font-size:0.95rem; margin-bottom:0.5rem;">Mon-Sat, 9AM-8PM</p>
+          <h6 style="font-weight:700; color:#4f46e5;">+91 98765 43210</h6>
+        </div>
+      </div>
+      <div class="col-md-4">
+        <div class="contact-card">
+          <div class="contact-icon">
+            <i class="bi bi-envelope"></i>
+          </div>
+          <h5 style="font-weight:700; color:#0f172a; margin-bottom:0.5rem;">Email Us</h5>
+          <p style="color:#64748b; font-size:0.95rem; margin-bottom:0.5rem;">24/7 Support</p>
+          <h6 style="font-weight:700; color:#4f46e5;">support@grocerygo.com</h6>
+        </div>
+      </div>
+      <div class="col-md-4">
+        <div class="contact-card">
+          <div class="contact-icon">
+            <i class="bi bi-chat-dots"></i>
+          </div>
+          <h5 style="font-weight:700; color:#0f172a; margin-bottom:0.5rem;">Live Chat</h5>
+          <p style="color:#64748b; font-size:0.95rem; margin-bottom:0.5rem;">Average response: 2min</p>
+          <button class="btn btn-primary" onclick="openChat()" style="background:#4f46e5; border:none; padding:0.5rem 1.5rem; border-radius:40px;">Start Chat</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="row g-4">
+      <!-- Contact Form Section (Left) -->
+      <div class="col-12 col-lg-5">
+        <div style="background:white; border-radius:30px; padding:2rem; border:1px solid #edf2f7; position:sticky; top:100px;">
+          <h3 style="font-weight:700; color:#0f172a; margin-bottom:1.5rem;">Send us a message</h3>
+          
+          <form id="contactForm">
+            {% csrf_token %}
+            <div class="mb-3">
+              <label style="font-weight:600; color:#334155; margin-bottom:0.5rem; display:block;">Full Name *</label>
+              <input type="text" class="form-control" id="contactName" style="border-radius:40px; padding:0.75rem 1.2rem; border:1px solid #e2e8f0;" placeholder="John Doe" value="{% if user.is_authenticated %}{{ user.get_full_name }}{% endif %}" required>
+            </div>
+            
+            <div class="mb-3">
+              <label style="font-weight:600; color:#334155; margin-bottom:0.5rem; display:block;">Email *</label>
+              <input type="email" class="form-control" id="contactEmail" style="border-radius:40px; padding:0.75rem 1.2rem; border:1px solid #e2e8f0;" placeholder="john@example.com" value="{% if user.is_authenticated %}{{ user.email }}{% endif %}" required>
+            </div>
+            
+            <div class="mb-3">
+              <label style="font-weight:600; color:#334155; margin-bottom:0.5rem; display:block;">Phone (optional)</label>
+              <input type="tel" class="form-control" id="contactPhone" style="border-radius:40px; padding:0.75rem 1.2rem; border:1px solid #e2e8f0;" placeholder="+91 98765 43210">
+            </div>
+            
+            <div class="mb-3">
+              <label style="font-weight:600; color:#334155; margin-bottom:0.5rem; display:block;">Subject *</label>
+              <select class="form-control" id="contactSubject" style="border-radius:40px; padding:0.75rem 1.2rem; border:1px solid #e2e8f0;" required>
+                <option value="">Select a topic</option>
+                <option value="order">Order Issue</option>
+                <option value="product">Product Question</option>
+                <option value="delivery">Delivery Problem</option>
+                <option value="payment">Payment Issue</option>
+                <option value="feedback">Feedback</option>
+                <option value="other">Other</option>
+              </select>
+            </div>
+            
+            <div class="mb-3">
+              <label style="font-weight:600; color:#334155; margin-bottom:0.5rem; display:block;">Message *</label>
+              <textarea class="form-control" id="contactMessage" rows="4" style="border-radius:20px; padding:0.75rem 1.2rem; border:1px solid #e2e8f0;" placeholder="How can we help you?" required></textarea>
+            </div>
+            
+            <button type="submit" style="width:100%; background:#4f46e5; color:white; padding:1rem; border:none; border-radius:40px; font-weight:600; display:flex; align-items:center; justify-content:center; gap:0.5rem; cursor:pointer; transition:0.15s;">
+              <i class="bi bi-send"></i> Send Message
+            </button>
+          </form>
+        </div>
+      </div>
+
+      <!-- Your Help Problems Section (Right) -->
+      <div class="col-12 col-lg-7">
+        <div style="background:white; border-radius:30px; padding:2rem; border:1px solid #edf2f7;">
+          <div class="d-flex align-items-center justify-content-between mb-4">
+            <h3 style="font-weight:700; color:#0f172a;">Your Help Requests</h3>
+            <span style="background:#eef2ff; color:#4f46e5; padding:0.2rem 1rem; border-radius:40px; font-weight:600;">{{ help_problems|length }} total</span>
+          </div>
+
+          {% if help_problems %}
+            <div style="max-height:500px; overflow-y:auto; padding-right:0.5rem;" id="helpProblemsList">
+              {% for problem in help_problems %}
+              <div class="help-problem-item" data-problem-id="{{ problem.id }}" onclick="viewProblemDetail({{ problem.id }})">
+                <div class="d-flex justify-content-between align-items-start mb-2">
+                  <div>
+                    <span class="status-badge 
+                      {% if problem.status == 1 %}status-pending
+                      {% elif problem.status == 2 %}status-progress
+                      {% elif problem.status == 3 %}status-resolved
+                      {% endif %}">
+                      {{ problem.get_status_display }}
+                    </span>
+                  </div>
+                  <small style="color:#94a3b8;">{{ problem.reported_at|date:"d M Y" }}</small>
+                </div>
+                
+                <h6 style="font-weight:600; color:#0f172a; margin-bottom:0.3rem;">
+                  Order #{{ problem.order_item.order.id|truncatechars:8 }}
+                </h6>
+                <p style="color:#475569; font-size:0.9rem; margin-bottom:0.5rem;">{{ problem.problem|truncatechars:100 }}</p>
+                
+                <div class="d-flex gap-2 mt-2" onclick="event.stopPropagation()">
+                  <button class="btn btn-sm" onclick="viewProblemDetail({{ problem.id }})" style="background:#f1f5f9; color:#334155; border-radius:30px; padding:0.3rem 1rem;">View Details</button>
+                  {% if problem.status != 3 %}
+                  <button class="btn btn-sm" onclick="updateProblemStatus({{ problem.id }}, 3)" style="background:#d4edda; color:#155724; border-radius:30px; padding:0.3rem 1rem;">Mark Resolved</button>
+                  {% endif %}
+                </div>
+              </div>
+              {% endfor %}
+            </div>
+          {% else %}
+            <div style="text-align:center; padding:3rem 1rem;">
+              <div style="width:80px; height:80px; background:#f1f4ff; border-radius:40px; display:flex; align-items:center; justify-content:center; margin:0 auto 1rem;">
+                <i class="bi bi-check-circle" style="font-size:2rem; color:#4f46e5;"></i>
+              </div>
+              <h5 style="font-weight:600; color:#0f172a;">No help requests yet</h5>
+              <p style="color:#64748b;">If you face any issues with orders, they'll appear here.</p>
+            </div>
+          {% endif %}
+
+          <!-- Quick Stats -->
+          <div class="row g-3 mt-4">
+            <div class="col-4">
+              <div style="background:#f8fafc; border-radius:16px; padding:1rem; text-align:center;">
+                <div style="font-size:1.5rem; font-weight:800; color:#4f46e5;" id="pendingCount">{{ pending_count }}</div>
+                <div style="color:#64748b; font-size:0.85rem;">Pending</div>
+              </div>
+            </div>
+            <div class="col-4">
+              <div style="background:#f8fafc; border-radius:16px; padding:1rem; text-align:center;">
+                <div style="font-size:1.5rem; font-weight:800; color:#4f46e5;" id="inProgressCount">{{ in_progress_count }}</div>
+                <div style="color:#64748b; font-size:0.85rem;">In Progress</div>
+              </div>
+            </div>
+            <div class="col-4">
+              <div style="background:#f8fafc; border-radius:16px; padding:1rem; text-align:center;">
+                <div style="font-size:1.5rem; font-weight:800; color:#4f46e5;" id="resolvedCount">{{ resolved_count }}</div>
+                <div style="color:#64748b; font-size:0.85rem;">Resolved</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- FAQ Section -->
+    <div class="mt-5">
+      <h3 style="font-weight:700; color:#0f172a; margin-bottom:2rem;">Frequently Asked Questions</h3>
+      <div class="row g-4" id="faqList">
+        {% for faq in faqs %}
+        <div class="col-md-6">
+          <div style="background:white; border-radius:20px; padding:1.5rem; border:1px solid #edf2f7;">
+            <h6 style="font-weight:700; color:#0f172a; margin-bottom:0.5rem;">{{ faq.question }}</h6>
+            <p style="color:#64748b; font-size:0.95rem; margin:0;">{{ faq.answer }}</p>
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Chat Box -->
+<div id="chatContainer" class="chat-container minimized">
+  <div class="chat-header" onclick="toggleChat()">
+    <span><i class="bi bi-chat-dots me-2"></i> GroceryGo Support</span>
+    <i class="bi bi-chevron-up" id="chatToggleIcon"></i>
+  </div>
+  
+  <div class="chat-messages" id="chatMessages">
+    <div class="chat-message bot">
+      <div class="message-content">
+        👋 Hi! How can I help you today?
+      </div>
+      <div class="message-time">Just now</div>
+    </div>
+  </div>
+  
+  <div class="chat-input-area">
+    <input type="text" class="chat-input" id="chatInput" placeholder="Type your message..." onkeypress="handleChatKeyPress(event)">
+    <button class="chat-send-btn" id="chatSendBtn" onclick="sendChatMessage()">
+      <i class="bi bi-send"></i>
+    </button>
+  </div>
+</div>
+
+<!-- Floating Chat Toggle Button -->
+<button id="chatToggleBtn" class="chat-toggle-btn hidden" onclick="openChat()">
+  <i class="bi bi-chat-dots"></i>
+</button>
+
+<script>
+  // Utility Functions
+  function getCookie(name) {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+      const cookies = document.cookie.split(';');
+      for (let i = 0; i < cookies.length; i++) {
+        const cookie = cookies[i].trim();
+        if (cookie.substring(0, name.length + 1) === (name + '=')) {
+          cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+          break;
+        }
+      }
+    }
+    return cookieValue;
+  }
+
+  // Notification System
+  function showNotification(message, type = 'info') {
+    let notification = document.getElementById('notification-toast');
+    if (!notification) {
+      notification = document.createElement('div');
+      notification.id = 'notification-toast';
+      document.body.appendChild(notification);
+    }
+    
+    const colors = {
+      success: '#10b981',
+      error: '#ef4444',
+      info: '#3b82f6',
+      warning: '#f59e0b'
+    };
+    
+    notification.style.backgroundColor = colors[type] || colors.info;
+    notification.style.color = 'white';
+    notification.textContent = message;
+    
+    // Show notification
+    setTimeout(() => {
+      notification.style.opacity = '1';
+      notification.style.transform = 'translateX(0)';
+    }, 10);
+    
+    // Hide after 3 seconds
+    setTimeout(() => {
+      notification.style.opacity = '0';
+      notification.style.transform = 'translateX(100%)';
+    }, 3000);
+  }
+
+  // Contact Form Submission
+  document.getElementById('contactForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+    
+    const submitBtn = this.querySelector('button[type="submit"]');
+    const originalText = submitBtn.innerHTML;
+    submitBtn.innerHTML = '<i class="bi bi-hourglass-split"></i> Sending...';
+    submitBtn.disabled = true;
+    
+    const subjectSelect = document.getElementById('contactSubject');
+    const formData = {
+      name: document.getElementById('contactName').value,
+      email: document.getElementById('contactEmail').value,
+      phone: document.getElementById('contactPhone').value,
+      subject_type: subjectSelect.value,
+      subject: subjectSelect.options[subjectSelect.selectedIndex].text,
+      message: document.getElementById('contactMessage').value
+    };
+    
+    fetch('/contact/submit/', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-CSRFToken': getCookie('csrftoken')
+      },
+      body: JSON.stringify(formData)
+    })
+    .then(response => response.json())
+    .then(data => {
+      if (data.success) {
+        showNotification('Message sent successfully! We\'ll get back to you soon.', 'success');
+        document.getElementById('contactForm').reset();
+      } else {
+        showNotification('Error: ' + data.error, 'error');
+      }
+    })
+    .catch(error => {
+      showNotification('Failed to send message. Please try again.', 'error');
+    })
+    .finally(() => {
+      submitBtn.innerHTML = originalText;
+      submitBtn.disabled = false;
+    });
+  });
+
+  // Chat Functionality
+  let isChatMinimized = true;
+  
+  function toggleChat() {
+    const chat = document.getElementById('chatContainer');
+    const toggleBtn = document.getElementById('chatToggleBtn');
+    const icon = document.getElementById('chatToggleIcon');
+    
+    if (isChatMinimized) {
+      chat.classList.remove('minimized');
+      toggleBtn.classList.add('hidden');
+      icon.classList.remove('bi-chevron-up');
+      icon.classList.add('bi-chevron-down');
+    } else {
+      chat.classList.add('minimized');
+      toggleBtn.classList.remove('hidden');
+      icon.classList.remove('bi-chevron-down');
+      icon.classList.add('bi-chevron-up');
+    }
+    
+    isChatMinimized = !isChatMinimized;
+  }
+  
+  function openChat() {
+    const chat = document.getElementById('chatContainer');
+    const toggleBtn = document.getElementById('chatToggleBtn');
+    
+    chat.classList.remove('minimized');
+    toggleBtn.classList.add('hidden');
+    isChatMinimized = false;
+  }
+  
+  function sendChatMessage() {
+    const input = document.getElementById('chatInput');
+    const sendBtn = document.getElementById('chatSendBtn');
+    const message = input.value.trim();
+    
+    if (!message) return;
+    
+    // Add user message
+    addChatMessage(message, 'user');
+    input.value = '';
+    
+    // Disable send button temporarily
+    sendBtn.disabled = true;
+    
+    // Send to backend
+    fetch('/chat/send/', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-CSRFToken': getCookie('csrftoken')
+      },
+      body: JSON.stringify({ message: message })
+    })
+    .then(response => response.json())
+    .then(data => {
+      if (data.success) {
+        addChatMessage(data.bot_response, 'bot');
+      } else {
+        addChatMessage('Sorry, I\'m having trouble responding. Please try again.', 'bot');
+      }
+    })
+    .catch(() => {
+      addChatMessage('Network error. Please check your connection.', 'bot');
+    })
+    .finally(() => {
+      sendBtn.disabled = false;
+    });
+  }
+  
+  function handleChatKeyPress(e) {
+    if (e.key === 'Enter') {
+      sendChatMessage();
+    }
+  }
+  
+  function addChatMessage(text, sender) {
+    const messages = document.getElementById('chatMessages');
+    const time = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    
+    const messageDiv = document.createElement('div');
+    messageDiv.className = `chat-message ${sender}`;
+    messageDiv.innerHTML = `
+      <div class="message-content">${text}</div>
+      <div class="message-time">${time}</div>
+    `;
+    
+    messages.appendChild(messageDiv);
+    messages.scrollTop = messages.scrollHeight;
+  }
+  
+  // Help Problem Functions
+  function viewProblemDetail(problemId) {
+    fetch(`/help/problem/${problemId}/`)
+      .then(response => response.json())
+      .then(data => {
+        if (data.success) {
+          showProblemModal(data.problem);
+        } else {
+          showNotification('Error loading problem details', 'error');
+        }
+      })
+      .catch(() => {
+        showNotification('Failed to load problem details', 'error');
+      });
+  }
+  
+  function showProblemModal(problem) {
+    // Remove existing modal if any
+    const existingModal = document.getElementById('problemModal');
+    if (existingModal) existingModal.remove();
+    
+    const modalHtml = `
+      <div class="modal fade" id="problemModal" tabindex="-1">
+        <div class="modal-dialog">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title">Problem Details</h5>
+              <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+              <p><strong>Order:</strong> #${problem.order_item?.id || 'N/A'}</p>
+              <p><strong>Product:</strong> ${problem.order_item?.product || 'Unknown'}</p>
+              <p><strong>Problem:</strong> ${problem.problem}</p>
+              <p><strong>Status:</strong> 
+                <span class="status-badge status-${problem.status_code}">
+                  ${problem.status}
+                </span>
+              </p>
+              <p><strong>Reported:</strong> ${problem.reported_at}</p>
+              ${problem.resolved_at ? `<p><strong>Resolved:</strong> ${problem.resolved_at}</p>` : ''}
+              ${problem.admin_response ? `<p><strong>Admin Response:</strong> ${problem.admin_response}</p>` : ''}
+              <p><strong>Priority:</strong> ${problem.priority}</p>
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+              ${problem.status_code !== 3 ? `
+                <button type="button" class="btn btn-success" onclick="updateProblemStatus(${problem.id}, 3)">
+                  Mark as Resolved
+                </button>
+              ` : ''}
+            </div>
+          </div>
+        </div>
+      </div>
+    `;
+    
+    document.body.insertAdjacentHTML('beforeend', modalHtml);
+    
+    // Initialize and show modal
+    const modalElement = document.getElementById('problemModal');
+    if (typeof bootstrap !== 'undefined') {
+      const modal = new bootstrap.Modal(modalElement);
+      modal.show();
+      
+      // Remove modal from DOM after hidden
+      modalElement.addEventListener('hidden.bs.modal', function() {
+        this.remove();
+      });
+    }
+  }
+  
+  function updateProblemStatus(problemId, newStatus) {
+    if (!confirm('Mark this problem as resolved?')) return;
+    
+    fetch('/help/problem/update-status/', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-CSRFToken': getCookie('csrftoken')
+      },
+      body: JSON.stringify({
+        problem_id: problemId,
+        status: newStatus
+      })
+    })
+    .then(response => response.json())
+    .then(data => {
+      if (data.success) {
+        showNotification('Problem status updated successfully', 'success');
+        // Reload page to reflect changes
+        setTimeout(() => location.reload(), 1000);
+      } else {
+        showNotification('Error: ' + data.error, 'error');
+      }
+    })
+    .catch(() => {
+      showNotification('Failed to update status', 'error');
+    });
+  }
+  
+  // Load problem counts dynamically
+  function loadProblemCounts() {
+    {% if user.is_authenticated %}
+    fetch('/help/problems/')
+      .then(response => response.json())
+      .then(data => {
+        if (data.success) {
+          document.getElementById('pendingCount').textContent = data.pending_count;
+          document.getElementById('inProgressCount').textContent = data.in_progress_count;
+          document.getElementById('resolvedCount').textContent = data.resolved_count;
+        }
+      })
+      .catch(error => console.error('Error loading counts:', error));
+    {% endif %}
+  }
+  
+  // Load FAQs with filters
+  function loadFAQs(category = '', search = '') {
+    let url = '/help/faqs/';
+    const params = new URLSearchParams();
+    if (category) params.append('category', category);
+    if (search) params.append('search', search);
+    if (params.toString()) url += '?' + params.toString();
+    
+    fetch(url)
+      .then(response => response.json())
+      .then(data => {
+        if (data.success) {
+          const faqList = document.getElementById('faqList');
+          faqList.innerHTML = '';
+          
+          data.faqs.forEach(faq => {
+            faqList.innerHTML += `
+              <div class="col-md-6">
+                <div style="background:white; border-radius:20px; padding:1.5rem; border:1px solid #edf2f7;">
+                  <h6 style="font-weight:700; color:#0f172a; margin-bottom:0.5rem;">${faq.question}</h6>
+                  <p style="color:#64748b; font-size:0.95rem; margin:0;">${faq.answer}</p>
+                </div>
+              </div>
+            `;
+          });
+        }
+      })
+      .catch(error => console.error('Error loading FAQs:', error));
+  }
+  
+  // Load dashboard stats
+  function loadDashboardStats() {
+    {% if user.is_authenticated %}
+    fetch('/help/dashboard-stats/')
+      .then(response => response.json())
+      .then(data => {
+        if (data.success) {
+          console.log('Dashboard stats:', data.stats);
+          // Update any stats display if needed
+        }
+      })
+      .catch(error => console.error('Error loading stats:', error));
+    {% endif %}
+  }
+  
+  // Initialize
+  document.addEventListener('DOMContentLoaded', function() {
+    // Auto-refresh counts every 30 seconds if user is authenticated
+    {% if user.is_authenticated %}
+    setInterval(loadProblemCounts, 30000);
+    setInterval(loadDashboardStats, 60000); // Refresh stats every minute
+    {% endif %}
+    
+    // Initialize tooltips if using Bootstrap
+    if (typeof bootstrap !== 'undefined') {
+      const tooltips = document.querySelectorAll('[data-bs-toggle="tooltip"]');
+      tooltips.forEach(tooltip => new bootstrap.Tooltip(tooltip));
+    }
+    
+    // Pre-fill contact form if user is logged in
+    {% if user.is_authenticated %}
+    if (!document.getElementById('contactName').value) {
+      document.getElementById('contactName').value = "{{ user.get_full_name }}";
+    }
+    if (!document.getElementById('contactEmail').value) {
+      document.getElementById('contactEmail').value = "{{ user.email }}";
+    }
+    {% endif %}
+  });
+</script>
+{% endblock %}

@@ -12,3 +12,4 @@ from .Review_view import *
 from .payment_view import *
 from .delivery_or_pickup_view import *
 from .exchnage_or_return_view import *
+from .help_view import *

@@ -94,4 +94,19 @@ urlpatterns = [
     path('admin/delivery-workers/',AdminWorkerListView.as_view(), name='delivery_worker_update'), 
     path('admin/delivery-workers/toggle-active/',AdminworkerToggleActiveView.as_view(), name='delivery_worker_update'), 
     path('api/delivery-worker/notifications/',DeliveryOrPickupNotifications.as_view(),name='api_delivery_pickup_notification'),
+
+
+   # Page render route
+    path('contact/', ContactPageView.as_view(), name='contact_page'),
+    
+    # API endpoints for dynamic operations
+    path('contact/submit/', SubmitContactQuery.as_view(), name='submit_contact'),
+    path('contact/queries/', GetContactQueries.as_view(), name='get_queries'),
+    path('help/problems/', GetHelpProblems.as_view(), name='get_help_problems'),
+    path('help/problem/<int:problem_id>/', GetHelpProblemDetail.as_view(), name='problem_detail'),
+    path('help/problem/submit/', SubmitHelpProblem.as_view(), name='submit_problem'),
+    path('help/problem/update-status/', UpdateHelpProblemStatus.as_view(), name='update_problem_status'),
+    path('help/faqs/', GetFAQs.as_view(), name='get_faqs'),
+    path('help/dashboard-stats/', GetDashboardStats.as_view(), name='dashboard_stats'),
+    path('chat/send/', SendChatMessage.as_view(), name='send_chat'),
 ]
