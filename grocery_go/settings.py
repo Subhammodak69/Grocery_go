@@ -71,14 +71,6 @@ DATABASES = {
                 'sslmode': 'require' if not DEBUG else 'prefer',
             },
         }
-        # 'local': { 
-        #     'ENGINE': 'django.db.backends.postgresql',
-        #     'NAME': 'grocery_go',
-        #     'USER': 'postgres',
-        #     'PASSWORD': '2025',
-        #     'HOST': 'localhost',
-        #     'PORT': '5432',
-        # }
     }
 
 
