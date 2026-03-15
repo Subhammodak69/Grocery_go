@@ -4,9 +4,13 @@ from env_config import env
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
+STATIC_URL = '/static/'
+
 STATICFILES_DIRS = [
     os.path.join(BASE_DIR, 'E_mart', 'static'),
 ]
+
+STATIC_ROOT = BASE_DIR / 'staticfiles'
 
 SECRET_KEY = env('SECRET_KEY')
 DEBUG = env.bool('DEBUG', default=True)
@@ -53,15 +57,26 @@ WSGI_APPLICATION = 'grocery_go.wsgi.application'
 
 
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': env('DB_NAME'),
-        'USER': env('DB_USER'),
-        'PASSWORD': env('DB_PASSWORD'),
-        'HOST': env('DB_HOST'),
-        'PORT': env('DB_PORT'),
+        'default': {
+            'ENGINE': 'django.db.backends.postgresql',
+            'NAME': env('DB_NAME'),
+            'USER': env('DB_USER'),
+            'PASSWORD': env('DB_PASSWORD'),
+            'HOST': env('DB_HOST', default='localhost'),
+            'PORT': env('DB_PORT', default='5432'),
+            'OPTIONS': {
+                'sslmode': 'require' if not DEBUG else 'prefer',
+            },
+        },
+        'local': { 
+            'ENGINE': 'django.db.backends.postgresql',
+            'NAME': 'grocery_go',
+            'USER': 'postgres',
+            'PASSWORD': '2025',
+            'HOST': 'localhost',
+            'PORT': '5432',
+        }
     }
-}
 
 
 
