@@ -36,6 +36,7 @@ urlpatterns = [
     path('admin/orders/update/<int:order_id>/',AdminOrderUpdateView.as_view(), name='admin_order_update'),
     path('admin/orders/toggle-active/',AdminOrderToggleActiveView.as_view(), name='admin_order_toggle_active'),
     path('admin/unassigned/orders/',AdminOrderAssignedView.as_view(), name='admin_order_assigned'),
+    path('admin/order/<int:order_id>/', AdminOrderDetailView.as_view(), name='admin_order_detail'),
 
     path('admin/deliveries-or-pickups/',AdminDeliveryOrPickupListView.as_view(), name='admin_delivery_pickup_list'),
     path('admin/deliveries-or-pickups/create/',AdminDeliveryOrPickupCreateView.as_view(), name='admin_delivery_pickup_create'),

@@ -1,0 +1,494 @@
+<!-- E_mart/templates/admin/orders/detail.html -->
+{% extends 'admin/home.html' %}
+{% load static %}
+
+{% block name %}Order #{{ order.id }} Details{% endblock %}
+
+{% block content %}
+<style>
+    .order-detail-container {
+        max-width: 1400px;
+        margin: 0 auto;
+        padding: 20px;
+    }
+    
+    .detail-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 30px;
+    }
+    
+    .detail-header h1 {
+        margin: 0;
+        color: #333;
+    }
+    
+    .back-btn {
+        padding: 10px 20px;
+        background: #6c757d;
+        color: white;
+        text-decoration: none;
+        border-radius: 5px;
+        transition: background 0.2s;
+    }
+    
+    .back-btn:hover {
+        background: #5a6268;
+    }
+    
+    .detail-grid {
+        display: grid;
+        grid-template-columns: 2fr 1fr;
+        gap: 25px;
+        margin-bottom: 25px;
+    }
+    
+    .detail-card {
+        background: white;
+        border-radius: 10px;
+        padding: 20px;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+    
+    .detail-card h2 {
+        margin-top: 0;
+        margin-bottom: 20px;
+        color: #28a745;
+        font-size: 1.3rem;
+        border-bottom: 2px solid #f0f0f0;
+        padding-bottom: 10px;
+    }
+    
+    .info-row {
+        display: flex;
+        margin-bottom: 12px;
+        padding: 8px 0;
+        border-bottom: 1px solid #f5f5f5;
+    }
+    
+    .info-label {
+        width: 140px;
+        color: #6c757d;
+        font-weight: 500;
+    }
+    
+    .info-value {
+        flex: 1;
+        color: #333;
+    }
+    
+    .status-badge {
+        display: inline-block;
+        padding: 5px 12px;
+        border-radius: 20px;
+        font-size: 0.9rem;
+        font-weight: 500;
+    }
+    
+    .status-pending { background: #fff3cd; color: #856404; }
+    .status-processing { background: #cce5ff; color: #004085; }
+    .status-completed { background: #d4edda; color: #155724; }
+    .status-cancelled { background: #f8d7da; color: #721c24; }
+    .status-delivered { background: #d4edda; color: #155724; }
+    .status-assigned { background: #cce5ff; color: #004085; }
+    
+    .items-table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 15px;
+    }
+    
+    .items-table th {
+        background: #f8f9fa;
+        padding: 12px;
+        text-align: left;
+        font-weight: 600;
+    }
+    
+    .items-table td {
+        padding: 12px;
+        border-bottom: 1px solid #dee2e6;
+    }
+    
+    .items-table tr:last-child td {
+        border-bottom: none;
+    }
+    
+    .product-image {
+        width: 50px;
+        height: 50px;
+        object-fit: cover;
+        border-radius: 5px;
+    }
+    
+    .total-row {
+        font-weight: bold;
+        background: #f8f9fa;
+    }
+    
+    .action-form {
+        background: #f8f9fa;
+        padding: 20px;
+        border-radius: 8px;
+        margin-bottom: 20px;
+    }
+    
+    .action-form h3 {
+        margin-top: 0;
+        margin-bottom: 15px;
+        color: #333;
+    }
+    
+    .form-group {
+        margin-bottom: 15px;
+    }
+    
+    .form-group label {
+        display: block;
+        margin-bottom: 5px;
+        color: #495057;
+        font-weight: 500;
+    }
+    
+    .form-group select, .form-group input {
+        width: 100%;
+        padding: 10px;
+        border: 1px solid #ced4da;
+        border-radius: 5px;
+        font-size: 1rem;
+    }
+    
+    .btn {
+        padding: 10px 20px;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        font-size: 1rem;
+        transition: background 0.2s;
+    }
+    
+    .btn-primary {
+        background: #28a745;
+        color: white;
+    }
+    
+    .btn-primary:hover {
+        background: #218838;
+    }
+    
+    .btn-danger {
+        background: #dc3545;
+        color: white;
+    }
+    
+    .btn-danger:hover {
+        background: #c82333;
+    }
+    
+    .btn-warning {
+        background: #ffc107;
+        color: #333;
+    }
+    
+    .btn-warning:hover {
+        background: #e0a800;
+    }
+    
+    .customer-info {
+        background: #e8f5e9;
+        border-left: 4px solid #28a745;
+        padding: 15px;
+        margin-bottom: 20px;
+    }
+    
+    .timeline {
+        margin-top: 20px;
+    }
+    
+    .timeline-item {
+        display: flex;
+        align-items: center;
+        margin-bottom: 15px;
+        padding: 10px;
+        background: #f8f9fa;
+        border-radius: 5px;
+    }
+    
+    .timeline-time {
+        width: 180px;
+        color: #6c757d;
+        font-size: 0.9rem;
+    }
+    
+    .timeline-content {
+        flex: 1;
+    }
+    
+    @media (max-width: 768px) {
+        .detail-grid {
+            grid-template-columns: 1fr;
+        }
+        
+        .info-row {
+            flex-direction: column;
+        }
+        
+        .info-label {
+            width: 100%;
+            margin-bottom: 5px;
+        }
+    }
+</style>
+
+<div class="order-detail-container">
+    <div class="detail-header">
+        <h1>Order #{{ order.id }} Details</h1>
+        <a href="{% url 'admin_dashboard' %}" class="back-btn">← Back to Dashboard</a>
+    </div>
+
+    <!-- Customer Information Alert -->
+    <div class="customer-info">
+        <strong>Customer:</strong> {{ order.user.get_full_name|default:order.user.username }} |
+        <strong>Email:</strong> {{ order.user.email }} |
+        <strong>Phone:</strong> {{ order.user.phone_number|default:"Not provided" }}
+    </div>
+
+    <div class="detail-grid">
+        <!-- Left Column - Order Items -->
+        <div class="detail-card">
+            <h2>Order Items</h2>
+            <table class="items-table">
+                <thead>
+                    <tr>
+                        <th>Product</th>
+                        <th>Price</th>
+                        <th>Quantity</th>
+                        <th>Total</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for item in order_items %}
+                    <tr>
+                        <td>
+                            <div style="display: flex; align-items: center; gap: 10px;">
+                                {% if item.product.image %}
+                                <img src="{{ item.product.image }}" alt="{{ item.product.name }}" class="product-image">
+                                {% endif %}
+                                <div>
+                                    <strong>{{ item.product.name }}</strong>
+                                    <br>
+                                    <small>{{ item.product.size }}</small>
+                                </div>
+                            </div>
+                        </td>
+                        <td>${{ item.product.price|floatformat:2 }}</td>
+                        <td>{{ item.quantity }}</td>
+                        <td>${{ item.product.price|floatformat:2|add:item.quantity }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+                <tfoot>
+                    <tr class="total-row">
+                        <td colspan="3" style="text-align: right;"><strong>Subtotal:</strong></td>
+                        <td><strong>${{ subtotal|floatformat:2 }}</strong></td>
+                    </tr>
+                    <tr>
+                        <td colspan="3" style="text-align: right;">Delivery Fee:</td>
+                        <td>${{ order.delivery_fee|floatformat:2 }}</td>
+                    </tr>
+                    {% if order.discount > 0 %}
+                    <tr>
+                        <td colspan="3" style="text-align: right;">Discount:</td>
+                        <td>-${{ order.discount|floatformat:2 }}</td>
+                    </tr>
+                    {% endif %}
+                    <tr class="total-row">
+                        <td colspan="3" style="text-align: right;"><strong>Total:</strong></td>
+                        <td><strong>${{ order.total_price|floatformat:2 }}</strong></td>
+                    </tr>
+                </tfoot>
+            </table>
+        </div>
+
+        <!-- Right Column - Order Details -->
+        <div>
+            <!-- Order Status Card -->
+            <div class="detail-card" style="margin-bottom: 25px;">
+                <h2>Order Status</h2>
+                <div class="info-row">
+                    <span class="info-label">Current Status:</span>
+                    <span class="info-value">
+                        <span class="status-badge status-
+                            {% if order.status == 1 %}pending
+                            {% elif order.status == 2 %}processing
+                            {% elif order.status == 3 %}completed
+                            {% elif order.status == 4 %}cancelled
+                            {% endif %}">
+                            {{ order.get_status_display }}
+                        </span>
+                    </span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Order Date:</span>
+                    <span class="info-value">{{ order.created_at|date:"M d, Y H:i" }}</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Last Updated:</span>
+                    <span class="info-value">{{ order.updated_at|date:"M d, Y H:i" }}</span>
+                </div>
+                
+                <!-- Update Status Form -->
+                <form method="POST" class="action-form">
+                    {% csrf_token %}
+                    <input type="hidden" name="action" value="update_status">
+                    <h3>Update Order Status</h3>
+                    <div class="form-group">
+                        <select name="status" required>
+                            {% for value, label in status_choices %}
+                            <option value="{{ value }}" {% if order.status == value %}selected{% endif %}>
+                                {{ label }}
+                            </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Update Status</button>
+                </form>
+            </div>
+
+            <!-- Payment Information -->
+            <div class="detail-card" style="margin-bottom: 25px;">
+                <h2>Payment Information</h2>
+                {% if payment %}
+                <div class="info-row">
+                    <span class="info-label">Transaction ID:</span>
+                    <span class="info-value">{{ payment.transaction_id|default:"Not available" }}</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Method:</span>
+                    <span class="info-value">{{ payment.get_method_display }}</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Status:</span>
+                    <span class="info-value">
+                        <span class="status-badge status-
+                            {% if payment.status == 1 %}pending
+                            {% elif payment.status == 2 %}processing
+                            {% elif payment.status == 3 %}completed
+                            {% elif payment.status == 4 %}cancelled
+                            {% endif %}">
+                            {{ payment.get_status_display }}
+                        </span>
+                    </span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Amount:</span>
+                    <span class="info-value">${{ payment.amount|floatformat:2 }}</span>
+                </div>
+                
+                <!-- Update Payment Form -->
+                <form method="POST" class="action-form">
+                    {% csrf_token %}
+                    <input type="hidden" name="action" value="update_payment">
+                    <input type="hidden" name="payment_id" value="{{ payment.id }}">
+                    <h3>Update Payment Status</h3>
+                    <div class="form-group">
+                        <select name="payment_status" required>
+                            {% for value, label in payment_status_choices %}
+                            <option value="{{ value }}" {% if payment.status == value %}selected{% endif %}>
+                                {{ label }}
+                            </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Update Payment</button>
+                </form>
+                {% else %}
+                <p>No payment information available</p>
+                {% endif %}
+            </div>
+
+            <!-- Delivery Information -->
+            <div class="detail-card">
+                <h2>Delivery Information</h2>
+                <div class="info-row">
+                    <span class="info-label">Address:</span>
+                    <span class="info-value">{{ order.delivery_address|default:order.user.address|default:"Not provided" }}</span>
+                </div>
+                
+                {% if delivery %}
+                <div class="info-row">
+                    <span class="info-label">Status:</span>
+                    <span class="info-value">
+                        <span class="status-badge status-
+                            {% if delivery.status == 1 %}pending
+                            {% elif delivery.status == 2 %}assigned
+                            {% elif delivery.status == 3 %}delivered
+                            {% endif %}">
+                            {{ delivery.get_status_display }}
+                        </span>
+                    </span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Delivery Person:</span>
+                    <span class="info-value">
+                        {% if delivery.delivery_person %}
+                            {{ delivery.delivery_person.user.get_full_name|default:delivery.delivery_person.user.username }}
+                        {% else %}
+                            Not assigned
+                        {% endif %}
+                    </span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Assigned At:</span>
+                    <span class="info-value">{{ delivery.assigned_at|date:"M d, Y H:i" }}</span>
+                </div>
+                {% if delivery.delivered_at %}
+                <div class="info-row">
+                    <span class="info-label">Delivered At:</span>
+                    <span class="info-value">{{ delivery.delivered_at|date:"M d, Y H:i" }}</span>
+                </div>
+                {% endif %}
+                {% endif %}
+
+                <!-- Assign Delivery Form (only if not assigned or pending) -->
+                {% if not delivery or delivery.status == 1 %}
+                <form method="POST" class="action-form">
+                    {% csrf_token %}
+                    <input type="hidden" name="action" value="assign_delivery">
+                    <h3>Assign Delivery Person</h3>
+                    <div class="form-group">
+                        <select name="delivery_person" required>
+                            <option value="">Select Delivery Person</option>
+                            {% for person in available_delivery_persons %}
+                            <option value="{{ person.id }}">
+                                {{ person.user.get_full_name|default:person.user.username }}
+                            </option>
+                            {% empty %}
+                            <option value="" disabled>No delivery persons available</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <button type="submit" class="btn btn-primary" {% if not available_delivery_persons %}disabled{% endif %}>
+                        Assign Delivery
+                    </button>
+                </form>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Danger Zone - Cancel Order -->
+    {% if order.status != 4 and order.status != 3 %}
+    <div class="detail-card" style="margin-top: 25px; border-left: 4px solid #dc3545;">
+        <h2 style="color: #dc3545;">Danger Zone</h2>
+        <form method="POST" onsubmit="return confirm('Are you sure you want to cancel this order? This action cannot be undone.');">
+            {% csrf_token %}
+            <input type="hidden" name="action" value="cancel_order">
+            <p>Cancelling this order will restore product stock and cannot be reversed.</p>
+            <button type="submit" class="btn btn-danger">Cancel Order</button>
+        </form>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

@@ -1,0 +1,346 @@
+<!-- E_mart/templates/admin/dashboard.html -->
+{% extends 'admin/home.html' %}
+{% load static %}
+
+{% block name %}Admin Dashboard{% endblock %}
+
+{% block content %}
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <style>
+        /* Quick stats grid for proper data scaling */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+        .stat-card {
+            background: white;
+            border-radius: 10px;
+            padding: 1.5rem;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            transition: transform 0.2s;
+        }
+        .stat-card:hover { transform: translateY(-2px); }
+        .stat-title { color: #6c757d; font-size: 0.9rem; margin-bottom: 0.5rem; }
+        .stat-value { font-size: 2rem; font-weight: bold; color: #28a745; }
+        .stat-trend { color: #6c757d; font-size: 0.9rem; margin-top: 0.5rem; }
+        
+        /* Fixed height chart containers */
+        .charts-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1.5rem;
+            margin: 2rem 0;
+        }
+        
+        .chart-container {
+            background: white;
+            border-radius: 10px;
+            padding: 1.5rem;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            height: 400px; /* Fixed height for the entire container */
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .chart-container h3 {
+            margin: 0 0 1rem 0;
+            flex-shrink: 0; /* Prevent heading from shrinking */
+        }
+        
+        .chart-wrapper {
+            flex: 1; /* Take up remaining space */
+            position: relative;
+            min-height: 0; /* Important for flex child */
+            width: 100%;
+        }
+        
+        .chart-wrapper canvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100% !important;
+            height: 100% !important;
+        }
+        
+        .action-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin: 1rem 0 2rem 0;
+        }
+        
+        .action-card {
+            background: #f8f9fa;
+            padding: 1rem;
+            border-radius: 8px;
+            text-align: center;
+            text-decoration: none;
+            color: #333;
+            transition: background 0.2s;
+        }
+        
+        .action-card:hover {
+            background: #28a745;
+            color: white;
+        }
+        
+        .admin-table {
+            width: 100%;
+            border-collapse: collapse;
+            background: white;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        
+        .admin-table th {
+            background: #f8f9fa;
+            padding: 1rem;
+            text-align: left;
+        }
+        
+        .admin-table td {
+            padding: 1rem;
+            border-bottom: 1px solid #dee2e6;
+        }
+        
+        .status-badge {
+            padding: 0.25rem 0.5rem;
+            border-radius: 4px;
+            font-size: 0.85rem;
+        }
+        
+        .status-badge.pending { background: #ffc107; color: #000; }
+        .status-badge.completed { background: #28a745; color: #fff; }
+        .status-badge.cancelled { background: #dc3545; color: #fff; }
+        .status-badge.processing { background: #17a2b8; color: #fff; }
+        
+        /* Responsive design */
+        @media (max-width: 768px) {
+            .charts-row {
+                grid-template-columns: 1fr;
+            }
+            
+            .chart-container {
+                height: 350px; /* Slightly smaller on mobile */
+            }
+        }
+    </style>
+
+    <div class="admin-container">
+        <main class="admin-main">
+            <h1>Dashboard Overview</h1>
+            
+            <!-- Key Statistics Section -->
+            <div class="stats-grid">
+                <!-- Total Orders -->
+                <div class="stat-card">
+                    <div class="stat-title">Total Orders</div>
+                    <div class="stat-value">{{ total_orders }}</div>
+                    <div class="stat-trend">+{{ orders_trend }}% from last month</div>
+                </div>
+                
+                <!-- Active Users -->
+                <div class="stat-card">
+                    <div class="stat-title">Active Customers</div>
+                    <div class="stat-value">{{ active_users }}</div>
+                    <div class="stat-trend">{{ new_users_today }} new today</div>
+                </div>
+                
+                <!-- Total Revenue -->
+                <div class="stat-card">
+                    <div class="stat-title">Revenue (This Month)</div>
+                    <div class="stat-value">${{ monthly_revenue|floatformat:2 }}</div>
+                    <div class="stat-trend">Target: ${{ revenue_target|floatformat:2 }}</div>
+                </div>
+                
+                <!-- Pending Deliveries -->
+                <div class="stat-card">
+                    <div class="stat-title">Pending Deliveries</div>
+                    <div class="stat-value">{{ pending_deliveries }}</div>
+                    <div class="stat-trend">{{ overdue_deliveries }} overdue</div>
+                </div>
+            </div>
+
+            <!-- Quick Action Cards -->
+            <div class="quick-actions">
+                <h2>Quick Management</h2>
+                <div class="action-grid">
+                    <a href="{% url 'admin_product_list' %}" class="action-card">Manage Products</a>
+                    <a href="{% url 'admin_order_list' %}" class="action-card">Process Orders</a>
+                    <a href="{% url 'admin_exchange_list' %}" class="action-card">Handle Exchanges</a>
+                    <a href="{% url 'admin_delivery_pickup_list' %}" class="action-card">Schedule Deliveries</a>
+                </div>
+            </div>
+
+            <!-- Charts Section with Fixed Heights -->
+            <div class="charts-row">
+                <!-- Orders Trend Chart -->
+                <div class="chart-container">
+                    <h3>Weekly Orders</h3>
+                    <div class="chart-wrapper">
+                        <canvas id="ordersChart"></canvas>
+                    </div>
+                    <div id="orders-data" 
+                         data-labels='["Mon","Tue","Wed","Thu","Fri","Sat","Sun"]'
+                         data-values='{{ weekly_orders }}'>
+                    </div>
+                </div>
+                
+                <!-- Category Distribution -->
+                <div class="chart-container">
+                    <h3>Sales by Category</h3>
+                    <div class="chart-wrapper">
+                        <canvas id="categoryChart"></canvas>
+                    </div>
+                    <div id="category-data"
+                         data-labels='{{ category_names }}'
+                         data-values='{{ category_sales }}'>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Recent Orders Table -->
+            <div class="recent-section" style="margin-top: 2rem;">
+                <h2>Recent Orders</h2>
+                <table class="admin-table">
+                    <thead>
+                        <tr>
+                            <th>Order ID</th>
+                            <th>Customer</th>
+                            <th>Amount</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for order in recent_orders %}
+                        <tr>
+                            <td>#{{ order.id }}</td>
+                            <td>{{ order.user.username }}</td>
+                            <td>${{ order.total_price|floatformat:2 }}</td>
+                            <td>
+                                <span class="status-badge 
+                                    {% if order.status == 1 %}pending
+                                    {% elif order.status == 2 %}processing
+                                    {% elif order.status == 3 %}completed
+                                    {% elif order.status == 4 %}cancelled
+                                    {% endif %}">
+                                    {{ order.get_status_display }}
+                                </span>
+                            </td>
+                            <td><a href="{% url 'admin_order_detail' order.id %}">View</a></td>
+                        </tr>
+                        {% empty %}
+                        <tr><td colspan="5" style="text-align: center;">No recent orders</td></tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        // Chart initialization with proper container handling
+        document.addEventListener('DOMContentLoaded', function() {
+            // Helper function to safely parse JSON
+            function safeJSONParse(data, defaultValue) {
+                try {
+                    return JSON.parse(data);
+                } catch (e) {
+                    console.error('Error parsing JSON:', e);
+                    return defaultValue;
+                }
+            }
+
+            // Orders Chart
+            const ordersData = document.getElementById('orders-data');
+            if (ordersData) {
+                const ctx = document.getElementById('ordersChart').getContext('2d');
+                const labels = safeJSONParse(ordersData.dataset.labels, ['Mon','Tue','Wed','Thu','Fri','Sat','Sun']);
+                const values = safeJSONParse(ordersData.dataset.values, [0,0,0,0,0,0,0]);
+                
+                new Chart(ctx, {
+                    type: 'line',
+                    data: {
+                        labels: labels,
+                        datasets: [{
+                            label: 'Orders',
+                            data: values,
+                            borderColor: '#28a745',
+                            backgroundColor: 'rgba(40, 167, 69, 0.1)',
+                            tension: 0.1,
+                            fill: true
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: {
+                                display: false
+                            }
+                        },
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                ticks: {
+                                    stepSize: 1
+                                }
+                            }
+                        }
+                    }
+                });
+            }
+
+            // Category Chart
+            const categoryData = document.getElementById('category-data');
+            if (categoryData) {
+                const ctx2 = document.getElementById('categoryChart').getContext('2d');
+                const labels = safeJSONParse(categoryData.dataset.labels, []);
+                const values = safeJSONParse(categoryData.dataset.values, []);
+                
+                if (labels.length > 0 && values.length > 0) {
+                    new Chart(ctx2, {
+                        type: 'doughnut',
+                        data: {
+                            labels: labels,
+                            datasets: [{
+                                data: values,
+                                backgroundColor: ['#28a745', '#ffc107', '#17a2b8', '#dc3545', '#6610f2', '#e83e8c', '#fd7e14', '#20c997']
+                            }]
+                        },
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            plugins: {
+                                legend: {
+                                    position: 'bottom',
+                                    labels: {
+                                        boxWidth: 12,
+                                        padding: 15
+                                    }
+                                }
+                            }
+                        }
+                    });
+                } else {
+                    // Show message if no data
+                    const ctx2 = document.getElementById('categoryChart').getContext('2d');
+                    ctx2.font = '14px Arial';
+                    ctx2.fillStyle = '#999';
+                    ctx2.textAlign = 'center';
+                    ctx2.fillText('No category sales data available', ctx2.canvas.width/2, ctx2.canvas.height/2);
+                }
+            }
+        });
+
+        // Handle window resize to ensure charts redraw properly
+        window.addEventListener('resize', function() {
+            // Chart.js automatically handles resize when responsive: true
+            // This just ensures any custom cleanup if needed
+        });
+    </script>
+{% endblock %}

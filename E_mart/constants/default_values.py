@@ -43,6 +43,7 @@ class DeliveryStatus(Enum):
     FAILED = 4 
     PICKEDUP = 5
     RETURNED = 6
+    PENDING = 7
 
 class Purpose(Enum):
     DELIVERY = 1

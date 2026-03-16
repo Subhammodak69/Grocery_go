@@ -421,6 +421,7 @@ class AdminOrderAssignedView(View):
 
 
 
+
 @method_decorator(admin_required, name='dispatch')
 class AdminOrderListView(View):
     def get(self, request):

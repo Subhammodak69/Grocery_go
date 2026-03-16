@@ -1,10 +1,12 @@
 from django.views import View
-from django.shortcuts import render
+from django.shortcuts import render,redirect
 from django.utils.decorators import method_decorator
 from E_mart.constants.decorators import admin_required,delivery_worker_required,homeNavigate
-from E_mart.services import poster_service,category_service,product_service,delivery_service,order_service,exchange_or_return_service
+from E_mart.services import poster_service,category_service,product_service,delivery_service,order_service,exchange_or_return_service,admin_dashboard_service
 import json
 from django.http import JsonResponse
+from django.views.decorators.csrf import csrf_exempt
+from django.contrib import messages
 
 @method_decorator(homeNavigate, name='dispatch')
 class HomeView(View):
@@ -16,8 +18,52 @@ class HomeView(View):
     
 @method_decorator(admin_required, name='dispatch')
 class AdminHomeView(View):
-    def get(self,request):
-        return render(request,'admin/home.html')
+    def get(self, request):
+        context = admin_dashboard_service.get_all_dashboard_data()
+        return render(request, 'admin/dashboard.html', context)
+    
+@method_decorator(admin_required, name='dispatch')
+@method_decorator(csrf_exempt, name='dispatch')
+class AdminOrderDetailView(View):
+    def get(self, request, order_id):
+        context = admin_dashboard_service.get_order_data(order_id)
+        return render(request, 'admin/orders/detail.html', context)
+
+    def post(self, request, order_id):
+
+        action = request.POST.get('action')
+
+        if action == 'update_status':
+            new_status = request.POST.get('status')
+
+            if new_status:
+                old_status, updated_status = admin_dashboard_service.update_order_status(order_id, new_status)
+
+                messages.success(
+                    request,
+                    f'Order #{order_id} status updated from {OrderStatus(old_status).name} to {OrderStatus(updated_status).name}'
+                )
+
+        elif action == 'assign_delivery':
+            person_id = request.POST.get('delivery_person')
+
+            if person_id:
+                admin_dashboard_service.assign_delivery_person(order_id, person_id)
+                messages.success(request, f'Delivery person assigned successfully to Order #{order_id}')
+
+        elif action == 'update_payment':
+            payment_id = request.POST.get('payment_id')
+            new_status = request.POST.get('payment_status')
+
+            if payment_id and new_status:
+                admin_dashboard_service.update_payment_status(payment_id, new_status)
+                messages.success(request, f'Payment status updated for Order #{order_id}')
+
+        elif action == 'cancel_order':
+            admin_dashboard_service.cancel_order(order_id)
+            messages.success(request, f'Order #{order_id} has been cancelled')
+
+        return redirect('admin_order_detail', order_id=order_id)
 
 @method_decorator(admin_required, name='dispatch')
 class AdminNotificationsView(View):

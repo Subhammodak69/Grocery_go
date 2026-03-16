@@ -40,13 +40,13 @@ class ContactService:
         GroceryGo Support Team
         """
         
-        send_mail(
-            subject,
-            email_body,
-            settings.DEFAULT_FROM_EMAIL,
-            [message.email],
-            fail_silently=True
-        )
+        # send_mail(
+        #     subject,
+        #     email_body,
+        #     settings.DEFAULT_FROM_EMAIL,
+        #     [message.email],
+        #     fail_silently=True
+        # )
     
     @staticmethod
     def get_user_contact_queries(user, is_staff: bool = False, limit: int = 10) -> Dict[str, Any]:
