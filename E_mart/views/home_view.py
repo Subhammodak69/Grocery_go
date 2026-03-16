@@ -7,6 +7,7 @@ import json
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.contrib import messages
+from E_mart.constants.default_values import OrderStatus
 
 @method_decorator(homeNavigate, name='dispatch')
 class HomeView(View):
@@ -27,7 +28,7 @@ class AdminHomeView(View):
 class AdminOrderDetailView(View):
     def get(self, request, order_id):
         context = admin_dashboard_service.get_order_data(order_id)
-        return render(request, 'admin/orders/detail.html', context)
+        return render(request, 'admin/order/order_details.html', context)
 
     def post(self, request, order_id):
 

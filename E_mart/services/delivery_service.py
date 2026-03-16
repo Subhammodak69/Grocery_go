@@ -264,3 +264,13 @@ def get_delivery_count_by_worker(user):
 def get_pickup_count_by_worker(user):
     delivery_person = DeliveryPerson.objects.get(user = user,is_active = True)
     return DeliveryOrPickup.objects.filter(delivery_person = delivery_person, is_active = True,purpose = Purpose.PICKUP.value, status__in = [DeliveryStatus.ASSIGNED.value,DeliveryStatus.IN_PROGRESS.value,DeliveryStatus.FAILED.value] ).count()
+
+def get_all_delivery_status():
+    data = [
+        {
+            'name':status.name,
+            'value':status.value
+        }
+        for status in DeliveryStatus
+    ]
+    return data

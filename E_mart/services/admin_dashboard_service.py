@@ -7,6 +7,7 @@ import json
 from E_mart.models import User, Order, Category, OrderItem, DeliveryOrPickup, Payment,DeliveryPerson
 from E_mart.constants.default_values import OrderStatus, DeliveryStatus, PaymentStatus, Role
 from django.shortcuts import get_object_or_404
+from E_mart.services import order_service,payment_service,delivery_service
 # Get today's date once for consistency
 today = timezone.now().date()
 
@@ -172,7 +173,7 @@ def get_order_data(order_id):
     delivery = DeliveryOrPickup.objects.filter(
         order=order,
         is_active=True
-    ).select_related('delivery_person__user').first()
+    ).first()
 
     available_delivery_persons = DeliveryPerson.objects.filter(
         is_available=True,
@@ -190,9 +191,9 @@ def get_order_data(order_id):
         'available_delivery_persons': available_delivery_persons,
         'subtotal': subtotal,
         'total_items': total_items,
-        'status_choices': OrderStatus(order.status).name if order.status else '',
-        'payment_status_choices': PaymentStatus(payment.status).name if payment.status else '',
-        'delivery_status_choices': DeliveryStatus(delivery.status).name if delivery.status else '',
+        'status_choices': order_service.get_all_order_status(),
+        'payment_status_choices': payment_service.get_all_payment_status(),
+        'delivery_status_choices': delivery_service.get_all_delivery_status(),
     }
 
 

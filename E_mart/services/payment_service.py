@@ -212,3 +212,13 @@ def create_COD_payment(order):
         status = PaymentStatus.COMPLETED.value,
         amount = order.total_price
         )
+
+def get_all_payment_status():
+    data = [
+        {
+            'name':status.name,
+            'value':status.value
+        }
+        for status in PaymentStatus
+    ]
+    return data

@@ -10,86 +10,107 @@
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.min.css">
   <link rel="stylesheet" href="{% static 'css/admin/admin_base.css' %}" />
-  <script src="{% static 'js/admin/admin_base.js' %}"></script>
+    <script src="{% static 'js/admin/admin_base.js' %}"></script>
   <script src="{% static 'js/admin/home.js' %}"></script>
   <script src="{% static 'js/auto_reload.js' %}"></script>
 </head>
 <body>
   <!-- Loader HTML -->
   <div id="loaderdiv">
-    <div id="loader" style="position: fixed; top:50%; left:50%; transform: translate(-50%, -50%);">
+    <div id="loader">
       <div class="spinner"></div>
     </div>
   </div>
+
   <div class="d-flex">
-    <nav id="sidebar" class="sidebar d-flex flex-column" style="width: 300px;">
-      <div class="sidebar-header d-flex gap-2">
-        <div class="d-flex align-items-center justify-content-center" style="height:30px; width:30px; border-radius:50%; background:white;">
-          <i class="bi bi-person-fill" style="color:black;font-size:larger;"></i>
+    <!-- Sidebar - Always mini by default -->
+    <nav id="sidebar" class="sidebar mini d-flex flex-column">
+      <div class="sidebar-header d-flex gap-3 align-items-center">
+        <div class="user-avatar">
+          <i class="bi bi-person-fill"></i>
         </div>
-        <span>{{user.get_full_name}}</span>(Admin)
+        <div class="user-info">
+          <div class="user-name">{{ user.get_full_name|default:user.username }}</div>
+          <span class="user-role">Administrator</span>
+        </div>
       </div>
+
       <div class="sidebar-menu flex-grow-1 nav flex-column">
-        <a href="/admin/" class="nav-link d-flex align-items-center">
-          <i class="bi bi-speedometer2 me-2"></i>
-          <span>Dashboard</span>
+        {% with menu_items=request.path %}
+        <a href="/admin/" class="nav-link d-flex align-items-center" style="--item-index: 1">
+          <i class="bi bi-speedometer2 me-3"></i>
+          <span class="nav-text">Dashboard</span>
         </a>
-        <a href="/admin/users/" class="nav-link d-flex align-items-center">
-          <i class="bi bi-person-lines-fill me-2"></i>
-          <span>Users</span>
+        <a href="/admin/users/" class="nav-link d-flex align-items-center" style="--item-index: 2">
+          <i class="bi bi-people-fill me-3"></i>
+          <span class="nav-text">Users</span>
         </a>
-        <a href="/admin/delivery-workers/" class="nav-link d-flex align-items-center">
-          <i class="bi bi-truck-flatbed me-2"></i>
-          <span>Workers</span>
+        <a href="/admin/delivery-workers/" class="nav-link d-flex align-items-center" style="--item-index: 3">
+          <i class="bi bi-truck-flatbed me-3"></i>
+          <span class="nav-text">Workers</span>
         </a>
-        <a href="/admin/categories/" class="nav-link d-flex align-items-center">
-          <i class="bi bi-grid-3x3-gap-fill me-2"></i>
-          <span>Categories</span>
+        <a href="/admin/categories/" class="nav-link d-flex align-items-center" style="--item-index: 4">
+          <i class="bi bi-grid-3x3-gap-fill me-3"></i>
+          <span class="nav-text">Categories</span>
         </a>
-        <a href="/admin/posters/" class="nav-link d-flex align-items-center">
-          <i class="bi bi-image-alt me-2"></i>
-          <span>Posters</span>
+        <a href="/admin/posters/" class="nav-link d-flex align-items-center" style="--item-index: 5">
+          <i class="bi bi-images me-3"></i>
+          <span class="nav-text">Posters</span>
         </a>
-        <a href="/admin/products/" class="nav-link d-flex align-items-center">
-          <i class="bi bi-cart-fill me-2"></i>
-          <span>Products</span>
+        <a href="/admin/products/" class="nav-link d-flex align-items-center" style="--item-index: 6">
+          <i class="bi bi-box-seam me-3"></i>
+          <span class="nav-text">Products</span>
         </a>
-        <a href="/admin/orders/" class="nav-link d-flex align-items-center">
-          <i class="bi bi-bag-check-fill me-2"></i>
-          <span>Orders</span>
+        <a href="/admin/orders/" class="nav-link d-flex align-items-center" style="--item-index: 7">
+          <i class="bi bi-cart-check me-3"></i>
+          <span class="nav-text">Orders</span>
         </a>
-        <a href="/admin/unassigned/orders/" class="nav-link d-flex align-items-center position-relative">
-          <i class="bi bi-exclamation-triangle-fill me-2 text-warning"></i>
-          <span>UnAssigned Orders</span>
+        <a href="/admin/unassigned/orders/" class="nav-link d-flex align-items-center position-relative" style="--item-index: 8">
+          <i class="bi bi-exclamation-triangle-fill me-3 text-warning"></i>
+          <span class="nav-text">Unassigned Orders</span>
+          {% if unassigned_orders_count %}
+          <span class="badge-warning">{{ unassigned_orders_count }}</span>
+          {% endif %}
         </a>
-        <a href="/admin/deliveries-or-pickups/" class="nav-link d-flex align-items-center">
-          <i class="bi bi-arrow-left-right me-2"></i>
-          <span>Delivery Or Pickups</span>
+        <a href="/admin/deliveries-or-pickups/" class="nav-link d-flex align-items-center" style="--item-index: 9">
+          <i class="bi bi-arrow-left-right me-3"></i>
+          <span class="nav-text">Deliveries/Pickups</span>
         </a>
-        <a href="/admin/exchange-requests/" class="nav-link d-flex align-items-center">
-          <i class="bi bi-arrow-repeat me-2"></i>
-          <span>Exchange Or Returns</span>
+        <a href="/admin/exchange-requests/" class="nav-link d-flex align-items-center" style="--item-index: 10">
+          <i class="bi bi-arrow-repeat me-3"></i>
+          <span class="nav-text">Exchange/Returns</span>
         </a>
-        <a href="/admin/unassigned/pickups/" class="nav-link d-flex align-items-center position-relative">
-          <i class="bi bi-question-diamond-fill me-2 text-warning"></i>
-          <span>UnAssigned Pickups</span>
+        <a href="/admin/unassigned/pickups/" class="nav-link d-flex align-items-center position-relative" style="--item-index: 11">
+          <i class="bi bi-question-diamond-fill me-3 text-warning"></i>
+          <span class="nav-text">Unassigned Pickups</span>
+          {% if unassigned_pickups_count %}
+          <span class="badge-warning">{{ unassigned_pickups_count }}</span>
+          {% endif %}
         </a>
+        {% endwith %}
       </div>
     </nav>
 
-    <div class="content-area d-flex flex-column flex-grow-1">
+    <!-- Main Content Area -->
+    <div class="content-area expanded d-flex flex-column flex-grow-1">
+      <!-- Topbar (Fixed) -->
       <header class="topbar d-flex justify-content-between align-items-center">
-        <span class="toggle-btn" id="toggleSidebar">&#9776;</span>
-        <h1>Admin Panel</h1>
+        <div class="d-flex align-items-center gap-3">
+          <h1>{% block header_title %}Admin Panel{% endblock %}</h1>
+        </div>
+        
         <div class="d-flex align-items-center hh">
-          <i id="on" class="bi bi-toggle-on fs-3 d-none " onclick="change_color('on')"></i>
-          <i id="off" class="bi bi-toggle-off fs-3 " onclick="change_color('off')"></i>
-          <i class="bi bi-power fs-4 mx-4 " onclick="logout()"></i>
+          <i id="lightModeIcon" class="bi bi-sun-fill" onclick="toggleTheme('light')" title="Light Mode"></i>
+          <i id="darkModeIcon" class="bi bi-moon-fill d-none" onclick="toggleTheme('dark')" title="Dark Mode"></i>
+          <div class="vr" style="height: 30px;"></div>
+          <i class="bi bi-box-arrow-right fs-5" onclick="logout()" title="Logout"></i>
         </div>
       </header>
-      <main class="flex-grow-1 p-2">
-         {% block content %}
-         {% endblock %}
+
+      <!-- Page Content (with top padding for fixed header) -->
+      <main class="flex-grow-1">
+        {% block content %}
+        {% endblock %}
       </main>
     </div>
   </div>
@@ -97,25 +118,101 @@
   <!-- Bootstrap JS and dependencies -->
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 
-<script>
-  window.onload = function() {
-    const toggleBtn = document.getElementById('toggleSidebar');
+  <script>
+    // Hide loader when page is fully loaded
+    window.addEventListener('load', function() {
+      setTimeout(function() {
+        document.getElementById('loaderdiv').style.opacity = '0';
+        setTimeout(function() {
+          document.getElementById('loaderdiv').style.display = 'none';
+        }, 300);
+      }, 500);
+    });
+
     const sidebar = document.getElementById('sidebar');
-    if (toggleBtn && sidebar) {
-      toggleBtn.addEventListener('click', function() {
-        sidebar.classList.toggle('collapsed');
-        sidebar.style.width = sidebar.classList.contains('collapsed') ? '0px' : '300px';
+    const contentArea = document.querySelector('.content-area');
+
+    // Hover expansion for mini sidebar
+    if (sidebar) {
+      sidebar.addEventListener('mouseenter', function() {
+        this.classList.add('expanded-on-hover');
+      });
+
+      sidebar.addEventListener('mouseleave', function() {
+        this.classList.remove('expanded-on-hover');
       });
     }
-  };
 
-  const currentPath = window.location.pathname;
-  const navLinks = document.querySelectorAll('.sidebar-menu .nav-link');
-  navLinks.forEach(link => {
-      if (link.getAttribute('href') === currentPath) {
-          link.classList.add('active');
+    // Highlight active menu item (fixed to prevent multiple active)
+    const currentPath = window.location.pathname;
+    const navLinks = document.querySelectorAll('.sidebar-menu .nav-link');
+    
+    navLinks.forEach(link => {
+      const href = link.getAttribute('href');
+      
+      // Remove any existing active class
+      link.classList.remove('active');
+      
+      // Check if this link matches the current path
+      if (href === currentPath) {
+        link.classList.add('active');
+      } else if (href !== '/' && currentPath.startsWith(href) && href !== '/admin/') {
+        // For nested paths, but don't match dashboard with everything
+        link.classList.add('active');
       }
-  });
-</script>
+    });
+
+    // Theme toggle functionality (fixed)
+    function toggleTheme(mode) {
+      const lightIcon = document.getElementById('lightModeIcon');
+      const darkIcon = document.getElementById('darkModeIcon');
+      const body = document.body;
+      
+      if (mode === 'light') {
+        // Switch to light mode
+        lightIcon.classList.add('d-none');
+        darkIcon.classList.remove('d-none');
+        body.classList.remove('dark-mode');
+        localStorage.setItem('theme', 'light');
+        
+        // Remove dark mode styles
+        body.style.background = '';
+        body.style.color = '';
+        document.querySelector('.content-area').style.background = '';
+      } else {
+        // Switch to dark mode
+        darkIcon.classList.add('d-none');
+        lightIcon.classList.remove('d-none');
+        body.classList.add('dark-mode');
+        localStorage.setItem('theme', 'dark');
+        
+        // Apply dark mode styles
+        body.style.background = '#1a1c2e';
+        body.style.color = '#fff';
+        document.querySelector('.content-area').style.background = '#1a1c2e';
+      }
+    }
+
+    // Check for saved theme preference
+    const savedTheme = localStorage.getItem('theme');
+    if (savedTheme === 'dark') {
+      toggleTheme('dark');
+    }
+
+    // Logout function
+    function logout() {
+      if (confirm('Are you sure you want to logout?')) {
+        window.location.href = '/logout/';
+      }
+    }
+
+    // Handle responsive behavior
+    window.addEventListener('resize', function() {
+      if (window.innerWidth <= 768) {
+        sidebar.classList.add('mini');
+        contentArea.classList.add('expanded');
+      }
+    });
+  </script>
 </body>
 </html>
