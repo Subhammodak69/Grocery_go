@@ -562,8 +562,6 @@
                 </div>
             `;
             
-            // Set the view full order button link
-            document.getElementById('viewFullOrderBtn').href = `/admin/orders/${orderId}/`;
             
             fetch(`/admin/api/orders/${orderId}/`)
                 .then(response => {
