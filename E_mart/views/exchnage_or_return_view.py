@@ -56,81 +56,214 @@ class ExchangeReturnDetailsView(View):
         })
     
 
-
-#admin
-
 @method_decorator(admin_required, name='dispatch')
 class AdminExchangeListView(View):
     def get(self, request):
-        exchanges = exchange_or_return_service.get_all_exchanges() 
-        return render(request, 'admin/exchange_request/exchange_list.html', {'exchanges': exchanges})
+        exchanges = exchange_or_return_service.get_all_exchanges()
+        orders = order_service.get_all_orders()
+        users = user_service.get_all_users()
+        enums = [
+            {
+                'name': i.name,
+                'value': i.value
+            }
+            for i in ExchangeOrReturnStatus
+        ]
+        return render(request, 'admin/exchange_list.html', {
+            'exchanges': exchanges,
+            'orders': orders,
+            'users': users,
+            'enums': enums
+        })
 
 @method_decorator(admin_required, name='dispatch')
 @method_decorator(csrf_exempt, name='dispatch')
 class AdminExchangeCreateView(View):
-    def get(self, request):
-        orders = order_service.get_all_orders()
-        users = user_service.get_all_users()
-        return render(request, 'admin/exchange_request/exchange_create.html', {
-            'orders': orders, 'users': users
-        })
-    
     def post(self, request):
         try:
             order_id = request.POST.get('order')
-            order_item_id = request.POST.get('order_item')
+            order_item_ids = request.POST.getlist('order_items[]') or request.POST.get('order_items')
             user_id = request.POST.get('user')
-            product_id = request.POST.get('product')
             reason = request.POST.get('reason')
             status = request.POST.get('status')
             purpose = request.POST.get('purpose')
             is_active = request.POST.get('is_active', 'true').lower() == 'true'
 
-            if not all([order_id, order_item_id, user_id, product_id, reason, status, purpose]):
+            if not all([order_id, user_id, reason, status, purpose]):
                 return JsonResponse({'error': 'Missing required fields'}, status=400)
+            
+            if not order_item_ids:
+                return JsonResponse({'error': 'At least one order item is required'}, status=400)
 
-            exchange_or_return_service.exchange_create(
-                order_id, order_item_id, user_id, product_id, reason, 
+            exchange = exchange_or_return_service.exchange_create(
+                order_id, order_item_ids, user_id, reason, 
                 status, purpose, is_active
             )
-            return JsonResponse({'message': 'Exchange request created successfully!'})
+            
+            # Get items for response
+            items = []
+            for item in exchange.exchange_return_items.all():
+                items.append({
+                    'id': item.id,
+                    'product_name': item.order_item.product.name,
+                    'quantity': item.quantity
+                })
+            
+            return JsonResponse({
+                'success': True,
+                'message': 'Exchange request created successfully!',
+                'exchange': {
+                    'id': exchange.id,
+                    'order_id': exchange.order.id,
+                    'user_name': exchange.user.username,
+                    'reason': exchange.reason[:50] + '...' if len(exchange.reason) > 50 else exchange.reason,
+                    'status': exchange.status,
+                    'status_display': exchange.get_status_display(),
+                    'purpose': exchange.purpose,
+                    'purpose_display': exchange.get_purpose_display(),
+                    'total': str(exchange.total),
+                    'request_date': exchange.request_date.strftime('%Y-%m-%d %H:%M:%S') if exchange.request_date else None,
+                    'is_active': exchange.is_active,
+                    'items': items
+                }
+            })
+        except Exception as e:
+            return JsonResponse({'error': str(e)}, status=500)
+
+@method_decorator(admin_required, name='dispatch')
+@method_decorator(csrf_exempt, name='dispatch')
+class AdminExchangeDetailView(View):
+    def get(self, request, exchange_id):
+        try:
+            exchange = exchange_or_return_service.get_exchange_by_id(exchange_id)
+            
+            # Get all orders for dropdown
+            orders = order_service.get_all_orders()
+            orders_list = []
+            for order in orders:
+                orders_list.append({
+                    'id': order.id,
+                    'display': f"Order #{order.id} - {order.user.username} (₹{order.total_price})"
+                })
+            
+            # Get all users for dropdown
+            users = user_service.get_all_users()
+            users_list = []
+            for user in users:
+                users_list.append({
+                    'id': user.id,
+                    'display': f"{user.username} ({user.email})"
+                })
+            
+            # Get order items for the selected order with selection status
+            order_items_list = []
+            selected_item_ids = [item.order_item.id for item in exchange.exchange_return_items.all()]
+            
+            if exchange.order:
+                items = order_service.get_order_items(exchange.order.id)
+                for item in items:
+                    order_items_list.append({
+                        'id': item['id'],
+                        'product_name': item['product_name'],
+                        'quantity': item['quantity'],
+                        'price': item['price'],
+                        'selected': item['id'] in selected_item_ids
+                    })
+            
+            # Get exchange items
+            exchange_items = []
+            for item in exchange.exchange_return_items.all():
+                exchange_items.append({
+                    'id': item.id,
+                    'order_item_id': item.order_item.id,
+                    'product_name': item.order_item.product.name,
+                    'quantity': item.quantity,
+                    'price': str(item.order_item.product.price)
+                })
+            
+            # Get status enums
+            enums_list = []
+            for i in ExchangeOrReturnStatus:
+                enums_list.append({
+                    'name': i.name,
+                    'value': i.value
+                })
+            
+            exchange_data = {
+                'id': exchange.id,
+                'order_id': exchange.order.id if exchange.order else None,
+                'user_id': exchange.user.id if exchange.user else None,
+                'reason': exchange.reason,
+                'total': str(exchange.total),
+                'status': exchange.status,
+                'status_display': exchange.get_status_display(),
+                'purpose': exchange.purpose,
+                'purpose_display': exchange.get_purpose_display(),
+                'request_date': exchange.request_date.strftime('%Y-%m-%d %H:%M:%S') if exchange.request_date else None,
+                'processed_date': exchange.processed_date.strftime('%Y-%m-%d %H:%M:%S') if exchange.processed_date else None,
+                'is_active': exchange.is_active,
+                'orders_list': orders_list,
+                'users_list': users_list,
+                'order_items_list': order_items_list,
+                'exchange_items': exchange_items,
+                'enums_list': enums_list,
+                'selected_item_ids': selected_item_ids
+            }
+            return JsonResponse(exchange_data)
         except Exception as e:
             return JsonResponse({'error': str(e)}, status=500)
 
 @method_decorator(admin_required, name='dispatch')
 @method_decorator(csrf_exempt, name='dispatch')
 class AdminExchangeUpdateView(View):
-    def get(self, request, exchange_id):
-        exchange = exchange_or_return_service.get_exchange_by_id(exchange_id)
-        orders = order_service.get_all_orders()
-        users = user_service.get_all_users()
-        enums = [
-            {
-                'name':i.name,
-                'value':i.value
-            }
-            for i in ExchangeOrReturnStatus
-        ]
-        return render(request, 'admin/exchange_request/exchange_update.html', {
-            'exchange': exchange, 'orders': orders, 'users': users,'enums':enums
-        })
-    
     def post(self, request, exchange_id):
         try:
             order_id = request.POST.get('order')
-            order_item_id = request.POST.get('order_item')
+            order_item_ids = request.POST.getlist('order_items[]') or request.POST.get('order_items')
             user_id = request.POST.get('user')
-            product_id = request.POST.get('product')
             reason = request.POST.get('reason')
             status = request.POST.get('status')
             purpose = request.POST.get('purpose')
             is_active = request.POST.get('is_active', 'true').lower() == 'true'
 
-            exchange_or_return_service.exchange_update(
-                exchange_id, order_id, order_item_id, user_id, product_id, 
+            if not all([order_id, user_id, reason, status, purpose]):
+                return JsonResponse({'error': 'Missing required fields'}, status=400)
+            
+            if not order_item_ids:
+                return JsonResponse({'error': 'At least one order item is required'}, status=400)
+
+            exchange = exchange_or_return_service.exchange_update(
+                exchange_id, order_id, order_item_ids, user_id, 
                 reason, status, purpose, is_active
             )
-            return JsonResponse({'message': 'Exchange request updated successfully!'})
+            
+            # Get items for response
+            items = []
+            for item in exchange.exchange_return_items.all():
+                items.append({
+                    'id': item.id,
+                    'product_name': item.order_item.product.name,
+                    'quantity': item.quantity
+                })
+            
+            return JsonResponse({
+                'success': True,
+                'message': 'Exchange request updated successfully!',
+                'exchange': {
+                    'id': exchange.id,
+                    'order_id': exchange.order.id,
+                    'user_name': exchange.user.username,
+                    'reason': exchange.reason[:50] + '...' if len(exchange.reason) > 50 else exchange.reason,
+                    'status': exchange.status,
+                    'status_display': exchange.get_status_display(),
+                    'purpose': exchange.purpose,
+                    'purpose_display': exchange.get_purpose_display(),
+                    'total': str(exchange.total),
+                    'request_date': exchange.request_date.strftime('%Y-%m-%d %H:%M:%S') if exchange.request_date else None,
+                    'is_active': exchange.is_active,
+                    'items': items
+                }
+            })
         except Exception as e:
             return JsonResponse({'error': str(e)}, status=500)
 
@@ -138,48 +271,25 @@ class AdminExchangeUpdateView(View):
 @method_decorator(csrf_exempt, name='dispatch')
 class AdminExchangeToggleActiveView(View):
     def post(self, request):
-        data = json.loads(request.body)
-        is_active = data.get('is_active')
-        exchange_id = data.get('exchange_id')
-        exchange = exchange_or_return_service.toggle_active_exchange(exchange_id, is_active)
-        return JsonResponse({
-            'success': True,
-            'exchange_id': exchange.id,
-            'is_active': exchange.is_active
-        })
+        try:
+            data = json.loads(request.body)
+            is_active = data.get('is_active')
+            exchange_id = data.get('exchange_id')
+            exchange = exchange_or_return_service.toggle_active_exchange(exchange_id, is_active)
+            return JsonResponse({
+                'success': True,
+                'exchange_id': exchange.id,
+                'is_active': exchange.is_active
+            })
+        except Exception as e:
+            return JsonResponse({'success': False, 'error': str(e)}, status=500)
 
 @method_decorator(admin_required, name='dispatch')
 @method_decorator(csrf_exempt, name='dispatch')
 class GetOrderItemsView(View):
     def get(self, request, order_id):
-        items = order_service.get_order_items(order_id)
-        return JsonResponse(items, safe=False)
-    
-
-@method_decorator(admin_required,name='dispatch')
-@method_decorator(csrf_exempt,name='dispatch')
-class AdminPickupsAssignedView(View):
-    def get(self,request):
-        exchanges = exchange_or_return_service.get_all_unassigned_exchanges() 
-        workers = deliveryperson_service.get_available_delivery_boys()
-        workers_data = [
-            {
-                'id':worker.id,
-                'full_name':f"{worker.user.first_name} {worker.user.last_name}"
-            }
-            for worker in workers
-        ]
-        return render(request,'admin/order/unassigned_pickups.html',{'exchanges':exchanges,'workers':workers_data})
-    
-    def post(self, request):
         try:
-            data = json.loads(request.body)
-            exchange_id = data.get('exchange_id')
-            assigned_to = data.get('assigned_to')
-            if not all([exchange_id,assigned_to]):
-                return JsonResponse({'error': 'Missing required fields'}, status=400)
-            pickups = delivery_service.create_admin_pickups(exchange_id,assigned_to)
-            return JsonResponse({'success':True, 'message':"Assinged Successfully"})
+            items = order_service.get_order_items(order_id)
+            return JsonResponse(items, safe=False)
         except Exception as e:
             return JsonResponse({'error': str(e)}, status=500)
-        

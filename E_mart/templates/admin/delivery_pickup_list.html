@@ -1,0 +1,1460 @@
+{% extends "admin/home.html" %}
+{% load static %}
+{% block title %}Delivery/Pickup Management{% endblock %}
+{% block content %}
+<style>
+    /* Custom styles complementing Bootstrap */
+    :root {
+        --primary-gradient: linear-gradient(135deg, #667eea, #764ba2);
+        --success-gradient: linear-gradient(135deg, #43e97b, #38f9d7);
+        --warning-gradient: linear-gradient(135deg, #fa709a, #fee140);
+        --danger-gradient: linear-gradient(135deg, #f093fb, #f5576c);
+        --info-gradient: linear-gradient(135deg, #3b8cff, #6f4cf2);
+    }
+    
+    .delivery-avatar-sm {
+        width: 40px;
+        height: 40px;
+        background: var(--info-gradient);
+        color: white;
+        border-radius: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 600;
+        font-size: 18px;
+        box-shadow: 0 4px 10px rgba(59, 140, 255, 0.3);
+    }
+    
+    .delivery-avatar-lg {
+        width: 100px;
+        height: 100px;
+        background: var(--info-gradient);
+        color: white;
+        border-radius: 20px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 40px;
+        font-weight: 600;
+        margin: 0 auto;
+        box-shadow: 0 10px 25px rgba(59, 140, 255, 0.4);
+        animation: float 3s ease-in-out infinite;
+    }
+    
+    .purpose-badge {
+        padding: 0.5rem 1rem;
+        border-radius: 30px;
+        font-weight: 500;
+        font-size: 0.8rem;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+    
+    .purpose-delivery {
+        background: linear-gradient(135deg, #3b8cff20, #6f4cf220);
+        color: #3b8cff;
+        border: 1px solid #3b8cff40;
+    }
+    
+    .purpose-pickup {
+        background: linear-gradient(135deg, #f59e0b20, #fbbf2420);
+        color: #f59e0b;
+        border: 1px solid #f59e0b40;
+    }
+    
+    .status-badge {
+        padding: 0.4rem 1rem;
+        border-radius: 30px;
+        font-weight: 500;
+        font-size: 0.75rem;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+    
+    .status-pending {
+        background: #fef3c7;
+        color: #d97706;
+    }
+    
+    .status-assigned {
+        background: #dbeafe;
+        color: #2563eb;
+    }
+    
+    .status-picked {
+        background: #dcfce7;
+        color: #16a34a;
+    }
+    
+    .status-delivered {
+        background: #e0f2fe;
+        color: #0891b2;
+    }
+    
+    .status-cancelled {
+        background: #fee2e2;
+        color: #dc2626;
+    }
+    
+    .page-header {
+        background: white;
+        border-radius: 20px;
+        padding: 1.5rem;
+        margin-bottom: 2rem;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+        border: 1px solid rgba(59, 140, 255, 0.1);
+    }
+    
+    .table-container {
+        background: white;
+        border-radius: 20px;
+        padding: 1.5rem;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+        border: 1px solid rgba(59, 140, 255, 0.1);
+    }
+    
+    .table thead th {
+        background: #f8fafc;
+        color: #4a5568;
+        font-weight: 600;
+        font-size: 0.85rem;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        border-bottom: 2px solid #3b8cff;
+        padding: 1rem;
+    }
+    
+    .table tbody tr {
+        transition: all 0.2s ease;
+    }
+    
+    .table tbody tr:hover {
+        background: rgba(59, 140, 255, 0.05);
+        transform: scale(1.01);
+        box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+    }
+    
+    .table td {
+        padding: 1rem;
+        vertical-align: middle;
+        border-bottom: 1px solid #edf2f7;
+    }
+    
+    .btn-create {
+        background: var(--info-gradient);
+        color: white;
+        border: none;
+        padding: 0.75rem 1.8rem;
+        border-radius: 12px;
+        font-weight: 600;
+        font-size: 0.95rem;
+        transition: all 0.3s ease;
+        box-shadow: 0 8px 20px rgba(59, 140, 255, 0.3);
+    }
+    
+    .btn-create:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 12px 25px rgba(59, 140, 255, 0.4);
+        color: white;
+    }
+    
+    .btn-action {
+        width: 38px;
+        height: 38px;
+        border-radius: 10px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        transition: all 0.2s ease;
+        margin: 0 3px;
+        border: none;
+        background: #f1f5f9;
+        color: #4a5568;
+    }
+    
+    .btn-action:hover {
+        transform: translateY(-3px) scale(1.1);
+    }
+    
+    .btn-view:hover {
+        background: #3b8cff;
+        color: white;
+    }
+    
+    .btn-edit:hover {
+        background: #fbbf24;
+        color: white;
+    }
+    
+    .modal-content {
+        border: none;
+        border-radius: 25px;
+        overflow: hidden;
+    }
+    
+    .modal-header {
+        background: var(--info-gradient);
+        color: white;
+        border: none;
+        padding: 1.8rem 2rem;
+    }
+    
+    .modal-header .btn-close {
+        filter: brightness(0) invert(1);
+        opacity: 0.8;
+    }
+    
+    .modal-header .btn-close:hover {
+        opacity: 1;
+    }
+    
+    .modal-body {
+        padding: 2rem;
+        max-height: 70vh;
+        overflow-y: auto;
+    }
+    
+    .modal-footer {
+        border-top: 1px solid #edf2f7;
+        padding: 1.5rem 2rem;
+    }
+    
+    .form-card {
+        background: #f8fafc;
+        border-radius: 16px;
+        padding: 1.5rem;
+        border: 1px solid #edf2f7;
+        transition: all 0.3s ease;
+    }
+    
+    .form-card:hover {
+        border-color: #3b8cff;
+        box-shadow: 0 10px 25px rgba(59, 140, 255, 0.1);
+    }
+    
+    .form-card .form-label {
+        font-size: 0.75rem;
+        text-transform: uppercase;
+        color: #94a3b8;
+        letter-spacing: 0.5px;
+        margin-bottom: 0.5rem;
+        font-weight: 600;
+    }
+    
+    .form-card .form-control, 
+    .form-card .form-select {
+        border-radius: 12px;
+        padding: 0.75rem 1rem;
+        border: 2px solid #edf2f7;
+        transition: all 0.3s ease;
+        background: white;
+    }
+    
+    .form-card .form-control:focus, 
+    .form-card .form-select:focus {
+        border-color: #3b8cff;
+        box-shadow: 0 0 0 3px rgba(59, 140, 255, 0.1);
+    }
+    
+    .detail-card {
+        background: #f8fafc;
+        border-radius: 16px;
+        padding: 1.5rem;
+        height: 100%;
+        border: 1px solid #edf2f7;
+        transition: all 0.3s ease;
+    }
+    
+    .detail-card:hover {
+        border-color: #3b8cff;
+        transform: translateY(-3px);
+        box-shadow: 0 10px 25px rgba(59, 140, 255, 0.1);
+    }
+    
+    .detail-label {
+        font-size: 0.7rem;
+        text-transform: uppercase;
+        color: #94a3b8;
+        letter-spacing: 0.5px;
+        margin-bottom: 0.5rem;
+    }
+    
+    .detail-value {
+        font-size: 1rem;
+        font-weight: 600;
+        color: #1e293b;
+    }
+    
+    .toast-notification {
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        z-index: 9999;
+        min-width: 350px;
+        animation: slideInRight 0.3s ease;
+    }
+    
+    @keyframes slideInRight {
+        from {
+            transform: translateX(100%);
+            opacity: 0;
+        }
+        to {
+            transform: translateX(0);
+            opacity: 1;
+        }
+    }
+    
+    .empty-state {
+        text-align: center;
+        padding: 4rem 2rem;
+    }
+    
+    .empty-state i {
+        font-size: 5rem;
+        color: #cbd5e1;
+        margin-bottom: 1.5rem;
+    }
+    
+    .status-indicator {
+        display: inline-block;
+        width: 10px;
+        height: 10px;
+        border-radius: 50%;
+        margin-right: 6px;
+    }
+    
+    .status-active {
+        background: #10b981;
+        box-shadow: 0 0 0 2px rgba(16, 185, 129, 0.2);
+    }
+    
+    .status-inactive {
+        background: #ef4444;
+        box-shadow: 0 0 0 2px rgba(239, 68, 68, 0.2);
+    }
+    
+    .spinner {
+        width: 40px;
+        height: 40px;
+        border: 4px solid #e3e3e3;
+        border-top: 4px solid #3b8cff;
+        border-radius: 50%;
+        animation: spin 1s linear infinite;
+    }
+    
+    @keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+    }
+    
+    .modal-body-loading {
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(255, 255, 255, 0.9);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 1060;
+        border-radius: 0;
+        backdrop-filter: blur(5px);
+    }
+    
+    .loading-content {
+        text-align: center;
+    }
+    
+    .loading-content .spinner {
+        width: 50px;
+        height: 50px;
+        margin-bottom: 1rem;
+    }
+    
+    @keyframes highlight {
+        0% { background-color: rgba(59, 140, 255, 0.2); }
+        100% { background-color: transparent; }
+    }
+    
+    .row-highlight {
+        animation: highlight 2s ease;
+    }
+    
+    .purpose-icon {
+        width: 32px;
+        height: 32px;
+        border-radius: 8px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 16px;
+    }
+    
+    .purpose-delivery-icon {
+        background: rgba(59, 140, 255, 0.1);
+        color: #3b8cff;
+    }
+    
+    .purpose-pickup-icon {
+        background: rgba(245, 158, 11, 0.1);
+        color: #f59e0b;
+    }
+    
+    .info-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 1rem;
+        margin-top: 1.5rem;
+    }
+    
+    .info-item {
+        background: white;
+        border-radius: 12px;
+        padding: 1rem;
+        border: 1px solid #edf2f7;
+    }
+    
+    .info-label {
+        font-size: 0.7rem;
+        color: #94a3b8;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        margin-bottom: 0.5rem;
+    }
+    
+    .info-value {
+        font-size: 1.1rem;
+        font-weight: 600;
+        color: #1e293b;
+    }
+</style>
+
+<div class="container-fluid p-4 custom-scroll">
+    <!-- Page Header -->
+    <div class="page-header animate__animated animate__fadeInDown">
+        <div class="d-flex align-items-center justify-content-between">
+            <div class="d-flex align-items-center gap-3">
+                <div class="delivery-avatar-sm" style="width: 50px; height: 50px; font-size: 24px;">
+                    <i class="fas fa-truck"></i>
+                </div>
+                <div>
+                    <h2 class="fw-bold mb-1" style="color: #2d3748;">Delivery/Pickup Management</h2>
+                    <p class="text-muted mb-0">Manage all deliveries and pickups in one place</p>
+                </div>
+            </div>
+            <button class="btn-create d-flex align-items-center gap-2" data-bs-toggle="modal" data-bs-target="#createDeliveryModal">
+                <i class="fas fa-plus-circle"></i> Create New Delivery/Pickup
+            </button>
+        </div>
+    </div>
+
+    <!-- Deliveries Table Container -->
+    <div id="deliveriesTableContainer">
+        {% if deliveries %}
+        <div class="table-container animate__animated animate__fadeInUp">
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0" id="deliveriesTable">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Order</th>
+                            <th>Type</th>
+                            <th>Address</th>
+                            <th>Delivery Person</th>
+                            <th>Status</th>
+                            <th>Toggle</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="deliveriesTableBody">
+                        {% for delivery in deliveries %}
+                        <tr id="delivery-row-{{ delivery.id }}" data-delivery-id="{{ delivery.id }}">
+                            <td><span class="fw-semibold">#{{ delivery.id }}</span></td>
+                            <td>
+                                <div class="d-flex align-items-center gap-2">
+                                    <span class="fw-semibold">Order #{{ delivery.order.id }}</span>
+                                    <small class="text-muted">({{ delivery.order.user.get_full_name|default:delivery.order.user.username }})</small>
+                                </div>
+                            </td>
+                            <td>
+                                {% if delivery.purpose == 1 or delivery.purpose == 'delivery' %}
+                                <div class="purpose-badge purpose-delivery">
+                                    <i class="fas fa-truck"></i> Delivery
+                                </div>
+                                {% else %}
+                                <div class="purpose-badge purpose-pickup">
+                                    <i class="fas fa-store"></i> Pickup
+                                </div>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <span class="text-truncate d-inline-block" style="max-width: 150px;" 
+                                      data-bs-toggle="tooltip" title="{{ delivery.address }}">
+                                    {{ delivery.address|truncatechars:30 }}
+                                </span>
+                            </td>
+                            <td>
+                                {% if delivery.delivery_person %}
+                                    <div class="d-flex align-items-center gap-2">
+                                        <i class="fas fa-user-circle text-primary"></i>
+                                        {{ delivery.delivery_person.user.get_full_name|default:delivery.delivery_person.user.username }}
+                                    </div>
+                                {% else %}
+                                    <span class="text-muted">Unassigned</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% if delivery.status == 1 or delivery.status == 'pending' %}
+                                <span class="status-badge status-pending">Pending</span>
+                                {% elif delivery.status == 2 or delivery.status == 'assigned' %}
+                                <span class="status-badge status-assigned">Assigned</span>
+                                {% elif delivery.status == 3 or delivery.status == 'picked' %}
+                                <span class="status-badge status-picked">Picked</span>
+                                {% elif delivery.status == 4 or delivery.status == 'delivered' %}
+                                <span class="status-badge status-delivered">Delivered</span>
+                                {% elif delivery.status == 5 or delivery.status == 'cancelled' %}
+                                <span class="status-badge status-cancelled">Cancelled</span>
+                                {% else %}
+                                <span class="status-badge">{{ delivery.get_status_display }}</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <div class="form-check form-switch">
+                                    <input class="form-check-input status-toggle" type="checkbox" 
+                                        data-delivery-id="{{ delivery.id }}"
+                                        {% if delivery.is_active %}checked{% endif %}>
+                                </div>
+                            </td>
+                            <td>
+                                <div class="d-flex gap-2">
+                                    <button class="btn-action btn-view" onclick="viewDeliveryDetails({{ delivery.id }})" 
+                                            data-bs-toggle="tooltip" title="View Details">
+                                        <i class="fas fa-eye"></i>
+                                    </button>
+                                    <button class="btn-action btn-edit" onclick="editDelivery({{ delivery.id }})" 
+                                            data-bs-toggle="tooltip" title="Edit">
+                                        <i class="fas fa-edit"></i>
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        {% else %}
+        <!-- Empty State -->
+        <div class="table-container text-center py-5 animate__animated animate__fadeIn">
+            <div class="empty-state">
+                <i class="fas fa-truck text-secondary opacity-25"></i>
+                <h4 class="mt-4 text-secondary">No Deliveries/Pickups Found</h4>
+                <p class="text-muted mb-4">Click the "Create New" button to add your first delivery or pickup.</p>
+                <button class="btn-create d-inline-flex align-items-center gap-2" data-bs-toggle="modal" data-bs-target="#createDeliveryModal">
+                    <i class="fas fa-plus-circle"></i> Create New Delivery/Pickup
+                </button>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<!-- Create Delivery Modal -->
+<div class="modal fade" id="createDeliveryModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">
+                    <i class="fas fa-plus-circle me-2"></i>Create New Delivery/Pickup
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <!-- Profile Section -->
+                <div class="profile-section">
+                    <div class="delivery-avatar-lg">
+                        <i class="fas fa-truck"></i>
+                    </div>
+                    <h5 class="mt-3 mb-0 fw-bold">New Delivery/Pickup</h5>
+                    <p class="text-muted small">Enter delivery/pickup details below</p>
+                </div>
+
+                <!-- Form in Cards -->
+                <form id="createDeliveryForm">
+                    {% csrf_token %}
+                    <div class="row g-3">
+                        <div class="col-12">
+                            <div class="form-card">
+                                <div class="form-label">
+                                    <i class="fas fa-shopping-cart me-1"></i> Order <span class="text-danger">*</span>
+                                </div>
+                                <select class="form-select" id="create_order" required>
+                                    <option value="">Select Order</option>
+                                    {% for order in orders %}
+                                    <option value="{{ order.id }}">Order #{{ order.id }} - {{ order.user.get_full_name|default:order.user.username }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-12">
+                            <div class="form-card">
+                                <div class="form-label">
+                                    <i class="fas fa-map-marker-alt me-1"></i> Address <span class="text-danger">*</span>
+                                </div>
+                                <textarea class="form-control" id="create_address" rows="2" placeholder="Enter delivery/pickup address" required></textarea>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-card">
+                                <div class="form-label">
+                                    <i class="fas fa-user-tie me-1"></i> Delivery Person
+                                </div>
+                                <select class="form-select" id="create_delivery_person">
+                                    <option value="">Select Delivery Person</option>
+                                    {% for person in delivery_persons %}
+                                    <option value="{{ person.id }}">{{ person.user.get_full_name|default:person.user.username }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-card">
+                                <div class="form-label">
+                                    <i class="fas fa-tag me-1"></i> Status <span class="text-danger">*</span>
+                                </div>
+                                <select class="form-select" id="create_status" required>
+                                    <option value="pending">Pending</option>
+                                    <option value="assigned">Assigned</option>
+                                    <option value="picked">Picked</option>
+                                    <option value="delivered">Delivered</option>
+                                    <option value="cancelled">Cancelled</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-card">
+                                <div class="form-label">
+                                    <i class="fas fa-clock me-1"></i> Purpose <span class="text-danger">*</span>
+                                </div>
+                                <select class="form-select" id="create_purpose" required>
+                                    <option value="delivery">Delivery</option>
+                                    <option value="pickup">Pickup</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-card">
+                                <div class="form-label">
+                                    <i class="fas fa-calendar-check me-1"></i> Delivered At
+                                </div>
+                                <input type="datetime-local" class="form-control" id="create_delivered_at">
+                            </div>
+                        </div>
+                        <div class="col-12">
+                            <div class="form-card">
+                                <div class="form-label">
+                                    <i class="fas fa-toggle-on me-1"></i> Status
+                                </div>
+                                <div class="form-check form-switch">
+                                    <input class="form-check-input" type="checkbox" id="create_is_active" checked>
+                                    <label class="form-check-label" for="create_is_active">Active</label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-light px-4" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-primary px-4" onclick="createDelivery()" id="createDeliveryBtn" style="background: var(--info-gradient); border: none;">
+                    <i class="fas fa-check-circle me-2"></i>Create
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Edit Delivery Modal -->
+<div class="modal fade" id="editDeliveryModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">
+                    <i class="fas fa-edit me-2"></i>Edit Delivery/Pickup
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body position-relative" style="min-height: 400px;">
+                <!-- Loading Overlay -->
+                <div class="modal-body-loading" id="editModalLoading" style="display: none;">
+                    <div class="loading-content">
+                        <div class="spinner"></div>
+                        <p>Loading delivery data...</p>
+                    </div>
+                </div>
+                
+                <!-- Profile Section -->
+                <div class="profile-section" id="editProfileSection">
+                    <div class="delivery-avatar-lg" id="editPurposeIcon">
+                        <i class="fas fa-truck"></i>
+                    </div>
+                    <h5 class="mt-3 mb-0 fw-bold" id="editDeliveryTitle">Loading...</h5>
+                    <p class="text-muted small" id="editDeliveryId">ID: #0</p>
+                </div>
+
+                <!-- Form in Cards -->
+                <form id="editDeliveryForm">
+                    {% csrf_token %}
+                    <input type="hidden" id="edit_delivery_id">
+                    <div class="row g-3">
+                        <div class="col-12">
+                            <div class="form-card">
+                                <div class="form-label">
+                                    <i class="fas fa-shopping-cart me-1"></i> Order <span class="text-danger">*</span>
+                                </div>
+                                <select class="form-select" id="edit_order" required>
+                                    <option value="">Select Order</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-12">
+                            <div class="form-card">
+                                <div class="form-label">
+                                    <i class="fas fa-map-marker-alt me-1"></i> Address <span class="text-danger">*</span>
+                                </div>
+                                <textarea class="form-control" id="edit_address" rows="2" required></textarea>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-card">
+                                <div class="form-label">
+                                    <i class="fas fa-user-tie me-1"></i> Delivery Person
+                                </div>
+                                <select class="form-select" id="edit_delivery_person">
+                                    <option value="">Select Delivery Person</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-card">
+                                <div class="form-label">
+                                    <i class="fas fa-tag me-1"></i> Status <span class="text-danger">*</span>
+                                </div>
+                                <select class="form-select" id="edit_status" required>
+                                    <option value="pending">Pending</option>
+                                    <option value="assigned">Assigned</option>
+                                    <option value="picked">Picked</option>
+                                    <option value="delivered">Delivered</option>
+                                    <option value="cancelled">Cancelled</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-card">
+                                <div class="form-label">
+                                    <i class="fas fa-clock me-1"></i> Purpose <span class="text-danger">*</span>
+                                </div>
+                                <select class="form-select" id="edit_purpose" required>
+                                    <option value="delivery">Delivery</option>
+                                    <option value="pickup">Pickup</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-card">
+                                <div class="form-label">
+                                    <i class="fas fa-calendar-check me-1"></i> Delivered At
+                                </div>
+                                <input type="datetime-local" class="form-control" id="edit_delivered_at">
+                            </div>
+                        </div>
+                        <div class="col-12">
+                            <div class="form-card">
+                                <div class="form-label">
+                                    <i class="fas fa-toggle-on me-1"></i> Status
+                                </div>
+                                <div class="form-check form-switch">
+                                    <input class="form-check-input" type="checkbox" id="edit_is_active" checked>
+                                    <label class="form-check-label" for="edit_is_active">Active</label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-light px-4" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-primary px-4" onclick="updateDelivery()" id="updateDeliveryBtn" style="background: var(--info-gradient); border: none;">
+                    <i class="fas fa-save me-2"></i>Update
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- View Delivery Modal -->
+<div class="modal fade" id="viewDeliveryModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">
+                    <i class="fas fa-info-circle me-2"></i>Delivery/Pickup Details
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div id="viewDeliveryContent">
+                    <!-- Dynamic content will be loaded here -->
+                    <div class="text-center py-5">
+                        <div class="spinner mx-auto"></div>
+                        <p class="mt-3 text-muted">Loading delivery details...</p>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-light px-4" data-bs-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-warning px-4" onclick="editFromView()" id="editFromViewBtn" style="background: #fbbf24; border: none; color: white;">
+                    <i class="fas fa-edit me-2"></i>Edit
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Toast Notification -->
+<div class="toast-notification" id="toast" style="display: none;"></div>
+
+<script>
+    // Enum mappings
+    const PURPOSE_MAP = {
+        1: 'delivery',
+        2: 'pickup'
+    };
+    
+    const STATUS_MAP = {
+        1: 'pending',
+        2: 'assigned',
+        3: 'picked',
+        4: 'delivered',
+        5: 'cancelled'
+    };
+
+    // Initialize tooltips
+    document.addEventListener('DOMContentLoaded', function() {
+        var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+        tooltipTriggerList.map(function(tooltipTriggerEl) {
+            return new bootstrap.Tooltip(tooltipTriggerEl);
+        });
+        
+        // Attach status toggle listeners
+        attachStatusToggleListeners();
+    });
+
+    // Show toast notification
+    function showToast(message, type = 'success') {
+        const toast = document.getElementById('toast');
+        const bgColor = type === 'success' ? 'linear-gradient(135deg, #43e97b, #38f9d7)' : 'linear-gradient(135deg, #f093fb, #f5576c)';
+        const icon = type === 'success' ? 'check-circle' : 'exclamation-circle';
+        
+        toast.innerHTML = `
+            <div class="alert border-0 text-white shadow-lg" style="background: ${bgColor};">
+                <i class="fas fa-${icon} me-2"></i>
+                ${message}
+            </div>
+        `;
+        toast.style.display = 'block';
+        setTimeout(() => {
+            toast.style.display = 'none';
+        }, 3000);
+    }
+
+    // Create delivery row HTML
+    function createDeliveryRow(delivery) {
+        const purposeClass = delivery.purpose === 'delivery' ? 'purpose-delivery' : 'purpose-pickup';
+        const purposeIcon = delivery.purpose === 'delivery' ? 'fa-truck' : 'fa-store';
+        const purposeText = delivery.purpose === 'delivery' ? 'Delivery' : 'Pickup';
+        
+        let statusClass = 'status-pending';
+        let statusText = delivery.status || 'Pending';
+        
+        if (delivery.status === 'assigned') {
+            statusClass = 'status-assigned';
+            statusText = 'Assigned';
+        } else if (delivery.status === 'picked') {
+            statusClass = 'status-picked';
+            statusText = 'Picked';
+        } else if (delivery.status === 'delivered') {
+            statusClass = 'status-delivered';
+            statusText = 'Delivered';
+        } else if (delivery.status === 'cancelled') {
+            statusClass = 'status-cancelled';
+            statusText = 'Cancelled';
+        }
+        
+        const deliveryPersonHtml = delivery.delivery_person_name 
+            ? `<div class="d-flex align-items-center gap-2"><i class="fas fa-user-circle text-primary"></i> ${delivery.delivery_person_name}</div>`
+            : '<span class="text-muted">Unassigned</span>';
+
+        return `
+            <tr id="delivery-row-${delivery.id}" data-delivery-id="${delivery.id}">
+                <td><span class="fw-semibold">#${delivery.id}</span></td>
+                <td>
+                    <div class="d-flex align-items-center gap-2">
+                        <span class="fw-semibold">Order #${delivery.order_id}</span>
+                    </div>
+                </td>
+                <td>
+                    <div class="purpose-badge ${purposeClass}">
+                        <i class="fas ${purposeIcon}"></i> ${purposeText}
+                    </div>
+                </td>
+                <td>
+                    <span class="text-truncate d-inline-block" style="max-width: 150px;" 
+                          data-bs-toggle="tooltip" title="${delivery.address}">
+                        ${delivery.address.substring(0, 30)}...
+                    </span>
+                </td>
+                <td>${deliveryPersonHtml}</td>
+                <td>
+                    <span class="status-badge ${statusClass}">${statusText}</span>
+                </td>
+                <td>
+                    <div class="form-check form-switch">
+                        <input class="form-check-input status-toggle" type="checkbox" 
+                            data-delivery-id="${delivery.id}"
+                            ${delivery.is_active ? 'checked' : ''}>
+                    </div>
+                </td>
+                <td>
+                    <div class="d-flex gap-2">
+                        <button class="btn-action btn-view" onclick="viewDeliveryDetails(${delivery.id})" 
+                                data-bs-toggle="tooltip" title="View Details">
+                            <i class="fas fa-eye"></i>
+                        </button>
+                        <button class="btn-action btn-edit" onclick="editDelivery(${delivery.id})" 
+                                data-bs-toggle="tooltip" title="Edit">
+                            <i class="fas fa-edit"></i>
+                        </button>
+                    </div>
+                </td>
+            </tr>
+        `;
+    }
+
+    // Update table after save
+    function updateTableAfterSave(delivery, action = 'create') {
+        const tableContainer = document.getElementById('deliveriesTableContainer');
+        const existingRow = document.getElementById(`delivery-row-${delivery.id}`);
+        
+        if (action === 'create') {
+            if (tableContainer.innerHTML.includes('No Deliveries/Pickups Found')) {
+                tableContainer.innerHTML = `
+                    <div class="table-container animate__animated animate__fadeInUp">
+                        <div class="table-responsive">
+                            <table class="table table-hover align-middle mb-0" id="deliveriesTable">
+                                <thead>
+                                    <tr>
+                                        <th>ID</th>
+                                        <th>Order</th>
+                                        <th>Type</th>
+                                        <th>Address</th>
+                                        <th>Delivery Person</th>
+                                        <th>Status</th>
+                                        <th>Toggle</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="deliveriesTableBody">
+                                    ${createDeliveryRow(delivery)}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                `;
+            } else {
+                const tbody = document.getElementById('deliveriesTableBody');
+                if (tbody) {
+                    tbody.insertAdjacentHTML('beforeend', createDeliveryRow(delivery));
+                }
+            }
+            
+            setTimeout(() => {
+                const newRow = document.getElementById(`delivery-row-${delivery.id}`);
+                if (newRow) {
+                    newRow.classList.add('row-highlight');
+                }
+            }, 100);
+        } else if (action === 'update' && existingRow) {
+            existingRow.outerHTML = createDeliveryRow(delivery);
+            
+            setTimeout(() => {
+                const updatedRow = document.getElementById(`delivery-row-${delivery.id}`);
+                if (updatedRow) {
+                    updatedRow.classList.add('row-highlight');
+                }
+            }, 100);
+        }
+        
+        // Reinitialize tooltips
+        var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+        tooltipTriggerList.map(function(tooltipTriggerEl) {
+            return new bootstrap.Tooltip(tooltipTriggerEl);
+        });
+        
+        // Reattach status toggle listeners
+        attachStatusToggleListeners();
+    }
+
+    // Attach status toggle listeners
+    function attachStatusToggleListeners() {
+        document.querySelectorAll('.status-toggle').forEach(toggle => {
+            toggle.removeEventListener('change', handleStatusChange);
+            toggle.addEventListener('change', handleStatusChange);
+        });
+    }
+
+    // Handle status change
+    function handleStatusChange(event) {
+        const toggle = event.target;
+        const deliveryId = toggle.dataset.deliveryId;
+        const isActive = toggle.checked;
+        
+        fetch('/admin/api/deliveries/toggle-active/', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': '{{ csrf_token }}'
+            },
+            body: JSON.stringify({
+                delivery_id: deliveryId,
+                is_active: isActive
+            })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                showToast(`Delivery status updated to ${isActive ? 'Active' : 'Inactive'}`, 'success');
+            } else {
+                showToast(data.error || 'Error updating status', 'error');
+                toggle.checked = !isActive;
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            showToast('Error updating delivery status', 'error');
+            toggle.checked = !isActive;
+        });
+    }
+
+    // Create delivery
+    function createDelivery() {
+        const btn = document.getElementById('createDeliveryBtn');
+        const formData = new FormData();
+        
+        const orderInput = document.getElementById('create_order');
+        const addressInput = document.getElementById('create_address');
+        const statusInput = document.getElementById('create_status');
+        const purposeInput = document.getElementById('create_purpose');
+        
+        if (!orderInput.value) {
+            showToast('Please select an order', 'error');
+            return;
+        }
+        if (!addressInput.value) {
+            showToast('Address is required', 'error');
+            return;
+        }
+        if (!statusInput.value) {
+            showToast('Please select a status', 'error');
+            return;
+        }
+        if (!purposeInput.value) {
+            showToast('Please select a purpose', 'error');
+            return;
+        }
+        
+        formData.append('order', orderInput.value);
+        formData.append('address', addressInput.value);
+        formData.append('delivery_person', document.getElementById('create_delivery_person').value);
+        formData.append('status', statusInput.value);
+        formData.append('purpose', purposeInput.value);
+        formData.append('delivered_at', document.getElementById('create_delivered_at').value);
+        formData.append('is_active', document.getElementById('create_is_active').checked);
+        formData.append('csrfmiddlewaretoken', '{{ csrf_token }}');
+        
+        btn.disabled = true;
+        btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Creating...';
+
+        fetch('/admin/api/deliveries/create/', {
+            method: 'POST',
+            body: formData
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                showToast(data.message, 'success');
+                
+                // Close modal
+                bootstrap.Modal.getInstance(document.getElementById('createDeliveryModal')).hide();
+                
+                // Reset form
+                document.getElementById('createDeliveryForm').reset();
+                document.getElementById('create_is_active').checked = true;
+                
+                // Add new delivery to table
+                updateTableAfterSave(data.delivery, 'create');
+            } else {
+                showToast(data.error || 'Error creating delivery', 'error');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            showToast('Error creating delivery', 'error');
+        })
+        .finally(() => {
+            btn.disabled = false;
+            btn.innerHTML = '<i class="fas fa-check-circle me-2"></i>Create';
+        });
+    }
+
+    // Edit delivery
+    function editDelivery(deliveryId) {
+        const modal = new bootstrap.Modal(document.getElementById('editDeliveryModal'));
+        const loadingOverlay = document.getElementById('editModalLoading');
+        
+        modal.show();
+        loadingOverlay.style.display = 'flex';
+        
+        // Clear previous data
+        document.getElementById('edit_delivery_id').value = '';
+        document.getElementById('edit_address').value = '';
+        document.getElementById('edit_delivered_at').value = '';
+        document.getElementById('edit_is_active').checked = true;
+        
+        // Clear dropdowns
+        const orderSelect = document.getElementById('edit_order');
+        const personSelect = document.getElementById('edit_delivery_person');
+        orderSelect.innerHTML = '<option value="">Select Order</option>';
+        personSelect.innerHTML = '<option value="">Select Delivery Person</option>';
+        
+        // Reset profile section
+        document.getElementById('editDeliveryTitle').textContent = 'Loading...';
+        document.getElementById('editDeliveryId').textContent = 'ID: #0';
+        
+        fetch(`/admin/api/deliveries/${deliveryId}/`)
+            .then(response => response.json())
+            .then(delivery => {
+                console.log('Received delivery data:', delivery);
+                
+                // Populate orders dropdown
+                if (delivery.orders_list && delivery.orders_list.length > 0) {
+                    delivery.orders_list.forEach(order => {
+                        const option = document.createElement('option');
+                        option.value = order.id;
+                        option.textContent = order.display;
+                        orderSelect.appendChild(option);
+                    });
+                }
+                
+                // Populate delivery persons dropdown
+                if (delivery.delivery_persons_list && delivery.delivery_persons_list.length > 0) {
+                    delivery.delivery_persons_list.forEach(person => {
+                        const option = document.createElement('option');
+                        option.value = person.id;
+                        option.textContent = person.display;
+                        personSelect.appendChild(option);
+                    });
+                }
+                
+                // Map purpose integer to string value
+                let purposeValue = 'delivery';
+                if (delivery.purpose === 1 || delivery.purpose_display === 'DELIVERY') {
+                    purposeValue = 'delivery';
+                } else if (delivery.purpose === 2 || delivery.purpose_display === 'PICKUP') {
+                    purposeValue = 'pickup';
+                }
+                
+                // Map status integer to string value
+                let statusValue = 'pending';
+                if (delivery.status === 1 || delivery.status_display === 'PENDING') {
+                    statusValue = 'pending';
+                } else if (delivery.status === 2 || delivery.status_display === 'ASSIGNED') {
+                    statusValue = 'assigned';
+                } else if (delivery.status === 3 || delivery.status_display === 'PICKED') {
+                    statusValue = 'picked';
+                } else if (delivery.status === 4 || delivery.status_display === 'DELIVERED') {
+                    statusValue = 'delivered';
+                } else if (delivery.status === 5 || delivery.status_display === 'CANCELLED') {
+                    statusValue = 'cancelled';
+                }
+                
+                // Update profile section
+                document.getElementById('editDeliveryTitle').textContent = 
+                    purposeValue === 'delivery' ? 'Delivery' : 'Pickup';
+                document.getElementById('editDeliveryId').textContent = `ID: #${delivery.id}`;
+                
+                // Update icon based on purpose
+                const iconElement = document.querySelector('#editPurposeIcon i');
+                if (iconElement) {
+                    iconElement.className = purposeValue === 'delivery' ? 'fas fa-truck' : 'fas fa-store';
+                }
+                
+                // Populate form
+                document.getElementById('edit_delivery_id').value = delivery.id;
+                document.getElementById('edit_order').value = delivery.order_id || '';
+                document.getElementById('edit_address').value = delivery.address || '';
+                document.getElementById('edit_delivery_person').value = delivery.delivery_person?.id || '';
+                document.getElementById('edit_status').value = statusValue;
+                document.getElementById('edit_purpose').value = purposeValue;
+                
+                if (delivery.delivered_at) {
+                    let deliveredAt = delivery.delivered_at;
+                    if (deliveredAt.includes(' ')) {
+                        deliveredAt = deliveredAt.replace(' ', 'T');
+                    }
+                    if (deliveredAt.length > 16) {
+                        deliveredAt = deliveredAt.substring(0, 16);
+                    }
+                    document.getElementById('edit_delivered_at').value = deliveredAt;
+                }
+                
+                document.getElementById('edit_is_active').checked = delivery.is_active;
+                
+                loadingOverlay.style.display = 'none';
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                showToast('Error loading delivery data: ' + error.message, 'error');
+                loadingOverlay.style.display = 'none';
+                bootstrap.Modal.getInstance(document.getElementById('editDeliveryModal')).hide();
+            });
+    }
+
+    // Update delivery
+    function updateDelivery() {
+        const btn = document.getElementById('updateDeliveryBtn');
+        const deliveryId = document.getElementById('edit_delivery_id').value;
+        const formData = new FormData();
+        
+        const orderInput = document.getElementById('edit_order');
+        const addressInput = document.getElementById('edit_address');
+        const statusInput = document.getElementById('edit_status');
+        const purposeInput = document.getElementById('edit_purpose');
+        
+        if (!orderInput.value) {
+            showToast('Please select an order', 'error');
+            return;
+        }
+        if (!addressInput.value) {
+            showToast('Address is required', 'error');
+            return;
+        }
+        if (!statusInput.value) {
+            showToast('Please select a status', 'error');
+            return;
+        }
+        if (!purposeInput.value) {
+            showToast('Please select a purpose', 'error');
+            return;
+        }
+        
+        formData.append('order', orderInput.value);
+        formData.append('address', addressInput.value);
+        formData.append('delivery_person', document.getElementById('edit_delivery_person').value);
+        formData.append('status', statusInput.value);
+        formData.append('purpose', purposeInput.value);
+        formData.append('delivered_at', document.getElementById('edit_delivered_at').value);
+        formData.append('is_active', document.getElementById('edit_is_active').checked);
+        formData.append('csrfmiddlewaretoken', '{{ csrf_token }}');
+        
+        btn.disabled = true;
+        btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Updating...';
+
+        fetch(`/admin/api/deliveries/${deliveryId}/update/`, {
+            method: 'POST',
+            body: formData
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                showToast(data.message, 'success');
+                
+                // Close modal
+                bootstrap.Modal.getInstance(document.getElementById('editDeliveryModal')).hide();
+                
+                // Update delivery in table
+                updateTableAfterSave(data.delivery, 'update');
+            } else {
+                showToast(data.error || 'Error updating delivery', 'error');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            showToast('Error updating delivery', 'error');
+        })
+        .finally(() => {
+            btn.disabled = false;
+            btn.innerHTML = '<i class="fas fa-save me-2"></i>Update';
+        });
+    }
+
+    // View delivery details
+    function viewDeliveryDetails(deliveryId) {
+        const modal = new bootstrap.Modal(document.getElementById('viewDeliveryModal'));
+        const content = document.getElementById('viewDeliveryContent');
+        
+        modal.show();
+        content.innerHTML = `
+            <div class="text-center py-5">
+                <div class="spinner mx-auto"></div>
+                <p class="mt-3 text-muted">Loading delivery details...</p>
+            </div>
+        `;
+        
+        fetch(`/admin/api/deliveries/${deliveryId}/`)
+            .then(response => response.json())
+            .then(delivery => {
+                const purposeIcon = delivery.purpose === 1 ? 'fa-truck' : 'fa-store';
+                const purposeColor = delivery.purpose === 1 ? '#3b8cff' : '#f59e0b';
+                const purposeText = delivery.purpose === 1 ? 'Delivery' : 'Pickup';
+                
+                let statusClass = 'status-pending';
+                let statusText = delivery.status_display || 'Pending';
+                
+                if (delivery.status === 2) {
+                    statusClass = 'status-assigned';
+                } else if (delivery.status === 3) {
+                    statusClass = 'status-picked';
+                } else if (delivery.status === 4) {
+                    statusClass = 'status-delivered';
+                } else if (delivery.status === 5) {
+                    statusClass = 'status-cancelled';
+                }
+                
+                content.innerHTML = `
+                    <div class="text-center mb-4">
+                        <div class="delivery-avatar-lg" style="background: linear-gradient(135deg, ${purposeColor}, ${purposeColor}dd);">
+                            <i class="fas ${purposeIcon}"></i>
+                        </div>
+                        <h4 class="mt-4 mb-1 fw-bold">${purposeText}</h4>
+                        <p class="text-muted mb-3">Delivery ID: #${delivery.id}</p>
+                        <div class="d-flex justify-content-center gap-2">
+                            <span class="${statusClass} px-3 py-2 rounded-pill">
+                                ${statusText}
+                            </span>
+                        </div>
+                    </div>
+                    
+                    <div class="info-grid">
+                        <div class="info-item">
+                            <div class="info-label">
+                                <i class="fas fa-shopping-cart me-1"></i> Order
+                            </div>
+                            <div class="info-value">#${delivery.order_id}</div>
+                            <small class="text-muted">${delivery.order_details?.user_name || ''}</small>
+                        </div>
+                        
+                        <div class="info-item">
+                            <div class="info-label">
+                                <i class="fas fa-phone me-1"></i> Customer Phone
+                            </div>
+                            <div class="info-value">${delivery.order_details?.user_phone || 'N/A'}</div>
+                        </div>
+                    </div>
+                    
+                    <div class="detail-card mb-3">
+                        <div class="detail-label">
+                            <i class="fas fa-map-marker-alt me-1"></i> Address
+                        </div>
+                        <div class="detail-value">${delivery.address}</div>
+                    </div>
+                    
+                    <div class="info-grid">
+                        <div class="info-item">
+                            <div class="info-label">
+                                <i class="fas fa-user-tie me-1"></i> Delivery Person
+                            </div>
+                            <div class="detail-value">
+                                ${delivery.delivery_person?.name ? 
+                                    `<div><i class="fas fa-user-circle text-primary me-2"></i>${delivery.delivery_person.name}</div>
+                                     <small class="text-muted">${delivery.delivery_person.phone || ''}</small>` 
+                                    : 'Unassigned'}
+                            </div>
+                        </div>
+                        
+                        <div class="info-item">
+                            <div class="info-label">
+                                <i class="fas fa-calendar me-1"></i> Created At
+                            </div>
+                            <div class="detail-value">${delivery.created_at || 'N/A'}</div>
+                        </div>
+                        
+                        <div class="info-item">
+                            <div class="info-label">
+                                <i class="fas fa-check-circle me-1"></i> Delivered At
+                            </div>
+                            <div class="detail-value">${delivery.delivered_at || 'Not delivered'}</div>
+                        </div>
+                        
+                        <div class="info-item">
+                            <div class="info-label">
+                                <i class="fas fa-toggle-on me-1"></i> Status
+                            </div>
+                            <div class="detail-value">
+                                ${delivery.is_active ? 
+                                    '<span class="text-success"><i class="fas fa-circle me-1" style="font-size: 8px;"></i>Active</span>' : 
+                                    '<span class="text-danger"><i class="fas fa-circle me-1" style="font-size: 8px;"></i>Inactive</span>'}
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="detail-card mt-3">
+                        <div class="detail-label">
+                            <i class="fas fa-box me-1"></i> Order Summary
+                        </div>
+                        <div class="d-flex justify-content-between align-items-center">
+                            <span>Total Items: ${delivery.order_details?.items_count || 0}</span>
+                            <span class="fw-bold">Total: ₹${delivery.order_details?.total_price || '0.00'}</span>
+                        </div>
+                    </div>
+                `;
+                
+                document.getElementById('editFromViewBtn').setAttribute('data-delivery-id', delivery.id);
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                content.innerHTML = `
+                    <div class="text-center py-5 text-danger">
+                        <i class="fas fa-exclamation-triangle fa-3x mb-3"></i>
+                        <p>Error loading delivery details. Please try again.</p>
+                    </div>
+                `;
+            });
+    }
+
+    // Edit from view modal
+    function editFromView() {
+        const deliveryId = document.getElementById('editFromViewBtn').getAttribute('data-delivery-id');
+        if (deliveryId) {
+            bootstrap.Modal.getInstance(document.getElementById('viewDeliveryModal')).hide();
+            setTimeout(() => editDelivery(deliveryId), 500);
+        }
+    }
+
+    // Reset forms when modals are closed
+    document.getElementById('createDeliveryModal').addEventListener('hidden.bs.modal', function () {
+        document.getElementById('createDeliveryForm').reset();
+        document.getElementById('create_is_active').checked = true;
+    });
+    
+    document.getElementById('editDeliveryModal').addEventListener('hidden.bs.modal', function () {
+        const loadingOverlay = document.getElementById('editModalLoading');
+        loadingOverlay.style.display = 'none';
+        document.getElementById('edit_is_active').checked = true;
+    });
+</script>
+{% endblock %}

@@ -1,5 +1,5 @@
-from E_mart.models import ExchangeOrReturn,Order,OrderItem,ExOrReItems
-from E_mart.services import order_service
+from E_mart.models import ExchangeOrReturn,Order,OrderItem,ExOrReItems,User
+from django.utils import timezone
 from E_mart.constants.default_values import ExchangeOrReturnStatus,ExOrRePurpose
 from django.db import transaction
 from django.core.exceptions import ValidationError
@@ -82,45 +82,115 @@ def get_exchange_return_by_id_for_user(pickup_id, user):
 
 
 
-#admin
-
 def get_all_exchanges():
-    return ExchangeOrReturn.objects.select_related('order', 'user').all()
+    return ExchangeOrReturn.objects.select_related('order', 'user').prefetch_related('exchange_return_items__order_item__product').all()
 
 def get_exchange_by_id(exchange_id):
-    return ExchangeOrReturn.objects.select_related('order', 'user').get(id=exchange_id)
+    return ExchangeOrReturn.objects.select_related('order', 'user').prefetch_related('exchange_return_items__order_item__product').get(id=exchange_id)
 
-def exchange_create(order_id, order_item_id, user_id, product_id, reason, status, purpose, is_active):
-    from E_mart.models import Order, OrderItem, User, Product
-    order = Order.objects.get(id=order_id)
-    order_item = OrderItem.objects.get(id=order_item_id)
-    user = User.objects.get(id=user_id)
-    product = Product.objects.get(id=product_id)
+@transaction.atomic
+def exchange_create(order_id, order_item_ids, user_id, reason, status, purpose, is_active):
+    """
+    Create an exchange/return request with multiple items
+    order_item_ids: list of order item IDs or comma-separated string
+    """
+    from E_mart.models import Order, User
     
+    order = Order.objects.get(id=order_id)
+    user = User.objects.get(id=user_id)
+    
+    # Parse order item IDs
+    if isinstance(order_item_ids, str):
+        item_ids = [int(id.strip()) for id in order_item_ids.split(',') if id.strip()]
+    else:
+        item_ids = order_item_ids or []
+    
+    # Calculate total from order items
+    total = 0
+    order_items = []
+    for item_id in item_ids:
+        try:
+            order_item = OrderItem.objects.select_related('product').get(id=item_id, order=order)
+            order_items.append(order_item)
+            total += order_item.product.price * order_item.quantity
+        except OrderItem.DoesNotExist:
+            continue
+    
+    # Create exchange request
     exchange = ExchangeOrReturn.objects.create(
         order=order,
-        order_item=order_item,
         user=user,
         reason=reason,
+        total=total,
         status=int(status),
         purpose=int(purpose),
         is_active=is_active
     )
+    
+    # Create exchange items
+    for order_item in order_items:
+        ExOrReItems.objects.create(
+            exchange_or_return=exchange,
+            order_item=order_item,
+            quantity=order_item.quantity,
+            is_active=True
+        )
+    
     return exchange
 
-def exchange_update(exchange_id, order_id, order_item_id, user_id, product_id, reason, status, purpose, is_active):
+@transaction.atomic
+def exchange_update(exchange_id, order_id, order_item_ids, user_id, reason, status, purpose, is_active):
+    """
+    Update an exchange/return request
+    """
     exchange = get_exchange_by_id(exchange_id)
-    from E_mart.models import Order, OrderItem, User, Product
+    
     order = Order.objects.get(id=order_id)
     user = User.objects.get(id=user_id)
     
+    # Parse order item IDs
+    if isinstance(order_item_ids, str):
+        item_ids = [int(id.strip()) for id in order_item_ids.split(',') if id.strip()]
+    else:
+        item_ids = order_item_ids or []
+    
+    # Calculate new total
+    total = 0
+    order_items = []
+    for item_id in item_ids:
+        try:
+            order_item = OrderItem.objects.select_related('product').get(id=item_id, order=order)
+            order_items.append(order_item)
+            total += order_item.product.price * order_item.quantity
+        except OrderItem.DoesNotExist:
+            continue
+    
+    # Update exchange
     exchange.order = order
     exchange.user = user
     exchange.reason = reason
+    exchange.total = total
     exchange.status = int(status)
     exchange.purpose = int(purpose)
     exchange.is_active = is_active
+    
+    # Update processed date if status changes to approved/rejected
+    if int(status) in [ExchangeOrReturnStatus.APPROVED.value, ExchangeOrReturnStatus.REJECTED.value]:
+        exchange.processed_date = timezone.now()
+    
     exchange.save()
+    
+    # Update items - delete old and create new
+    exchange.exchange_return_items.all().delete()
+    
+    for order_item in order_items:
+        ExOrReItems.objects.create(
+            exchange_or_return=exchange,
+            order_item=order_item,
+            quantity=order_item.quantity,
+            is_active=True
+        )
+    
     return exchange
 
 def toggle_active_exchange(exchange_id, is_active):
@@ -129,12 +199,20 @@ def toggle_active_exchange(exchange_id, is_active):
     exchange.save()
     return exchange
 
-
 def get_all_unassigned_exchanges():
-    return ExchangeOrReturn.objects.filter(status = ExchangeOrReturnStatus.PENDING.value, is_active = True)
+    return ExchangeOrReturn.objects.filter(
+        status=ExchangeOrReturnStatus.PENDING.value, 
+        is_active=True
+    ).select_related('order', 'user').prefetch_related('exchange_return_items__order_item__product')
 
 def get_exchange_data_by_order(order):
-    return ExchangeOrReturn.objects.filter(order = order,is_active = True).first()
+    return ExchangeOrReturn.objects.filter(
+        order=order, 
+        is_active=True
+    ).first()
 
-def get_exchnage_or_return(pickup):
-    return ExchangeOrReturn.objects.filter(order = pickup.order,is_active = True).first()
+def get_exchange_or_return(pickup):
+    return ExchangeOrReturn.objects.filter(
+        order=pickup.order, 
+        is_active=True
+    ).first()

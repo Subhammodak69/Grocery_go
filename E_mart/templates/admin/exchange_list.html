@@ -1,0 +1,1699 @@
+{% extends "admin/home.html" %}
+{% load static %}
+{% block title %}Exchange Requests Management{% endblock %}
+{% block content %}
+<style>
+    /* Custom styles complementing Bootstrap */
+    :root {
+        --primary-gradient: linear-gradient(135deg, #667eea, #764ba2);
+        --success-gradient: linear-gradient(135deg, #43e97b, #38f9d7);
+        --warning-gradient: linear-gradient(135deg, #fa709a, #fee140);
+        --danger-gradient: linear-gradient(135deg, #f093fb, #f5576c);
+        --info-gradient: linear-gradient(135deg, #3b8cff, #6f4cf2);
+    }
+    
+    .exchange-avatar-sm {
+        width: 40px;
+        height: 40px;
+        background: var(--warning-gradient);
+        color: white;
+        border-radius: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 600;
+        font-size: 18px;
+        box-shadow: 0 4px 10px rgba(250, 112, 154, 0.3);
+    }
+    
+    .exchange-avatar-lg {
+        width: 100px;
+        height: 100px;
+        background: var(--warning-gradient);
+        color: white;
+        border-radius: 20px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 40px;
+        font-weight: 600;
+        margin: 0 auto;
+        box-shadow: 0 10px 25px rgba(250, 112, 154, 0.4);
+        animation: float 3s ease-in-out infinite;
+    }
+    
+    .purpose-badge {
+        padding: 0.5rem 1rem;
+        border-radius: 30px;
+        font-weight: 500;
+        font-size: 0.8rem;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+    
+    .purpose-exchange {
+        background: linear-gradient(135deg, #3b8cff20, #6f4cf220);
+        color: #3b8cff;
+        border: 1px solid #3b8cff40;
+    }
+    
+    .purpose-return {
+        background: linear-gradient(135deg, #f59e0b20, #fbbf2420);
+        color: #f59e0b;
+        border: 1px solid #f59e0b40;
+    }
+    
+    .status-badge {
+        padding: 0.4rem 1rem;
+        border-radius: 30px;
+        font-weight: 500;
+        font-size: 0.75rem;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+    
+    .status-pending {
+        background: #fef3c7;
+        color: #d97706;
+    }
+    
+    .status-processing {
+        background: #dbeafe;
+        color: #2563eb;
+    }
+    
+    .status-approved {
+        background: #dcfce7;
+        color: #16a34a;
+    }
+    
+    .status-rejected {
+        background: #fee2e2;
+        color: #dc2626;
+    }
+    
+    .page-header {
+        background: white;
+        border-radius: 20px;
+        padding: 1.5rem;
+        margin-bottom: 2rem;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+        border: 1px solid rgba(250, 112, 154, 0.1);
+    }
+    
+    .table-container {
+        background: white;
+        border-radius: 20px;
+        padding: 1.5rem;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+        border: 1px solid rgba(250, 112, 154, 0.1);
+    }
+    
+    .table thead th {
+        background: #f8fafc;
+        color: #4a5568;
+        font-weight: 600;
+        font-size: 0.85rem;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        border-bottom: 2px solid #fa709a;
+        padding: 1rem;
+    }
+    
+    .table tbody tr {
+        transition: all 0.2s ease;
+    }
+    
+    .table tbody tr:hover {
+        background: rgba(250, 112, 154, 0.05);
+        transform: scale(1.01);
+        box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+    }
+    
+    .table td {
+        padding: 1rem;
+        vertical-align: middle;
+        border-bottom: 1px solid #edf2f7;
+        max-width: 150px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+    
+    .btn-create {
+        background: var(--warning-gradient);
+        color: white;
+        border: none;
+        padding: 0.75rem 1.8rem;
+        border-radius: 12px;
+        font-weight: 600;
+        font-size: 0.95rem;
+        transition: all 0.3s ease;
+        box-shadow: 0 8px 20px rgba(250, 112, 154, 0.3);
+    }
+    
+    .btn-create:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 12px 25px rgba(250, 112, 154, 0.4);
+        color: white;
+    }
+    
+    .btn-action {
+        width: 38px;
+        height: 38px;
+        border-radius: 10px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        transition: all 0.2s ease;
+        margin: 0 3px;
+        border: none;
+        background: #f1f5f9;
+        color: #4a5568;
+    }
+    
+    .btn-action:hover {
+        transform: translateY(-3px) scale(1.1);
+    }
+    
+    .btn-view:hover {
+        background: #3b8cff;
+        color: white;
+    }
+    
+    .btn-edit:hover {
+        background: #fbbf24;
+        color: white;
+    }
+    
+    .modal-content {
+        border: none;
+        border-radius: 25px;
+        overflow: hidden;
+    }
+    
+    .modal-header {
+        background: var(--warning-gradient);
+        color: white;
+        border: none;
+        padding: 1.8rem 2rem;
+    }
+    
+    .modal-header .btn-close {
+        filter: brightness(0) invert(1);
+        opacity: 0.8;
+    }
+    
+    .modal-header .btn-close:hover {
+        opacity: 1;
+    }
+    
+    .modal-body {
+        padding: 2rem;
+        max-height: 70vh;
+        overflow-y: auto;
+    }
+    
+    .modal-footer {
+        border-top: 1px solid #edf2f7;
+        padding: 1.5rem 2rem;
+    }
+    
+    .form-card {
+        background: #f8fafc;
+        border-radius: 16px;
+        padding: 1.5rem;
+        border: 1px solid #edf2f7;
+        transition: all 0.3s ease;
+    }
+    
+    .form-card:hover {
+        border-color: #fa709a;
+        box-shadow: 0 10px 25px rgba(250, 112, 154, 0.1);
+    }
+    
+    .form-card .form-label {
+        font-size: 0.75rem;
+        text-transform: uppercase;
+        color: #94a3b8;
+        letter-spacing: 0.5px;
+        margin-bottom: 0.5rem;
+        font-weight: 600;
+    }
+    
+    .form-card .form-control, 
+    .form-card .form-select {
+        border-radius: 12px;
+        padding: 0.75rem 1rem;
+        border: 2px solid #edf2f7;
+        transition: all 0.3s ease;
+        background: white;
+    }
+    
+    .form-card .form-control:focus, 
+    .form-card .form-select:focus {
+        border-color: #fa709a;
+        box-shadow: 0 0 0 3px rgba(250, 112, 154, 0.1);
+    }
+    
+    .items-container {
+        max-height: 200px;
+        overflow-y: auto;
+        border: 1px solid #edf2f7;
+        border-radius: 12px;
+        padding: 1rem;
+        background: white;
+    }
+    
+    .item-checkbox {
+        padding: 0.5rem;
+        border-bottom: 1px solid #f1f5f9;
+        transition: all 0.2s ease;
+    }
+    
+    .item-checkbox:hover {
+        background: rgba(250, 112, 154, 0.05);
+    }
+    
+    .item-checkbox:last-child {
+        border-bottom: none;
+    }
+    
+    .item-checkbox .form-check-input:checked {
+        background-color: #fa709a;
+        border-color: #fa709a;
+    }
+    
+    .detail-card {
+        background: #f8fafc;
+        border-radius: 16px;
+        padding: 1.5rem;
+        height: 100%;
+        border: 1px solid #edf2f7;
+        transition: all 0.3s ease;
+    }
+    
+    .detail-card:hover {
+        border-color: #fa709a;
+        transform: translateY(-3px);
+        box-shadow: 0 10px 25px rgba(250, 112, 154, 0.1);
+    }
+    
+    .detail-label {
+        font-size: 0.7rem;
+        text-transform: uppercase;
+        color: #94a3b8;
+        letter-spacing: 0.5px;
+        margin-bottom: 0.5rem;
+    }
+    
+    .detail-value {
+        font-size: 1rem;
+        font-weight: 600;
+        color: #1e293b;
+    }
+    
+    .toast-notification {
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        z-index: 9999;
+        min-width: 350px;
+        animation: slideInRight 0.3s ease;
+    }
+    
+    @keyframes slideInRight {
+        from {
+            transform: translateX(100%);
+            opacity: 0;
+        }
+        to {
+            transform: translateX(0);
+            opacity: 1;
+        }
+    }
+    
+    .empty-state {
+        text-align: center;
+        padding: 4rem 2rem;
+    }
+    
+    .empty-state i {
+        font-size: 5rem;
+        color: #cbd5e1;
+        margin-bottom: 1.5rem;
+    }
+    
+    .status-indicator {
+        display: inline-block;
+        width: 10px;
+        height: 10px;
+        border-radius: 50%;
+        margin-right: 6px;
+    }
+    
+    .status-active {
+        background: #10b981;
+        box-shadow: 0 0 0 2px rgba(16, 185, 129, 0.2);
+    }
+    
+    .status-inactive {
+        background: #ef4444;
+        box-shadow: 0 0 0 2px rgba(239, 68, 68, 0.2);
+    }
+    
+    .spinner {
+        width: 40px;
+        height: 40px;
+        border: 4px solid #e3e3e3;
+        border-top: 4px solid #fa709a;
+        border-radius: 50%;
+        animation: spin 1s linear infinite;
+    }
+    
+    @keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+    }
+    
+    .modal-body-loading {
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(255, 255, 255, 0.9);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 1060;
+        border-radius: 0;
+        backdrop-filter: blur(5px);
+    }
+    
+    .loading-content {
+        text-align: center;
+    }
+    
+    .loading-content .spinner {
+        width: 50px;
+        height: 50px;
+        margin-bottom: 1rem;
+    }
+    
+    @keyframes highlight {
+        0% { background-color: rgba(250, 112, 154, 0.2); }
+        100% { background-color: transparent; }
+    }
+    
+    .row-highlight {
+        animation: highlight 2s ease;
+    }
+    
+    .info-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 1rem;
+        margin-top: 1.5rem;
+    }
+    
+    .info-item {
+        background: white;
+        border-radius: 12px;
+        padding: 1rem;
+        border: 1px solid #edf2f7;
+    }
+    
+    .info-label {
+        font-size: 0.7rem;
+        color: #94a3b8;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        margin-bottom: 0.5rem;
+    }
+    
+    .info-value {
+        font-size: 1.1rem;
+        font-weight: 600;
+        color: #1e293b;
+    }
+    
+    .total-amount {
+        font-size: 1.2rem;
+        font-weight: 700;
+        color: #fa709a;
+    }
+    
+    .select-all-btn {
+        font-size: 0.8rem;
+        padding: 0.25rem 0.5rem;
+        border-radius: 6px;
+        background: #f1f5f9;
+        color: #4a5568;
+        border: none;
+        cursor: pointer;
+        transition: all 0.2s ease;
+    }
+    
+    .select-all-btn:hover {
+        background: #fa709a;
+        color: white;
+    }
+</style>
+
+<div class="container-fluid p-4 custom-scroll">
+    <!-- Page Header -->
+    <div class="page-header animate__animated animate__fadeInDown">
+        <div class="d-flex align-items-center justify-content-between">
+            <div class="d-flex align-items-center gap-3">
+                <div class="exchange-avatar-sm" style="width: 50px; height: 50px; font-size: 24px;">
+                    <i class="fas fa-exchange-alt"></i>
+                </div>
+                <div>
+                    <h2 class="fw-bold mb-1" style="color: #2d3748;">Exchange Requests Management</h2>
+                    <p class="text-muted mb-0">Manage all exchange and return requests in one place</p>
+                </div>
+            </div>
+            <button class="btn-create d-flex align-items-center gap-2" data-bs-toggle="modal" data-bs-target="#createExchangeModal">
+                <i class="fas fa-plus-circle"></i> Create New Exchange Request
+            </button>
+        </div>
+    </div>
+
+    <!-- Exchanges Table Container -->
+    <div id="exchangesTableContainer">
+        {% if exchanges %}
+        <div class="table-container animate__animated animate__fadeInUp">
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0" id="exchangesTable">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Order</th>
+                            <th>User</th>
+                            <th>Items</th>
+                            <th>Reason</th>
+                            <th>Status</th>
+                            <th>Purpose</th>
+                            <th>Total</th>
+                            <th>Request Date</th>
+                            <th>Toggle</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="exchangesTableBody">
+                        {% for exchange in exchanges %}
+                        <tr id="exchange-row-{{ exchange.id }}" data-exchange-id="{{ exchange.id }}">
+                            <td><span class="fw-semibold">#{{ exchange.id }}</span></td>
+                            <td>
+                                <div class="d-flex align-items-center gap-2">
+                                    <span class="fw-semibold">Order #{{ exchange.order.id }}</span>
+                                </div>
+                            </td>
+                            <td>
+                                <div class="d-flex align-items-center gap-2">
+                                    <i class="fas fa-user-circle text-primary"></i>
+                                    {{ exchange.user.username }}
+                                </div>
+                            </td>
+                            <td>
+                                <span class="badge bg-info" data-bs-toggle="tooltip" 
+                                      title="{% for item in exchange.exchange_return_items.all %}{{ item.order_item.product.name }} ({{ item.quantity }})&#10;{% endfor %}">
+                                    {{ exchange.exchange_return_items.count }} item(s)
+                                </span>
+                            </td>
+                            <td>
+                                <span class="text-truncate d-inline-block" style="max-width: 150px;" 
+                                      data-bs-toggle="tooltip" title="{{ exchange.reason }}">
+                                    {{ exchange.reason|truncatechars:30 }}
+                                </span>
+                            </td>
+                            <td>
+                                {% if exchange.status == 1 %}
+                                <span class="status-badge status-pending">Pending</span>
+                                {% elif exchange.status == 2 %}
+                                <span class="status-badge status-processing">Processing</span>
+                                {% elif exchange.status == 3 %}
+                                <span class="status-badge status-approved">Approved</span>
+                                {% elif exchange.status == 4 %}
+                                <span class="status-badge status-rejected">Rejected</span>
+                                {% else %}
+                                <span class="status-badge">{{ exchange.get_status_display }}</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% if exchange.purpose == 1 %}
+                                <div class="purpose-badge purpose-exchange">
+                                    <i class="fas fa-exchange-alt"></i> Exchange
+                                </div>
+                                {% else %}
+                                <div class="purpose-badge purpose-return">
+                                    <i class="fas fa-undo-alt"></i> Return
+                                </div>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <span class="fw-bold">₹{{ exchange.total }}</span>
+                            </td>
+                            <td>{{ exchange.request_date|date:"M d, Y" }}</td>
+                            <td>
+                                <div class="form-check form-switch">
+                                    <input class="form-check-input status-toggle" type="checkbox" 
+                                        data-exchange-id="{{ exchange.id }}"
+                                        {% if exchange.is_active %}checked{% endif %}>
+                                </div>
+                            </td>
+                            <td>
+                                <div class="d-flex gap-2">
+                                    <button class="btn-action btn-view" onclick="viewExchangeDetails({{ exchange.id }})" 
+                                            data-bs-toggle="tooltip" title="View Details">
+                                        <i class="fas fa-eye"></i>
+                                    </button>
+                                    <button class="btn-action btn-edit" onclick="editExchange({{ exchange.id }})" 
+                                            data-bs-toggle="tooltip" title="Edit">
+                                        <i class="fas fa-edit"></i>
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        {% else %}
+        <!-- Empty State -->
+        <div class="table-container text-center py-5 animate__animated animate__fadeIn">
+            <div class="empty-state">
+                <i class="fas fa-exchange-alt text-secondary opacity-25"></i>
+                <h4 class="mt-4 text-secondary">No Exchange Requests Found</h4>
+                <p class="text-muted mb-4">Click the "Create New" button to add your first exchange or return request.</p>
+                <button class="btn-create d-inline-flex align-items-center gap-2" data-bs-toggle="modal" data-bs-target="#createExchangeModal">
+                    <i class="fas fa-plus-circle"></i> Create New Exchange Request
+                </button>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<!-- Create Exchange Modal -->
+<div class="modal fade" id="createExchangeModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">
+                    <i class="fas fa-plus-circle me-2"></i>Create New Exchange Request
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <!-- Profile Section -->
+                <div class="profile-section">
+                    <div class="exchange-avatar-lg">
+                        <i class="fas fa-exchange-alt"></i>
+                    </div>
+                    <h5 class="mt-3 mb-0 fw-bold">New Exchange/Return Request</h5>
+                    <p class="text-muted small">Enter exchange request details below</p>
+                </div>
+
+                <!-- Form in Cards -->
+                <form id="createExchangeForm">
+                    {% csrf_token %}
+                    <div class="row g-3">
+                        <div class="col-12">
+                            <div class="form-card">
+                                <div class="form-label">
+                                    <i class="fas fa-shopping-cart me-1"></i> Order <span class="text-danger">*</span>
+                                </div>
+                                <select class="form-select" id="create_order" required>
+                                    <option value="">Select Order</option>
+                                    {% for order in orders %}
+                                    <option value="{{ order.id }}">Order #{{ order.id }} - {{ order.user.username }} (₹{{ order.total_price }})</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                        </div>
+                        
+                        <div class="col-12">
+                            <div class="form-card">
+                                <div class="d-flex justify-content-between align-items-center mb-2">
+                                    <div class="form-label mb-0">
+                                        <i class="fas fa-box me-1"></i> Order Items <span class="text-danger">*</span>
+                                    </div>
+                                    <button type="button" class="select-all-btn" onclick="toggleSelectAll('create')">
+                                        <i class="fas fa-check-double me-1"></i>Select All
+                                    </button>
+                                </div>
+                                <div id="create_order_items_container" class="items-container">
+                                    <p class="text-muted text-center py-3">Select an order first</p>
+                                </div>
+                                <small class="text-muted">Select at least one item for exchange/return</small>
+                            </div>
+                        </div>
+
+                        <div class="col-12">
+                            <div class="form-card">
+                                <div class="form-label">
+                                    <i class="fas fa-user me-1"></i> User <span class="text-danger">*</span>
+                                </div>
+                                <select class="form-select" id="create_user" required>
+                                    <option value="">Select User</option>
+                                    {% for user in users %}
+                                    <option value="{{ user.id }}">{{ user.username }} ({{ user.email }})</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="col-12">
+                            <div class="form-card">
+                                <div class="form-label">
+                                    <i class="fas fa-comment me-1"></i> Reason <span class="text-danger">*</span>
+                                </div>
+                                <textarea class="form-control" id="create_reason" rows="3" placeholder="Enter reason for exchange/return" required></textarea>
+                            </div>
+                        </div>
+
+                        <div class="col-md-6">
+                            <div class="form-card">
+                                <div class="form-label">
+                                    <i class="fas fa-tag me-1"></i> Status <span class="text-danger">*</span>
+                                </div>
+                                <select class="form-select" id="create_status" required>
+                                    <option value="">Select Status</option>
+                                    <option value="1">Pending</option>
+                                    <option value="2">Processing</option>
+                                    <option value="3">Approved</option>
+                                    <option value="4">Rejected</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="col-md-6">
+                            <div class="form-card">
+                                <div class="form-label">
+                                    <i class="fas fa-clock me-1"></i> Purpose <span class="text-danger">*</span>
+                                </div>
+                                <select class="form-select" id="create_purpose" required>
+                                    <option value="">Select Purpose</option>
+                                    <option value="1">Exchange</option>
+                                    <option value="2">Return</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="col-12">
+                            <div class="form-card">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <div class="form-label">
+                                            <i class="fas fa-toggle-on me-1"></i> Active Status
+                                        </div>
+                                        <div class="form-check form-switch">
+                                            <input class="form-check-input" type="checkbox" id="create_is_active" checked>
+                                            <label class="form-check-label" for="create_is_active">Active</label>
+                                        </div>
+                                    </div>
+                                    <div id="create_total_display" class="total-amount">
+                                        Total: ₹0.00
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-light px-4" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-primary px-4" onclick="createExchange()" id="createExchangeBtn" style="background: var(--warning-gradient); border: none;">
+                    <i class="fas fa-check-circle me-2"></i>Create
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Edit Exchange Modal -->
+<div class="modal fade" id="editExchangeModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">
+                    <i class="fas fa-edit me-2"></i>Edit Exchange Request
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body position-relative" style="min-height: 400px;">
+                <!-- Loading Overlay -->
+                <div class="modal-body-loading" id="editModalLoading" style="display: none;">
+                    <div class="loading-content">
+                        <div class="spinner"></div>
+                        <p>Loading exchange data...</p>
+                    </div>
+                </div>
+                
+                <!-- Profile Section -->
+                <div class="profile-section" id="editProfileSection">
+                    <div class="exchange-avatar-lg" id="editPurposeIcon">
+                        <i class="fas fa-exchange-alt"></i>
+                    </div>
+                    <h5 class="mt-3 mb-0 fw-bold" id="editExchangeTitle">Loading...</h5>
+                    <p class="text-muted small" id="editExchangeId">ID: #0</p>
+                    <p class="text-muted small" id="editExchangeDates"></p>
+                </div>
+
+                <!-- Form in Cards -->
+                <form id="editExchangeForm">
+                    {% csrf_token %}
+                    <input type="hidden" id="edit_exchange_id">
+                    <div class="row g-3">
+                        <div class="col-12">
+                            <div class="form-card">
+                                <div class="form-label">
+                                    <i class="fas fa-shopping-cart me-1"></i> Order <span class="text-danger">*</span>
+                                </div>
+                                <select class="form-select" id="edit_order" required>
+                                    <option value="">Select Order</option>
+                                </select>
+                            </div>
+                        </div>
+                        
+                        <div class="col-12">
+                            <div class="form-card">
+                                <div class="d-flex justify-content-between align-items-center mb-2">
+                                    <div class="form-label mb-0">
+                                        <i class="fas fa-box me-1"></i> Order Items <span class="text-danger">*</span>
+                                    </div>
+                                    <button type="button" class="select-all-btn" onclick="toggleSelectAll('edit')">
+                                        <i class="fas fa-check-double me-1"></i>Select All
+                                    </button>
+                                </div>
+                                <div id="edit_order_items_container" class="items-container">
+                                    <p class="text-muted text-center py-3">Loading items...</p>
+                                </div>
+                                <small class="text-muted">Select at least one item for exchange/return</small>
+                            </div>
+                        </div>
+
+                        <div class="col-12">
+                            <div class="form-card">
+                                <div class="form-label">
+                                    <i class="fas fa-user me-1"></i> User <span class="text-danger">*</span>
+                                </div>
+                                <select class="form-select" id="edit_user" required>
+                                    <option value="">Select User</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="col-12">
+                            <div class="form-card">
+                                <div class="form-label">
+                                    <i class="fas fa-comment me-1"></i> Reason <span class="text-danger">*</span>
+                                </div>
+                                <textarea class="form-control" id="edit_reason" rows="3" required></textarea>
+                            </div>
+                        </div>
+
+                        <div class="col-md-6">
+                            <div class="form-card">
+                                <div class="form-label">
+                                    <i class="fas fa-tag me-1"></i> Status <span class="text-danger">*</span>
+                                </div>
+                                <select class="form-select" id="edit_status" required>
+                                    <option value="">Select Status</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="col-md-6">
+                            <div class="form-card">
+                                <div class="form-label">
+                                    <i class="fas fa-clock me-1"></i> Purpose <span class="text-danger">*</span>
+                                </div>
+                                <select class="form-select" id="edit_purpose" required>
+                                    <option value="1">Exchange</option>
+                                    <option value="2">Return</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="col-12">
+                            <div class="form-card">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <div class="form-label">
+                                            <i class="fas fa-toggle-on me-1"></i> Active Status
+                                        </div>
+                                        <div class="form-check form-switch">
+                                            <input class="form-check-input" type="checkbox" id="edit_is_active" checked>
+                                            <label class="form-check-label" for="edit_is_active">Active</label>
+                                        </div>
+                                    </div>
+                                    <div id="edit_total_display" class="total-amount">
+                                        Total: ₹0.00
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-light px-4" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-primary px-4" onclick="updateExchange()" id="updateExchangeBtn" style="background: var(--warning-gradient); border: none;">
+                    <i class="fas fa-save me-2"></i>Update
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- View Exchange Modal -->
+<div class="modal fade" id="viewExchangeModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">
+                    <i class="fas fa-info-circle me-2"></i>Exchange Request Details
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div id="viewExchangeContent">
+                    <!-- Dynamic content will be loaded here -->
+                    <div class="text-center py-5">
+                        <div class="spinner mx-auto"></div>
+                        <p class="mt-3 text-muted">Loading exchange details...</p>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-light px-4" data-bs-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-warning px-4" onclick="editFromView()" id="editFromViewBtn" style="background: #fbbf24; border: none; color: white;">
+                    <i class="fas fa-edit me-2"></i>Edit
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Toast Notification -->
+<div class="toast-notification" id="toast" style="display: none;"></div>
+
+<script>
+    // Enum mappings
+    const STATUS_MAP = {
+        1: 'Pending',
+        2: 'Processing',
+        3: 'Approved',
+        4: 'Rejected'
+    };
+    
+    const PURPOSE_MAP = {
+        1: 'Exchange',
+        2: 'Return'
+    };
+
+    // Initialize tooltips
+    document.addEventListener('DOMContentLoaded', function() {
+        var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+        tooltipTriggerList.map(function(tooltipTriggerEl) {
+            return new bootstrap.Tooltip(tooltipTriggerEl);
+        });
+        
+        // Attach status toggle listeners
+        attachStatusToggleListeners();
+        
+        // Attach order change listener for create modal
+        document.getElementById('create_order').addEventListener('change', function() {
+            loadOrderItems(this.value, 'create');
+        });
+    });
+
+    // Show toast notification
+    function showToast(message, type = 'success') {
+        const toast = document.getElementById('toast');
+        const bgColor = type === 'success' ? 'linear-gradient(135deg, #43e97b, #38f9d7)' : 'linear-gradient(135deg, #f093fb, #f5576c)';
+        const icon = type === 'success' ? 'check-circle' : 'exclamation-circle';
+        
+        toast.innerHTML = `
+            <div class="alert border-0 text-white shadow-lg" style="background: ${bgColor};">
+                <i class="fas fa-${icon} me-2"></i>
+                ${message}
+            </div>
+        `;
+        toast.style.display = 'block';
+        setTimeout(() => {
+            toast.style.display = 'none';
+        }, 3000);
+    }
+
+    // Toggle select all items
+    function toggleSelectAll(modalType) {
+        const checkboxes = document.querySelectorAll(`#${modalType}_order_items_container .item-checkbox`);
+        const allChecked = Array.from(checkboxes).every(cb => cb.checked);
+        checkboxes.forEach(cb => cb.checked = !allChecked);
+        updateTotal(modalType);
+    }
+
+    // Update total amount
+    function updateTotal(modalType) {
+        const checkboxes = document.querySelectorAll(`#${modalType}_order_items_container .item-checkbox`);
+        let total = 0;
+        checkboxes.forEach(cb => {
+            if (cb.checked) {
+                total += parseFloat(cb.dataset.price || 0) * parseInt(cb.dataset.quantity || 1);
+            }
+        });
+        document.getElementById(`${modalType}_total_display`).textContent = `Total: ₹${total.toFixed(2)}`;
+    }
+
+    // Load order items for a specific order
+    function loadOrderItems(orderId, modalType) {
+        if (!orderId) return;
+        
+        const container = document.getElementById(`${modalType}_order_items_container`);
+        container.innerHTML = '<div class="text-center py-3"><div class="spinner-border spinner-border-sm text-primary"></div> Loading items...</div>';
+        
+        fetch(`/admin/exchange/get-order-items/${orderId}/`)
+            .then(response => response.json())
+            .then(items => {
+                if (items.length === 0) {
+                    container.innerHTML = '<p class="text-muted text-center py-3">No items found for this order</p>';
+                    return;
+                }
+                
+                let html = '<div class="items-list">';
+                items.forEach(item => {
+                    const checked = modalType === 'edit' && item.selected ? 'checked' : '';
+                    html += `
+                        <div class="item-checkbox form-check">
+                            <input class="form-check-input item-checkbox" type="checkbox" 
+                                name="${modalType}_order_items[]" 
+                                value="${item.id}" 
+                                id="${modalType}_item_${item.id}"
+                                data-price="${item.price}"
+                                data-quantity="${item.quantity}"
+                                onchange="updateTotal('${modalType}')"
+                                ${checked}>
+                            <label class="form-check-label" for="${modalType}_item_${item.id}">
+                                <strong>${item.product_name}</strong> 
+                                <span class="text-muted">(Qty: ${item.quantity})</span>
+                                <span class="float-end text-primary">₹${item.price}</span>
+                            </label>
+                        </div>
+                    `;
+                });
+                html += '</div>';
+                container.innerHTML = html;
+                updateTotal(modalType);
+            })
+            .catch(error => {
+                console.error('Error loading order items:', error);
+                container.innerHTML = '<p class="text-danger text-center py-3">Error loading items</p>';
+            });
+    }
+
+    // Create exchange row HTML
+    function createExchangeRow(exchange) {
+        const purposeClass = exchange.purpose === 1 ? 'purpose-exchange' : 'purpose-return';
+        const purposeIcon = exchange.purpose === 1 ? 'fa-exchange-alt' : 'fa-undo-alt';
+        const purposeText = exchange.purpose === 1 ? 'Exchange' : 'Return';
+        
+        let statusClass = 'status-pending';
+        let statusText = exchange.status_display || 'Pending';
+        
+        if (exchange.status === 2) {
+            statusClass = 'status-processing';
+            statusText = 'Processing';
+        } else if (exchange.status === 3) {
+            statusClass = 'status-approved';
+            statusText = 'Approved';
+        } else if (exchange.status === 4) {
+            statusClass = 'status-rejected';
+            statusText = 'Rejected';
+        }
+
+        const itemsCount = exchange.items ? exchange.items.length : 0;
+        const itemsTooltip = exchange.items ? exchange.items.map(item => `${item.product_name} (${item.quantity})`).join('\n') : '';
+
+        return `
+            <tr id="exchange-row-${exchange.id}" data-exchange-id="${exchange.id}">
+                <td><span class="fw-semibold">#${exchange.id}</span></td>
+                <td>
+                    <div class="d-flex align-items-center gap-2">
+                        <span class="fw-semibold">Order #${exchange.order_id}</span>
+                    </div>
+                </td>
+                <td>
+                    <div class="d-flex align-items-center gap-2">
+                        <i class="fas fa-user-circle text-primary"></i>
+                        ${exchange.user_name}
+                    </div>
+                </td>
+                <td>
+                    <span class="badge bg-info" data-bs-toggle="tooltip" title="${itemsTooltip}">
+                        ${itemsCount} item(s)
+                    </span>
+                </td>
+                <td>
+                    <span class="text-truncate d-inline-block" style="max-width: 150px;" 
+                          data-bs-toggle="tooltip" title="${exchange.reason}">
+                        ${exchange.reason}
+                    </span>
+                </td>
+                <td>
+                    <span class="status-badge ${statusClass}">${statusText}</span>
+                </td>
+                <td>
+                    <div class="purpose-badge ${purposeClass}">
+                        <i class="fas ${purposeIcon}"></i> ${purposeText}
+                    </div>
+                </td>
+                <td>
+                    <span class="fw-bold">₹${exchange.total || '0.00'}</span>
+                </td>
+                <td>${exchange.request_date ? exchange.request_date.substring(0, 10) : 'N/A'}</td>
+                <td>
+                    <div class="form-check form-switch">
+                        <input class="form-check-input status-toggle" type="checkbox" 
+                            data-exchange-id="${exchange.id}"
+                            ${exchange.is_active ? 'checked' : ''}>
+                    </div>
+                </td>
+                <td>
+                    <div class="d-flex gap-2">
+                        <button class="btn-action btn-view" onclick="viewExchangeDetails(${exchange.id})" 
+                                data-bs-toggle="tooltip" title="View Details">
+                            <i class="fas fa-eye"></i>
+                        </button>
+                        <button class="btn-action btn-edit" onclick="editExchange(${exchange.id})" 
+                                data-bs-toggle="tooltip" title="Edit">
+                            <i class="fas fa-edit"></i>
+                        </button>
+                    </div>
+                </td>
+            </tr>
+        `;
+    }
+
+    // Update table after save
+    function updateTableAfterSave(exchange, action = 'create') {
+        const tableContainer = document.getElementById('exchangesTableContainer');
+        const existingRow = document.getElementById(`exchange-row-${exchange.id}`);
+        
+        if (action === 'create') {
+            if (tableContainer.innerHTML.includes('No Exchange Requests Found')) {
+                tableContainer.innerHTML = `
+                    <div class="table-container animate__animated animate__fadeInUp">
+                        <div class="table-responsive">
+                            <table class="table table-hover align-middle mb-0" id="exchangesTable">
+                                <thead>
+                                    <tr>
+                                        <th>ID</th>
+                                        <th>Order</th>
+                                        <th>User</th>
+                                        <th>Items</th>
+                                        <th>Reason</th>
+                                        <th>Status</th>
+                                        <th>Purpose</th>
+                                        <th>Total</th>
+                                        <th>Request Date</th>
+                                        <th>Toggle</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="exchangesTableBody">
+                                    ${createExchangeRow(exchange)}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                `;
+            } else {
+                const tbody = document.getElementById('exchangesTableBody');
+                if (tbody) {
+                    tbody.insertAdjacentHTML('beforeend', createExchangeRow(exchange));
+                }
+            }
+            
+            setTimeout(() => {
+                const newRow = document.getElementById(`exchange-row-${exchange.id}`);
+                if (newRow) {
+                    newRow.classList.add('row-highlight');
+                }
+            }, 100);
+        } else if (action === 'update' && existingRow) {
+            existingRow.outerHTML = createExchangeRow(exchange);
+            
+            setTimeout(() => {
+                const updatedRow = document.getElementById(`exchange-row-${exchange.id}`);
+                if (updatedRow) {
+                    updatedRow.classList.add('row-highlight');
+                }
+            }, 100);
+        }
+        
+        // Reinitialize tooltips
+        var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+        tooltipTriggerList.map(function(tooltipTriggerEl) {
+            return new bootstrap.Tooltip(tooltipTriggerEl);
+        });
+        
+        // Reattach status toggle listeners
+        attachStatusToggleListeners();
+    }
+
+    // Attach status toggle listeners
+    function attachStatusToggleListeners() {
+        document.querySelectorAll('.status-toggle').forEach(toggle => {
+            toggle.removeEventListener('change', handleStatusChange);
+            toggle.addEventListener('change', handleStatusChange);
+        });
+    }
+
+    // Handle status change
+    function handleStatusChange(event) {
+        const toggle = event.target;
+        const exchangeId = toggle.dataset.exchangeId;
+        const isActive = toggle.checked;
+        
+        fetch('/admin/exchange-requests/toggle-active/', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': '{{ csrf_token }}'
+            },
+            body: JSON.stringify({
+                exchange_id: exchangeId,
+                is_active: isActive
+            })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                showToast(`Exchange request status updated to ${isActive ? 'Active' : 'Inactive'}`, 'success');
+            } else {
+                showToast(data.error || 'Error updating status', 'error');
+                toggle.checked = !isActive;
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            showToast('Error updating exchange status', 'error');
+            toggle.checked = !isActive;
+        });
+    }
+
+    // Create exchange
+    function createExchange() {
+        const btn = document.getElementById('createExchangeBtn');
+        const formData = new FormData();
+        
+        const orderInput = document.getElementById('create_order');
+        const userInput = document.getElementById('create_user');
+        const reasonInput = document.getElementById('create_reason');
+        const statusInput = document.getElementById('create_status');
+        const purposeInput = document.getElementById('create_purpose');
+        
+        if (!orderInput.value) {
+            showToast('Please select an order', 'error');
+            return;
+        }
+        if (!userInput.value) {
+            showToast('Please select a user', 'error');
+            return;
+        }
+        if (!reasonInput.value.trim()) {
+            showToast('Reason is required', 'error');
+            return;
+        }
+        if (!statusInput.value) {
+            showToast('Please select a status', 'error');
+            return;
+        }
+        if (!purposeInput.value) {
+            showToast('Please select a purpose', 'error');
+            return;
+        }
+        
+        // Collect selected order items
+        const selectedItems = [];
+        document.querySelectorAll('#create_order_items_container .item-checkbox:checked').forEach(cb => {
+            selectedItems.push(cb.value);
+        });
+        
+        if (selectedItems.length === 0) {
+            showToast('Please select at least one order item', 'error');
+            return;
+        }
+        
+        formData.append('order', orderInput.value);
+        selectedItems.forEach(itemId => {
+            formData.append('order_items[]', itemId);
+        });
+        formData.append('user', userInput.value);
+        formData.append('reason', reasonInput.value.trim());
+        formData.append('status', statusInput.value);
+        formData.append('purpose', purposeInput.value);
+        formData.append('is_active', document.getElementById('create_is_active').checked);
+        formData.append('csrfmiddlewaretoken', '{{ csrf_token }}');
+        
+        btn.disabled = true;
+        btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Creating...';
+
+        fetch('/admin/exchange-requests/create/', {
+            method: 'POST',
+            body: formData
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                showToast(data.message, 'success');
+                
+                // Close modal
+                bootstrap.Modal.getInstance(document.getElementById('createExchangeModal')).hide();
+                
+                // Reset form
+                document.getElementById('createExchangeForm').reset();
+                document.getElementById('create_is_active').checked = true;
+                document.getElementById('create_order_items_container').innerHTML = '<p class="text-muted text-center py-3">Select an order first</p>';
+                document.getElementById('create_total_display').textContent = 'Total: ₹0.00';
+                
+                // Add new exchange to table
+                updateTableAfterSave(data.exchange, 'create');
+            } else {
+                showToast(data.error || 'Error creating exchange', 'error');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            showToast('Error creating exchange', 'error');
+        })
+        .finally(() => {
+            btn.disabled = false;
+            btn.innerHTML = '<i class="fas fa-check-circle me-2"></i>Create';
+        });
+    }
+
+    // Edit exchange
+    function editExchange(exchangeId) {
+        const modal = new bootstrap.Modal(document.getElementById('editExchangeModal'));
+        const loadingOverlay = document.getElementById('editModalLoading');
+        
+        modal.show();
+        loadingOverlay.style.display = 'flex';
+        
+        // Clear previous data
+        document.getElementById('edit_exchange_id').value = '';
+        document.getElementById('edit_reason').value = '';
+        document.getElementById('edit_is_active').checked = true;
+        document.getElementById('edit_total_display').textContent = 'Total: ₹0.00';
+        
+        // Clear dropdowns
+        const orderSelect = document.getElementById('edit_order');
+        const userSelect = document.getElementById('edit_user');
+        const statusSelect = document.getElementById('edit_status');
+        orderSelect.innerHTML = '<option value="">Select Order</option>';
+        userSelect.innerHTML = '<option value="">Select User</option>';
+        statusSelect.innerHTML = '<option value="">Select Status</option>';
+        document.getElementById('edit_order_items_container').innerHTML = '<p class="text-muted text-center py-3">Loading items...</p>';
+        
+        // Reset profile section
+        document.getElementById('editExchangeTitle').textContent = 'Loading...';
+        document.getElementById('editExchangeId').textContent = 'ID: #0';
+        document.getElementById('editExchangeDates').textContent = '';
+        
+        fetch(`/admin/exchange-requests/${exchangeId}/detail/`)
+            .then(response => response.json())
+            .then(exchange => {
+                console.log('Received exchange data:', exchange);
+                
+                // Populate orders dropdown
+                if (exchange.orders_list && exchange.orders_list.length > 0) {
+                    exchange.orders_list.forEach(order => {
+                        const option = document.createElement('option');
+                        option.value = order.id;
+                        option.textContent = order.display;
+                        if (order.id === exchange.order_id) option.selected = true;
+                        orderSelect.appendChild(option);
+                    });
+                }
+                
+                // Populate users dropdown
+                if (exchange.users_list && exchange.users_list.length > 0) {
+                    exchange.users_list.forEach(user => {
+                        const option = document.createElement('option');
+                        option.value = user.id;
+                        option.textContent = user.display;
+                        if (user.id === exchange.user_id) option.selected = true;
+                        userSelect.appendChild(option);
+                    });
+                }
+                
+                // Populate status dropdown
+                if (exchange.enums_list && exchange.enums_list.length > 0) {
+                    exchange.enums_list.forEach(status => {
+                        const option = document.createElement('option');
+                        option.value = status.value;
+                        option.textContent = status.name;
+                        if (status.value === exchange.status) option.selected = true;
+                        statusSelect.appendChild(option);
+                    });
+                }
+                
+                // Load order items with selection
+                if (exchange.order_id) {
+                    loadOrderItemsForEdit(exchange.order_id, exchange.selected_item_ids || []);
+                }
+                
+                // Update profile section
+                document.getElementById('editExchangeTitle').textContent = 
+                    exchange.purpose === 1 ? 'Exchange Request' : 'Return Request';
+                document.getElementById('editExchangeId').textContent = `ID: #${exchange.id}`;
+                
+                let datesText = `Requested: ${exchange.request_date || 'N/A'}`;
+                if (exchange.processed_date) {
+                    datesText += ` | Processed: ${exchange.processed_date}`;
+                }
+                document.getElementById('editExchangeDates').textContent = datesText;
+                
+                // Update icon based on purpose
+                const iconElement = document.querySelector('#editPurposeIcon i');
+                if (iconElement) {
+                    iconElement.className = exchange.purpose === 1 ? 'fas fa-exchange-alt' : 'fas fa-undo-alt';
+                }
+                
+                // Populate form
+                document.getElementById('edit_exchange_id').value = exchange.id;
+                document.getElementById('edit_reason').value = exchange.reason || '';
+                document.getElementById('edit_purpose').value = exchange.purpose || '1';
+                document.getElementById('edit_is_active').checked = exchange.is_active;
+                
+                loadingOverlay.style.display = 'none';
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                showToast('Error loading exchange data: ' + error.message, 'error');
+                loadingOverlay.style.display = 'none';
+                bootstrap.Modal.getInstance(document.getElementById('editExchangeModal')).hide();
+            });
+        
+        // Attach order change listener for edit modal
+        document.getElementById('edit_order').addEventListener('change', function() {
+            loadOrderItems(this.value, 'edit');
+        });
+    }
+
+    // Load order items for edit with pre-selected items
+    function loadOrderItemsForEdit(orderId, selectedItemIds) {
+        if (!orderId) return;
+        
+        const container = document.getElementById('edit_order_items_container');
+        container.innerHTML = '<div class="text-center py-3"><div class="spinner-border spinner-border-sm text-primary"></div> Loading items...</div>';
+        
+        fetch(`/admin/exchange/get-order-items/${orderId}/`)
+            .then(response => response.json())
+            .then(items => {
+                if (items.length === 0) {
+                    container.innerHTML = '<p class="text-muted text-center py-3">No items found for this order</p>';
+                    return;
+                }
+                
+                let html = '<div class="items-list">';
+                items.forEach(item => {
+                    const checked = selectedItemIds.includes(item.id) ? 'checked' : '';
+                    html += `
+                        <div class="item-checkbox form-check">
+                            <input class="form-check-input item-checkbox" type="checkbox" 
+                                name="edit_order_items[]" 
+                                value="${item.id}" 
+                                id="edit_item_${item.id}"
+                                data-price="${item.price}"
+                                data-quantity="${item.quantity}"
+                                onchange="updateTotal('edit')"
+                                ${checked}>
+                            <label class="form-check-label" for="edit_item_${item.id}">
+                                <strong>${item.product_name}</strong> 
+                                <span class="text-muted">(Qty: ${item.quantity})</span>
+                                <span class="float-end text-primary">₹${item.price}</span>
+                            </label>
+                        </div>
+                    `;
+                });
+                html += '</div>';
+                container.innerHTML = html;
+                updateTotal('edit');
+            })
+            .catch(error => {
+                console.error('Error loading order items:', error);
+                container.innerHTML = '<p class="text-danger text-center py-3">Error loading items</p>';
+            });
+    }
+
+    // Update exchange
+    function updateExchange() {
+        const btn = document.getElementById('updateExchangeBtn');
+        const exchangeId = document.getElementById('edit_exchange_id').value;
+        const formData = new FormData();
+        
+        const orderInput = document.getElementById('edit_order');
+        const userInput = document.getElementById('edit_user');
+        const reasonInput = document.getElementById('edit_reason');
+        const statusInput = document.getElementById('edit_status');
+        const purposeInput = document.getElementById('edit_purpose');
+        
+        if (!orderInput.value) {
+            showToast('Please select an order', 'error');
+            return;
+        }
+        if (!userInput.value) {
+            showToast('Please select a user', 'error');
+            return;
+        }
+        if (!reasonInput.value.trim()) {
+            showToast('Reason is required', 'error');
+            return;
+        }
+        if (!statusInput.value) {
+            showToast('Please select a status', 'error');
+            return;
+        }
+        if (!purposeInput.value) {
+            showToast('Please select a purpose', 'error');
+            return;
+        }
+        
+        // Collect selected order items
+        const selectedItems = [];
+        document.querySelectorAll('#edit_order_items_container .item-checkbox:checked').forEach(cb => {
+            selectedItems.push(cb.value);
+        });
+        
+        if (selectedItems.length === 0) {
+            showToast('Please select at least one order item', 'error');
+            return;
+        }
+        
+        formData.append('order', orderInput.value);
+        selectedItems.forEach(itemId => {
+            formData.append('order_items[]', itemId);
+        });
+        formData.append('user', userInput.value);
+        formData.append('reason', reasonInput.value.trim());
+        formData.append('status', statusInput.value);
+        formData.append('purpose', purposeInput.value);
+        formData.append('is_active', document.getElementById('edit_is_active').checked);
+        formData.append('csrfmiddlewaretoken', '{{ csrf_token }}');
+        
+        btn.disabled = true;
+        btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Updating...';
+
+        fetch(`/admin/exchange-requests/update/${exchangeId}/`, {
+            method: 'POST',
+            body: formData
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                showToast(data.message, 'success');
+                
+                // Close modal
+                bootstrap.Modal.getInstance(document.getElementById('editExchangeModal')).hide();
+                
+                // Update exchange in table
+                updateTableAfterSave(data.exchange, 'update');
+            } else {
+                showToast(data.error || 'Error updating exchange', 'error');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            showToast('Error updating exchange', 'error');
+        })
+        .finally(() => {
+            btn.disabled = false;
+            btn.innerHTML = '<i class="fas fa-save me-2"></i>Update';
+        });
+    }
+
+    // View exchange details
+    function viewExchangeDetails(exchangeId) {
+        const modal = new bootstrap.Modal(document.getElementById('viewExchangeModal'));
+        const content = document.getElementById('viewExchangeContent');
+        
+        modal.show();
+        content.innerHTML = `
+            <div class="text-center py-5">
+                <div class="spinner mx-auto"></div>
+                <p class="mt-3 text-muted">Loading exchange details...</p>
+            </div>
+        `;
+        
+        fetch(`/admin/exchange-requests/${exchangeId}/detail/`)
+            .then(response => response.json())
+            .then(exchange => {
+                const purposeIcon = exchange.purpose === 1 ? 'fa-exchange-alt' : 'fa-undo-alt';
+                const purposeColor = exchange.purpose === 1 ? '#3b8cff' : '#f59e0b';
+                const purposeText = exchange.purpose === 1 ? 'Exchange' : 'Return';
+                
+                let statusClass = 'status-pending';
+                let statusText = exchange.status_display || 'Pending';
+                
+                if (exchange.status === 2) {
+                    statusClass = 'status-processing';
+                } else if (exchange.status === 3) {
+                    statusClass = 'status-approved';
+                } else if (exchange.status === 4) {
+                    statusClass = 'status-rejected';
+                }
+                
+                // Generate items HTML
+                let itemsHtml = '';
+                if (exchange.exchange_items && exchange.exchange_items.length > 0) {
+                    itemsHtml = '<div class="detail-card mb-3"><div class="detail-label"><i class="fas fa-box me-1"></i> Items</div>';
+                    exchange.exchange_items.forEach(item => {
+                        itemsHtml += `
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <span>${item.product_name}</span>
+                                <span>Qty: ${item.quantity} x ₹${item.price}</span>
+                            </div>
+                        `;
+                    });
+                    itemsHtml += '</div>';
+                }
+                
+                content.innerHTML = `
+                    <div class="text-center mb-4">
+                        <div class="exchange-avatar-lg" style="background: linear-gradient(135deg, ${purposeColor}, ${purposeColor}dd);">
+                            <i class="fas ${purposeIcon}"></i>
+                        </div>
+                        <h4 class="mt-4 mb-1 fw-bold">${purposeText} Request</h4>
+                        <p class="text-muted mb-3">Request ID: #${exchange.id}</p>
+                        <div class="d-flex justify-content-center gap-2">
+                            <span class="${statusClass} px-3 py-2 rounded-pill">
+                                ${statusText}
+                            </span>
+                        </div>
+                    </div>
+                    
+                    <div class="info-grid">
+                        <div class="info-item">
+                            <div class="info-label">
+                                <i class="fas fa-shopping-cart me-1"></i> Order
+                            </div>
+                            <div class="info-value">#${exchange.order_id}</div>
+                        </div>
+                        
+                        <div class="info-item">
+                            <div class="info-label">
+                                <i class="fas fa-user me-1"></i> User
+                            </div>
+                            <div class="info-value">${exchange.user_id || 'N/A'}</div>
+                        </div>
+                    </div>
+                    
+                    <div class="detail-card mb-3">
+                        <div class="detail-label">
+                            <i class="fas fa-comment me-1"></i> Reason
+                        </div>
+                        <div class="detail-value">${exchange.reason || 'No reason provided'}</div>
+                    </div>
+                    
+                    ${itemsHtml}
+                    
+                    <div class="info-grid">
+                        <div class="info-item">
+                            <div class="info-label">
+                                <i class="fas fa-calendar me-1"></i> Request Date
+                            </div>
+                            <div class="detail-value">${exchange.request_date || 'N/A'}</div>
+                        </div>
+                        
+                        <div class="info-item">
+                            <div class="info-label">
+                                <i class="fas fa-check-circle me-1"></i> Processed Date
+                            </div>
+                            <div class="detail-value">${exchange.processed_date || 'Not processed'}</div>
+                        </div>
+                        
+                        <div class="info-item">
+                            <div class="info-label">
+                                <i class="fas fa-toggle-on me-1"></i> Status
+                            </div>
+                            <div class="detail-value">
+                                ${exchange.is_active ? 
+                                    '<span class="text-success"><i class="fas fa-circle me-1" style="font-size: 8px;"></i>Active</span>' : 
+                                    '<span class="text-danger"><i class="fas fa-circle me-1" style="font-size: 8px;"></i>Inactive</span>'}
+                            </div>
+                        </div>
+                        
+                        <div class="info-item">
+                            <div class="info-label">
+                                <i class="fas fa-rupee-sign me-1"></i> Total Amount
+                            </div>
+                            <div class="detail-value text-primary fw-bold">₹${exchange.total || '0.00'}</div>
+                        </div>
+                    </div>
+                `;
+                
+                document.getElementById('editFromViewBtn').setAttribute('data-exchange-id', exchange.id);
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                content.innerHTML = `
+                    <div class="text-center py-5 text-danger">
+                        <i class="fas fa-exclamation-triangle fa-3x mb-3"></i>
+                        <p>Error loading exchange details. Please try again.</p>
+                    </div>
+                `;
+            });
+    }
+
+    // Edit from view modal
+    function editFromView() {
+        const exchangeId = document.getElementById('editFromViewBtn').getAttribute('data-exchange-id');
+        if (exchangeId) {
+            bootstrap.Modal.getInstance(document.getElementById('viewExchangeModal')).hide();
+            setTimeout(() => editExchange(exchangeId), 500);
+        }
+    }
+
+    // Reset forms when modals are closed
+    document.getElementById('createExchangeModal').addEventListener('hidden.bs.modal', function () {
+        document.getElementById('createExchangeForm').reset();
+        document.getElementById('create_is_active').checked = true;
+        document.getElementById('create_order_items_container').innerHTML = '<p class="text-muted text-center py-3">Select an order first</p>';
+        document.getElementById('create_total_display').textContent = 'Total: ₹0.00';
+    });
+    
+    document.getElementById('editExchangeModal').addEventListener('hidden.bs.modal', function () {
+        const loadingOverlay = document.getElementById('editModalLoading');
+        loadingOverlay.style.display = 'none';
+        document.getElementById('edit_is_active').checked = true;
+    });
+</script>
+{% endblock %}
