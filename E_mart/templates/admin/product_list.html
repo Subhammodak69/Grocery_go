@@ -1,7 +1,14 @@
 {% extends "admin/home.html" %}
 {% load static %}
-{% block title %}Poster Management{% endblock %}
+{% block title %}Product Management{% endblock %}
 {% block content %}
+
+<!-- Include Animate.css for animations -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
+
+<!-- Font Awesome for icons -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"/>
+
 <style>
     /* Custom styles complementing Bootstrap */
     :root {
@@ -11,7 +18,7 @@
         --danger-gradient: linear-gradient(135deg, #f093fb, #f5576c);
     }
     
-    .poster-avatar-sm {
+    .product-avatar-sm {
         width: 60px;
         height: 40px;
         background: var(--primary-gradient);
@@ -26,7 +33,7 @@
         object-fit: cover;
     }
     
-    .poster-avatar-lg {
+    .product-avatar-lg {
         width: 120px;
         height: 120px;
         background: var(--primary-gradient);
@@ -43,7 +50,7 @@
         object-fit: cover;
     }
     
-    .poster-image-lg {
+    .product-image-lg {
         width: 150px;
         height: 150px;
         border-radius: 20px;
@@ -54,7 +61,7 @@
         border: 3px solid white;
     }
     
-    .poster-img-table {
+    .product-img-table {
         width: 60px;
         height: 40px;
         border-radius: 8px;
@@ -161,7 +168,7 @@
         color: white;
     }
     
-    .badge-poster {
+    .badge-product {
         background: rgba(102, 126, 234, 0.1);
         color: #667eea;
         padding: 0.5rem 1rem;
@@ -345,6 +352,19 @@
         color: #1e293b;
     }
     
+    .price-value {
+        font-size: 1.1rem;
+        font-weight: 700;
+        color: #10b981;
+    }
+    
+    .original-price {
+        font-size: 0.9rem;
+        color: #94a3b8;
+        text-decoration: line-through;
+        margin-left: 0.5rem;
+    }
+    
     .toast-notification {
         position: fixed;
         top: 20px;
@@ -450,22 +470,6 @@
     .row-highlight {
         animation: highlight 2s ease;
     }
-
-    /* Select2 customization */
-    .select2-container--default .select2-selection--single {
-        height: 45px;
-        border: 2px solid #edf2f7;
-        border-radius: 12px;
-        padding: 5px;
-    }
-    
-    .select2-container--default .select2-selection--single .select2-selection__rendered {
-        line-height: 30px;
-    }
-    
-    .select2-container--default .select2-selection--single .select2-selection__arrow {
-        height: 40px;
-    }
 </style>
 
 <div class="container-fluid p-4 custom-scroll">
@@ -473,80 +477,90 @@
     <div class="page-header animate__animated animate__fadeInDown">
         <div class="d-flex align-items-center justify-content-between">
             <div class="d-flex align-items-center gap-3">
-                <div class="poster-avatar-sm" style="width: 50px; height: 50px; font-size: 24px;">
-                    <i class="fas fa-images"></i>
+                <div class="product-avatar-sm" style="width: 50px; height: 50px; font-size: 24px;">
+                    <i class="fas fa-box"></i>
                 </div>
                 <div>
-                    <h2 class="fw-bold mb-1" style="color: #2d3748;">Poster Management</h2>
-                    <p class="text-muted mb-0">Manage all promotional posters in one place</p>
+                    <h2 class="fw-bold mb-1" style="color: #2d3748;">Product Management</h2>
+                    <p class="text-muted mb-0">Manage all products in one place</p>
                 </div>
             </div>
-            <button class="btn-create d-flex align-items-center gap-2" data-bs-toggle="modal" data-bs-target="#createPosterModal">
-                <i class="fas fa-plus-circle"></i> Create New Poster
+            <button class="btn-create d-flex align-items-center gap-2" data-bs-toggle="modal" data-bs-target="#createProductModal">
+                <i class="fas fa-plus-circle"></i> Create New Product
             </button>
         </div>
     </div>
 
-    <!-- Posters Table Container -->
-    <div id="postersTableContainer">
-        {% if posters %}
+    <!-- Products Table Container -->
+    <div id="productsTableContainer">
+        {% if products %}
         <div class="table-container animate__animated animate__fadeInUp">
             <div class="table-responsive">
-                <table class="table table-hover align-middle mb-0" id="postersTable">
+                <table class="table table-hover align-middle mb-0" id="productsTable">
                     <thead>
                         <tr>
                             <th>ID</th>
-                            <th>Title</th>
+                            <th>Category</th>
+                            <th>Name</th>
+                            <th>Size</th>
+                            <th>Sale Price</th>
+                            <th>Original Price</th>
+                            <th>Stock</th>
                             <th>Description</th>
-                            <th>Product</th>
                             <th>Image</th>
-                            <th>Start Date</th>
-                            <th>End Date</th>
                             <th>Status</th>
                             <th>Toggle</th>
                             <th>Actions</th>
                         </tr>
                     </thead>
-                    <tbody id="postersTableBody">
-                        {% for poster in posters %}
-                        <tr id="poster-row-{{ poster.id }}" data-poster-id="{{ poster.id }}">
-                            <td><span class="fw-semibold">#{{ poster.id }}</span></td>
-                            <td>{{ poster.title }}</td>
+                    <tbody id="productsTableBody">
+                        {% for product in products %}
+                        <tr id="product-row-{{ product.id }}" data-product-id="{{ product.id }}">
+                            <td><span class="fw-semibold">#{{ product.id }}</span></td>
                             <td>
-                                <span class="text-truncate d-inline-block" style="max-width: 150px;" 
-                                      data-bs-toggle="tooltip" title="{{ poster.description }}">
-                                    {{ poster.description|default:"-"|truncatechars:50 }}
+                                <span class="badge-product">{{ product.category.name }}</span>
+                            </td>
+                            <td>{{ product.name }}</td>
+                            <td>{{ product.size }}</td>
+                            <td class="text-success fw-bold">₹{{ product.price }}</td>
+                            <td class="text-muted"><del>₹{{ product.original_price }}</del></td>
+                            <td>
+                                <span class="badge {% if product.stock > 10 %}bg-success{% elif product.stock > 0 %}bg-warning{% else %}bg-danger{% endif %} bg-opacity-10 text-dark px-3 py-2">
+                                    {{ product.stock }}
                                 </span>
                             </td>
-                            <td>{{ poster.product.name }}</td>
                             <td>
-                                <img src="{% static poster.image %}" class="poster-img-table" alt="{{ poster.title }}">
+                                <span class="text-truncate d-inline-block" style="max-width: 150px;" 
+                                      data-bs-toggle="tooltip" title="{{ product.description }}">
+                                    {{ product.description|default:"-"|truncatechars:50 }}
+                                </span>
                             </td>
-                            <td>{{ poster.start_date|date:"Y-m-d" }}</td>
-                            <td>{{ poster.end_date|date:"Y-m-d" }}</td>
+                            <td>
+                                <img src="{% static product.image %}" class="product-img-table" alt="{{ product.name }}">
+                            </td>
                             <td>
                                 <div class="d-flex align-items-center gap-2">
-                                    <span class="status-indicator {% if poster.is_active %}status-active{% else %}status-inactive{% endif %}"></span>
-                                    <span class="badge-poster">
-                                        {% if poster.is_active %}Active{% else %}Inactive{% endif %}
+                                    <span class="status-indicator {% if product.is_active %}status-active{% else %}status-inactive{% endif %}"></span>
+                                    <span class="badge-product">
+                                        {% if product.is_active %}Active{% else %}Inactive{% endif %}
                                     </span>
                                 </div>
                             </td>
                             <td>
                                 <div class="form-check form-switch">
                                     <input class="form-check-input status-toggle" type="checkbox" 
-                                        data-poster-id="{{ poster.id }}"
-                                        {% if poster.is_active %}checked{% endif %}>
+                                        data-product-id="{{ product.id }}"
+                                        {% if product.is_active %}checked{% endif %}>
                                 </div>
                             </td>
                             <td>
                                 <div class="d-flex gap-2">
-                                    <button class="btn-action btn-view" onclick="viewPosterDetails({{ poster.id }})" 
+                                    <button class="btn-action btn-view" onclick="viewProductDetails({{ product.id }})" 
                                             data-bs-toggle="tooltip" title="View Details">
                                         <i class="fas fa-eye"></i>
                                     </button>
-                                    <button class="btn-action btn-edit" onclick="editPoster({{ poster.id }})" 
-                                            data-bs-toggle="tooltip" title="Edit Poster">
+                                    <button class="btn-action btn-edit" onclick="editProduct({{ product.id }})" 
+                                            data-bs-toggle="tooltip" title="Edit Product">
                                         <i class="fas fa-edit"></i>
                                     </button>
                                 </div>
@@ -561,11 +575,11 @@
         <!-- Empty State -->
         <div class="table-container text-center py-5 animate__animated animate__fadeIn">
             <div class="empty-state">
-                <i class="fas fa-images text-secondary opacity-25"></i>
-                <h4 class="mt-4 text-secondary">No Posters Found</h4>
-                <p class="text-muted mb-4">Click the "Create New Poster" button to add your first poster.</p>
-                <button class="btn-create d-inline-flex align-items-center gap-2" data-bs-toggle="modal" data-bs-target="#createPosterModal">
-                    <i class="fas fa-plus-circle"></i> Create New Poster
+                <i class="fas fa-box text-secondary opacity-25"></i>
+                <h4 class="mt-4 text-secondary">No Products Found</h4>
+                <p class="text-muted mb-4">Click the "Create New Product" button to add your first product.</p>
+                <button class="btn-create d-inline-flex align-items-center gap-2" data-bs-toggle="modal" data-bs-target="#createProductModal">
+                    <i class="fas fa-plus-circle"></i> Create New Product
                 </button>
             </div>
         </div>
@@ -573,49 +587,81 @@
     </div>
 </div>
 
-<!-- Create Poster Modal -->
-<div class="modal fade" id="createPosterModal" tabindex="-1" aria-hidden="true">
+<!-- Create Product Modal -->
+<div class="modal fade" id="createProductModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title">
-                    <i class="fas fa-plus-circle me-2"></i>Create New Poster
+                    <i class="fas fa-plus-circle me-2"></i>Create New Product
                 </h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
             <div class="modal-body">
                 <!-- Profile Section -->
                 <div class="profile-section">
-                    <div class="poster-avatar-lg">
-                        <i class="fas fa-images"></i>
+                    <div class="product-avatar-lg">
+                        <i class="fas fa-box"></i>
                     </div>
-                    <h5 class="mt-3 mb-0 fw-bold">New Poster</h5>
-                    <p class="text-muted small">Enter poster details below</p>
+                    <h5 class="mt-3 mb-0 fw-bold">New Product</h5>
+                    <p class="text-muted small">Enter product details below</p>
                 </div>
 
                 <!-- Form in Cards -->
-                <form id="createPosterForm" enctype="multipart/form-data">
+                <form id="createProductForm" enctype="multipart/form-data">
                     {% csrf_token %}
                     <div class="row g-3">
                         <div class="col-12">
                             <div class="form-card">
                                 <div class="form-label">
-                                    <i class="fas fa-box me-1"></i> Product <span class="text-danger">*</span>
+                                    <i class="fas fa-tag me-1"></i> Category <span class="text-danger">*</span>
                                 </div>
-                                <select id="create_product_id" class="form-select select2-modal" required>
-                                    <option value="">Select or search product</option>
-                                    {% for product in products %}
-                                    <option value="{{ product.id }}">{{ product.name }}</option>
+                                <select id="create_category_id" class="form-select" required>
+                                    <option value="">Select Category</option>
+                                    {% for category in categories %}
+                                    <option value="{{ category.id }}">{{ category.name }}</option>
                                     {% endfor %}
                                 </select>
                             </div>
                         </div>
-                        <div class="col-12">
+                        <div class="col-md-6">
                             <div class="form-card">
                                 <div class="form-label">
-                                    <i class="fas fa-heading me-1"></i> Title <span class="text-danger">*</span>
+                                    <i class="fas fa-heading me-1"></i> Name <span class="text-danger">*</span>
                                 </div>
-                                <input type="text" class="form-control" id="create_title" placeholder="Summer Sale, New Arrivals, etc." required>
+                                <input type="text" class="form-control" id="create_name" placeholder="Product name" required>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-card">
+                                <div class="form-label">
+                                    <i class="fas fa-ruler me-1"></i> Size <span class="text-danger">*</span>
+                                </div>
+                                <input type="text" class="form-control" id="create_size" placeholder="e.g., M, 500ml, etc." required>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-card">
+                                <div class="form-label">
+                                    <i class="fas fa-rupee-sign me-1"></i> Sale Price <span class="text-danger">*</span>
+                                </div>
+                                <input type="number" class="form-control" id="create_price" placeholder="100" required>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-card">
+                                <div class="form-label">
+                                    <i class="fas fa-rupee-sign me-1"></i> Original Price <span class="text-danger">*</span>
+                                </div>
+                                <input type="number" class="form-control" id="create_original_price" placeholder="200" required>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-card">
+                                <div class="form-label">
+                                    <i class="fas fa-cubes me-1"></i> Stock <span class="text-danger">*</span>
+                                </div>
+                                <input type="number" class="form-control" id="create_stock" placeholder="50" required>
                             </div>
                         </div>
                         <div class="col-12">
@@ -623,28 +669,12 @@
                                 <div class="form-label">
                                     <i class="fas fa-align-left me-1"></i> Description
                                 </div>
-                                <textarea class="form-control" id="create_description" placeholder="Enter poster description..."></textarea>
-                            </div>
-                        </div>
-                        <div class="col-md-6">
-                            <div class="form-card">
-                                <div class="form-label">
-                                    <i class="fas fa-calendar-alt me-1"></i> Start Date <span class="text-danger">*</span>
-                                </div>
-                                <input type="date" class="form-control" id="create_start_date" required>
-                            </div>
-                        </div>
-                        <div class="col-md-6">
-                            <div class="form-card">
-                                <div class="form-label">
-                                    <i class="fas fa-calendar-alt me-1"></i> End Date <span class="text-danger">*</span>
-                                </div>
-                                <input type="date" class="form-control" id="create_end_date" required>
+                                <textarea class="form-control" id="create_description" placeholder="Enter product description..." rows="3"></textarea>
                             </div>
                         </div>
                         <div class="col-12">
                             <div class="form-label">
-                                <i class="fas fa-image me-1"></i> Poster Image <span class="text-danger">*</span>
+                                <i class="fas fa-image me-1"></i> Product Image <span class="text-danger">*</span>
                             </div>
                             <div class="file-upload-card" id="createFileUploadCard">
                                 <i class="fas fa-cloud-upload-alt"></i>
@@ -654,26 +684,32 @@
                             </div>
                             <div class="text-center" id="createPreview"></div>
                         </div>
+                        <div class="col-12">
+                            <div class="form-check form-switch">
+                                <input class="form-check-input" type="checkbox" id="create_is_active" checked>
+                                <label class="form-check-label fw-semibold" for="create_is_active">Active</label>
+                            </div>
+                        </div>
                     </div>
                 </form>
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-light px-4" data-bs-dismiss="modal">Cancel</button>
-                <button type="button" class="btn btn-primary px-4" onclick="createPoster()" id="createPosterBtn">
-                    <i class="fas fa-check-circle me-2"></i>Create Poster
+                <button type="button" class="btn btn-primary px-4" onclick="createProduct()" id="createProductBtn">
+                    <i class="fas fa-check-circle me-2"></i>Create Product
                 </button>
             </div>
         </div>
     </div>
 </div>
 
-<!-- Edit Poster Modal -->
-<div class="modal fade" id="editPosterModal" tabindex="-1" aria-hidden="true">
+<!-- Edit Product Modal -->
+<div class="modal fade" id="editProductModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title">
-                    <i class="fas fa-edit me-2"></i>Edit Poster
+                    <i class="fas fa-edit me-2"></i>Edit Product
                 </h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
@@ -682,41 +718,73 @@
                 <div class="modal-body-loading" id="editModalLoading" style="display: none;">
                     <div class="loading-content">
                         <div class="spinner"></div>
-                        <p>Loading poster data...</p>
+                        <p>Loading product data...</p>
                     </div>
                 </div>
                 
                 <!-- Profile Section - will be populated dynamically -->
                 <div class="profile-section" id="editProfileSection">
-                    <img src="" alt="Poster" class="poster-image-lg" id="editPosterImage">
-                    <h5 class="mt-3 mb-0 fw-bold" id="editPosterTitle">Loading...</h5>
-                    <p class="text-muted small" id="editPosterId">ID: #0</p>
+                    <img src="" alt="Product" class="product-image-lg" id="editProductImage">
+                    <h5 class="mt-3 mb-0 fw-bold" id="editProductName">Loading...</h5>
+                    <p class="text-muted small" id="editProductId">ID: #0</p>
                 </div>
 
                 <!-- Form in Cards -->
-                <form id="editPosterForm" enctype="multipart/form-data">
+                <form id="editProductForm" enctype="multipart/form-data">
                     {% csrf_token %}
-                    <input type="hidden" id="edit_poster_id">
+                    <input type="hidden" id="edit_product_id">
                     <div class="row g-3">
                         <div class="col-12">
                             <div class="form-card">
                                 <div class="form-label">
-                                    <i class="fas fa-box me-1"></i> Product <span class="text-danger">*</span>
+                                    <i class="fas fa-tag me-1"></i> Category <span class="text-danger">*</span>
                                 </div>
-                                <select id="edit_product_id" class="form-select select2-modal" required>
-                                    <option value="">Select or search product</option>
-                                    {% for product in products %}
-                                    <option value="{{ product.id }}">{{ product.name }}</option>
+                                <select id="edit_category_id" class="form-select" required>
+                                    <option value="">Select Category</option>
+                                    {% for category in categories %}
+                                    <option value="{{ category.id }}">{{ category.name }}</option>
                                     {% endfor %}
                                 </select>
                             </div>
                         </div>
-                        <div class="col-12">
+                        <div class="col-md-6">
                             <div class="form-card">
                                 <div class="form-label">
-                                    <i class="fas fa-heading me-1"></i> Title <span class="text-danger">*</span>
+                                    <i class="fas fa-heading me-1"></i> Name <span class="text-danger">*</span>
                                 </div>
-                                <input type="text" class="form-control" id="edit_title" required>
+                                <input type="text" class="form-control" id="edit_name" required>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-card">
+                                <div class="form-label">
+                                    <i class="fas fa-ruler me-1"></i> Size <span class="text-danger">*</span>
+                                </div>
+                                <input type="text" class="form-control" id="edit_size" required>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-card">
+                                <div class="form-label">
+                                    <i class="fas fa-rupee-sign me-1"></i> Sale Price <span class="text-danger">*</span>
+                                </div>
+                                <input type="number" class="form-control" id="edit_price" required>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-card">
+                                <div class="form-label">
+                                    <i class="fas fa-rupee-sign me-1"></i> Original Price <span class="text-danger">*</span>
+                                </div>
+                                <input type="number" class="form-control" id="edit_original_price" required>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-card">
+                                <div class="form-label">
+                                    <i class="fas fa-cubes me-1"></i> Stock <span class="text-danger">*</span>
+                                </div>
+                                <input type="number" class="form-control" id="edit_stock" required>
                             </div>
                         </div>
                         <div class="col-12">
@@ -725,22 +793,6 @@
                                     <i class="fas fa-align-left me-1"></i> Description
                                 </div>
                                 <textarea class="form-control" id="edit_description" rows="3"></textarea>
-                            </div>
-                        </div>
-                        <div class="col-md-6">
-                            <div class="form-card">
-                                <div class="form-label">
-                                    <i class="fas fa-calendar-alt me-1"></i> Start Date <span class="text-danger">*</span>
-                                </div>
-                                <input type="date" class="form-control" id="edit_start_date" required>
-                            </div>
-                        </div>
-                        <div class="col-md-6">
-                            <div class="form-card">
-                                <div class="form-label">
-                                    <i class="fas fa-calendar-alt me-1"></i> End Date <span class="text-danger">*</span>
-                                </div>
-                                <input type="date" class="form-control" id="edit_end_date" required>
                             </div>
                         </div>
                         <div class="col-12">
@@ -755,42 +807,48 @@
                             </div>
                             <div class="text-center" id="editPreview"></div>
                         </div>
+                        <div class="col-12">
+                            <div class="form-check form-switch">
+                                <input class="form-check-input" type="checkbox" id="edit_is_active" checked>
+                                <label class="form-check-label fw-semibold" for="edit_is_active">Active</label>
+                            </div>
+                        </div>
                     </div>
                 </form>
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-light px-4" data-bs-dismiss="modal">Cancel</button>
-                <button type="button" class="btn btn-primary px-4" onclick="updatePoster()" id="updatePosterBtn">
-                    <i class="fas fa-save me-2"></i>Update Poster
+                <button type="button" class="btn btn-primary px-4" onclick="updateProduct()" id="updateProductBtn">
+                    <i class="fas fa-save me-2"></i>Update Product
                 </button>
             </div>
         </div>
     </div>
 </div>
 
-<!-- View Poster Modal -->
-<div class="modal fade" id="viewPosterModal" tabindex="-1" aria-hidden="true">
+<!-- View Product Modal -->
+<div class="modal fade" id="viewProductModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-lg modal-dialog-centered">
         <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title">
-                    <i class="fas fa-info-circle me-2"></i>Poster Details
+                    <i class="fas fa-info-circle me-2"></i>Product Details
                 </h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
             <div class="modal-body">
-                <div id="viewPosterContent">
+                <div id="viewProductContent">
                     <!-- Dynamic content will be loaded here -->
                     <div class="text-center py-5">
                         <div class="spinner mx-auto"></div>
-                        <p class="mt-3 text-muted">Loading poster details...</p>
+                        <p class="mt-3 text-muted">Loading product details...</p>
                     </div>
                 </div>
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-light px-4" data-bs-dismiss="modal">Close</button>
                 <button type="button" class="btn btn-warning px-4" onclick="editFromView()" id="editFromViewBtn">
-                    <i class="fas fa-edit me-2"></i>Edit Poster
+                    <i class="fas fa-edit me-2"></i>Edit Product
                 </button>
             </div>
         </div>
@@ -816,29 +874,7 @@
         
         // Attach status toggle listeners
         attachStatusToggleListeners();
-        
-        // Initialize Select2 for modals when they are shown
-        initializeSelect2();
     });
-
-    // Initialize Select2 for modals
-    function initializeSelect2() {
-        $('#createPosterModal').on('shown.bs.modal', function() {
-            $('#create_product_id').select2({
-                width: '100%',
-                placeholder: 'Select or search product',
-                dropdownParent: $('#createPosterModal')
-            });
-        });
-        
-        $('#editPosterModal').on('shown.bs.modal', function() {
-            $('#edit_product_id').select2({
-                width: '100%',
-                placeholder: 'Select or search product',
-                dropdownParent: $('#editPosterModal')
-            });
-        });
-    }
 
     // Setup file upload functionality
     function setupFileUpload(modalType) {
@@ -884,64 +920,67 @@
         }, 3000);
     }
 
-    // Format date for display
-    function formatDate(dateString) {
-        if (!dateString) return '-';
-        const date = new Date(dateString);
-        return date.toISOString().split('T')[0];
-    }
-
-    // Create poster row HTML
-    function createPosterRow(poster) {
-        const statusClass = poster.is_active ? 'status-active' : 'status-inactive';
-        const statusText = poster.is_active ? 'Active' : 'Inactive';
+    // Create product row HTML
+    function createProductRow(product) {
+        const statusClass = product.is_active ? 'status-active' : 'status-inactive';
+        const statusText = product.is_active ? 'Active' : 'Inactive';
         
         // Fix image path
-        let imagePath = poster.image;
+        let imagePath = product.image;
         if (imagePath && !imagePath.startsWith('/')) {
             imagePath = '/' + imagePath;
         }
         
-        const description = poster.description || '-';
+        const description = product.description || '-';
         const truncatedDesc = description.length > 50 ? description.substring(0, 50) + '...' : description;
+        
+        const stockClass = product.stock > 10 ? 'bg-success' : (product.stock > 0 ? 'bg-warning' : 'bg-danger');
 
         return `
-            <tr id="poster-row-${poster.id}" data-poster-id="${poster.id}">
-                <td><span class="fw-semibold">#${poster.id}</span></td>
-                <td>${poster.title || '-'}</td>
+            <tr id="product-row-${product.id}" data-product-id="${product.id}">
+                <td><span class="fw-semibold">#${product.id}</span></td>
+                <td>
+                    <span class="badge-product">${product.category_name || product.category?.name || '-'}</span>
+                </td>
+                <td>${product.name || '-'}</td>
+                <td>${product.size || '-'}</td>
+                <td class="text-success fw-bold">₹${product.price}</td>
+                <td class="text-muted"><del>₹${product.original_price}</del></td>
+                <td>
+                    <span class="badge ${stockClass} bg-opacity-10 text-dark px-3 py-2">
+                        ${product.stock}
+                    </span>
+                </td>
                 <td>
                     <span class="text-truncate d-inline-block" style="max-width: 150px;" 
                           data-bs-toggle="tooltip" title="${description}">
                         ${truncatedDesc}
                     </span>
                 </td>
-                <td>${poster.product_name || poster.product?.name || '-'}</td>
                 <td>
-                    <img src="/static${imagePath}" class="poster-img-table" alt="${poster.title}">
+                    <img src="/static${imagePath}" class="product-img-table" alt="${product.name}">
                 </td>
-                <td>${formatDate(poster.start_date)}</td>
-                <td>${formatDate(poster.end_date)}</td>
                 <td>
                     <div class="d-flex align-items-center gap-2">
                         <span class="status-indicator ${statusClass}"></span>
-                        <span class="badge-poster">${statusText}</span>
+                        <span class="badge-product">${statusText}</span>
                     </div>
                 </td>
                 <td>
                     <div class="form-check form-switch">
                         <input class="form-check-input status-toggle" type="checkbox" 
-                            data-poster-id="${poster.id}"
-                            ${poster.is_active ? 'checked' : ''}>
+                            data-product-id="${product.id}"
+                            ${product.is_active ? 'checked' : ''}>
                     </div>
                 </td>
                 <td>
                     <div class="d-flex gap-2">
-                        <button class="btn-action btn-view" onclick="viewPosterDetails(${poster.id})" 
+                        <button class="btn-action btn-view" onclick="viewProductDetails(${product.id})" 
                                 data-bs-toggle="tooltip" title="View Details">
                             <i class="fas fa-eye"></i>
                         </button>
-                        <button class="btn-action btn-edit" onclick="editPoster(${poster.id})" 
-                                data-bs-toggle="tooltip" title="Edit Poster">
+                        <button class="btn-action btn-edit" onclick="editProduct(${product.id})" 
+                                data-bs-toggle="tooltip" title="Edit Product">
                             <i class="fas fa-edit"></i>
                         </button>
                     </div>
@@ -950,35 +989,37 @@
         `;
     }
 
-    // Update table with new/updated poster
-    function updateTableAfterSave(poster, action = 'create') {
-        const tableContainer = document.getElementById('postersTableContainer');
-        const existingRow = document.getElementById(`poster-row-${poster.id}`);
+    // Update table with new/updated product
+    function updateTableAfterSave(product, action = 'create') {
+        const tableContainer = document.getElementById('productsTableContainer');
+        const existingRow = document.getElementById(`product-row-${product.id}`);
         
         if (action === 'create') {
             // Check if table is empty
-            if (tableContainer.innerHTML.includes('No Posters Found')) {
+            if (tableContainer.innerHTML.includes('No Products Found')) {
                 // Replace empty state with table
                 tableContainer.innerHTML = `
                     <div class="table-container animate__animated animate__fadeInUp">
                         <div class="table-responsive">
-                            <table class="table table-hover align-middle mb-0" id="postersTable">
+                            <table class="table table-hover align-middle mb-0" id="productsTable">
                                 <thead>
                                     <tr>
                                         <th>ID</th>
-                                        <th>Title</th>
+                                        <th>Category</th>
+                                        <th>Name</th>
+                                        <th>Size</th>
+                                        <th>Sale Price</th>
+                                        <th>Original Price</th>
+                                        <th>Stock</th>
                                         <th>Description</th>
-                                        <th>Product</th>
                                         <th>Image</th>
-                                        <th>Start Date</th>
-                                        <th>End Date</th>
                                         <th>Status</th>
                                         <th>Toggle</th>
                                         <th>Actions</th>
                                     </tr>
                                 </thead>
-                                <tbody id="postersTableBody">
-                                    ${createPosterRow(poster)}
+                                <tbody id="productsTableBody">
+                                    ${createProductRow(product)}
                                 </tbody>
                             </table>
                         </div>
@@ -986,27 +1027,27 @@
                 `;
             } else {
                 // Add new row to existing table
-                const tbody = document.getElementById('postersTableBody') || 
-                             document.querySelector('#postersTable tbody');
+                const tbody = document.getElementById('productsTableBody') || 
+                             document.querySelector('#productsTable tbody');
                 if (tbody) {
-                    tbody.insertAdjacentHTML('beforeend', createPosterRow(poster));
+                    tbody.insertAdjacentHTML('beforeend', createProductRow(product));
                 }
             }
             
             // Highlight new row
             setTimeout(() => {
-                const newRow = document.getElementById(`poster-row-${poster.id}`);
+                const newRow = document.getElementById(`product-row-${product.id}`);
                 if (newRow) {
                     newRow.classList.add('row-highlight');
                 }
             }, 100);
         } else if (action === 'update' && existingRow) {
             // Update existing row
-            existingRow.outerHTML = createPosterRow(poster);
+            existingRow.outerHTML = createProductRow(product);
             
             // Highlight updated row
             setTimeout(() => {
-                const updatedRow = document.getElementById(`poster-row-${poster.id}`);
+                const updatedRow = document.getElementById(`product-row-${product.id}`);
                 if (updatedRow) {
                     updatedRow.classList.add('row-highlight');
                 }
@@ -1034,29 +1075,29 @@
     // Handle status change
     function handleStatusChange(event) {
         const toggle = event.target;
-        const posterId = toggle.dataset.posterId;
+        const productId = toggle.dataset.productId;
         const isActive = toggle.checked;
         
-        fetch('/admin/api/posters/toggle-status/', {
+        fetch('/admin/api/products/toggle-status/', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
                 'X-CSRFToken': '{{ csrf_token }}'
             },
             body: JSON.stringify({
-                poster_id: posterId,
+                product_id: productId,
                 is_active: isActive
             })
         })
         .then(response => response.json())
         .then(data => {
             if (data.success) {
-                showToast(`Poster status updated to ${isActive ? 'Active' : 'Inactive'}`, 'success');
+                showToast(`Product status updated to ${isActive ? 'Active' : 'Inactive'}`, 'success');
                 // Update the row with new data
-                fetch(`/admin/api/posters/${posterId}/`)
+                fetch(`/admin/api/products/${productId}/`)
                     .then(res => res.json())
-                    .then(poster => {
-                        updateTableAfterSave(poster, 'update');
+                    .then(product => {
+                        updateTableAfterSave(product, 'update');
                     });
             } else {
                 showToast(data.error || 'Error updating status', 'error');
@@ -1065,193 +1106,231 @@
         })
         .catch(error => {
             console.error('Error:', error);
-            showToast('Error updating poster status', 'error');
+            showToast('Error updating product status', 'error');
             toggle.checked = !isActive;
         });
     }
 
-    // Create poster
-    function createPoster() {
-        const btn = document.getElementById('createPosterBtn');
+    // Create product
+    function createProduct() {
+        const btn = document.getElementById('createProductBtn');
         const formData = new FormData();
         
-        const productId = document.getElementById('create_product_id').value;
-        const title = document.getElementById('create_title').value;
+        const categoryId = document.getElementById('create_category_id').value;
+        const name = document.getElementById('create_name').value;
+        const size = document.getElementById('create_size').value;
+        const price = document.getElementById('create_price').value;
+        const originalPrice = document.getElementById('create_original_price').value;
+        const stock = document.getElementById('create_stock').value;
         const description = document.getElementById('create_description').value;
-        const startDate = document.getElementById('create_start_date').value;
-        const endDate = document.getElementById('create_end_date').value;
+        const isActive = document.getElementById('create_is_active').checked;
         const imageFile = document.getElementById('create_image').files[0];
         
         // Validation
-        if (!productId) {
-            showToast('Please select a product', 'error');
+        if (!categoryId) {
+            showToast('Please select a category', 'error');
             return;
         }
         
-        if (!title) {
-            showToast('Title is required', 'error');
+        if (!name) {
+            showToast('Product name is required', 'error');
             return;
         }
         
-        if (!startDate) {
-            showToast('Start date is required', 'error');
+        if (!size) {
+            showToast('Size is required', 'error');
             return;
         }
         
-        if (!endDate) {
-            showToast('End date is required', 'error');
+        if (!price) {
+            showToast('Sale price is required', 'error');
+            return;
+        }
+        
+        if (!originalPrice) {
+            showToast('Original price is required', 'error');
+            return;
+        }
+        
+        if (!stock) {
+            showToast('Stock is required', 'error');
             return;
         }
         
         if (!imageFile) {
-            showToast('Poster image is required', 'error');
+            showToast('Product image is required', 'error');
             return;
         }
         
-        formData.append('product_id', productId);
-        formData.append('title', title);
+        formData.append('category_id', categoryId);
+        formData.append('name', name);
+        formData.append('size', size);
+        formData.append('price', price);
+        formData.append('original_price', originalPrice);
+        formData.append('stock', stock);
         formData.append('description', description);
-        formData.append('start_date', startDate);
-        formData.append('end_date', endDate);
+        formData.append('is_active', isActive);
         formData.append('image', imageFile);
         formData.append('csrfmiddlewaretoken', '{{ csrf_token }}');
         
         btn.disabled = true;
         btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Creating...';
 
-        fetch('/admin/api/posters/create/', {
+        fetch('/admin/api/products/create/', {
             method: 'POST',
             body: formData
         })
         .then(response => response.json())
         .then(data => {
             if (data.success) {
-                showToast('Poster created successfully!', 'success');
+                showToast('Product created successfully!', 'success');
                 
                 // Close modal
-                bootstrap.Modal.getInstance(document.getElementById('createPosterModal')).hide();
+                bootstrap.Modal.getInstance(document.getElementById('createProductModal')).hide();
                 
                 // Reset form
-                document.getElementById('create_product_id').value = '';
-                document.getElementById('create_title').value = '';
+                document.getElementById('create_category_id').value = '';
+                document.getElementById('create_name').value = '';
+                document.getElementById('create_size').value = '';
+                document.getElementById('create_price').value = '';
+                document.getElementById('create_original_price').value = '';
+                document.getElementById('create_stock').value = '';
                 document.getElementById('create_description').value = '';
-                document.getElementById('create_start_date').value = '';
-                document.getElementById('create_end_date').value = '';
+                document.getElementById('create_is_active').checked = true;
                 document.getElementById('create_image').value = '';
                 document.getElementById('createPreview').innerHTML = '';
                 
-                // Add new poster to table
-                updateTableAfterSave(data.poster, 'create');
+                // Add new product to table
+                updateTableAfterSave(data.product, 'create');
             } else {
-                showToast(data.error || 'Error creating poster', 'error');
+                showToast(data.error || 'Error creating product', 'error');
             }
         })
         .catch(error => {
             console.error('Error:', error);
-            showToast('Error creating poster', 'error');
+            showToast('Error creating product', 'error');
         })
         .finally(() => {
             btn.disabled = false;
-            btn.innerHTML = '<i class="fas fa-check-circle me-2"></i>Create Poster';
+            btn.innerHTML = '<i class="fas fa-check-circle me-2"></i>Create Product';
         });
     }
 
-    // Edit poster
-    function editPoster(posterId) {
-        const modal = new bootstrap.Modal(document.getElementById('editPosterModal'));
+    // Edit product
+    function editProduct(productId) {
+        const modal = new bootstrap.Modal(document.getElementById('editProductModal'));
         const loadingOverlay = document.getElementById('editModalLoading');
         
         modal.show();
         loadingOverlay.style.display = 'flex';
         
         // Clear previous data
-        document.getElementById('edit_poster_id').value = '';
         document.getElementById('edit_product_id').value = '';
-        document.getElementById('edit_title').value = '';
+        document.getElementById('edit_category_id').value = '';
+        document.getElementById('edit_name').value = '';
+        document.getElementById('edit_size').value = '';
+        document.getElementById('edit_price').value = '';
+        document.getElementById('edit_original_price').value = '';
+        document.getElementById('edit_stock').value = '';
         document.getElementById('edit_description').value = '';
-        document.getElementById('edit_start_date').value = '';
-        document.getElementById('edit_end_date').value = '';
+        document.getElementById('edit_is_active').checked = true;
         document.getElementById('edit_image').value = '';
         document.getElementById('editPreview').innerHTML = '';
         
         // Reset profile section
-        document.getElementById('editPosterTitle').textContent = 'Loading...';
-        document.getElementById('editPosterId').textContent = 'ID: #0';
-        document.getElementById('editPosterImage').src = '';
+        document.getElementById('editProductName').textContent = 'Loading...';
+        document.getElementById('editProductId').textContent = 'ID: #0';
+        document.getElementById('editProductImage').src = '';
         
-        fetch(`/admin/api/posters/${posterId}/`)
+        fetch(`/admin/api/products/${productId}/`)
             .then(response => response.json())
-            .then(poster => {
+            .then(product => {
                 // Update profile section
-                document.getElementById('editPosterTitle').textContent = poster.title;
-                document.getElementById('editPosterId').textContent = `ID: #${poster.id}`;
+                document.getElementById('editProductName').textContent = product.name;
+                document.getElementById('editProductId').textContent = `ID: #${product.id}`;
                 
                 // Fix image path
-                if (poster.image) {
-                    const imagePath = poster.image.startsWith('/') ? poster.image : `/${poster.image}`;
-                    document.getElementById('editPosterImage').src = `/static${imagePath}`;
+                if (product.image) {
+                    const imagePath = product.image.startsWith('/') ? product.image : `/${product.image}`;
+                    document.getElementById('editProductImage').src = `/static${imagePath}`;
                 }
                 
                 // Populate form
-                document.getElementById('edit_poster_id').value = poster.id;
-                document.getElementById('edit_product_id').value = poster.product_id;
-                document.getElementById('edit_title').value = poster.title;
-                document.getElementById('edit_description').value = poster.description || '';
-                document.getElementById('edit_start_date').value = formatDate(poster.start_date);
-                document.getElementById('edit_end_date').value = formatDate(poster.end_date);
-                
-                // Trigger Select2 to update
-                $('#edit_product_id').trigger('change');
+                document.getElementById('edit_product_id').value = product.id;
+                document.getElementById('edit_category_id').value = product.category_id;
+                document.getElementById('edit_name').value = product.name;
+                document.getElementById('edit_size').value = product.size;
+                document.getElementById('edit_price').value = product.price;
+                document.getElementById('edit_original_price').value = product.original_price;
+                document.getElementById('edit_stock').value = product.stock;
+                document.getElementById('edit_description').value = product.description || '';
+                document.getElementById('edit_is_active').checked = product.is_active;
                 
                 loadingOverlay.style.display = 'none';
             })
             .catch(error => {
                 console.error('Error:', error);
-                showToast('Error loading poster data', 'error');
+                showToast('Error loading product data', 'error');
                 loadingOverlay.style.display = 'none';
-                bootstrap.Modal.getInstance(document.getElementById('editPosterModal')).hide();
+                bootstrap.Modal.getInstance(document.getElementById('editProductModal')).hide();
             });
     }
 
-    // Update poster
-    function updatePoster() {
-        const btn = document.getElementById('updatePosterBtn');
-        const posterId = document.getElementById('edit_poster_id').value;
+    // Update product
+    function updateProduct() {
+        const btn = document.getElementById('updateProductBtn');
+        const productId = document.getElementById('edit_product_id').value;
         const formData = new FormData();
         
-        const productId = document.getElementById('edit_product_id').value;
-        const title = document.getElementById('edit_title').value;
+        const categoryId = document.getElementById('edit_category_id').value;
+        const name = document.getElementById('edit_name').value;
+        const size = document.getElementById('edit_size').value;
+        const price = document.getElementById('edit_price').value;
+        const originalPrice = document.getElementById('edit_original_price').value;
+        const stock = document.getElementById('edit_stock').value;
         const description = document.getElementById('edit_description').value;
-        const startDate = document.getElementById('edit_start_date').value;
-        const endDate = document.getElementById('edit_end_date').value;
+        const isActive = document.getElementById('edit_is_active').checked;
         const imageFile = document.getElementById('edit_image').files[0];
         
         // Validation
-        if (!productId) {
-            showToast('Please select a product', 'error');
+        if (!categoryId) {
+            showToast('Please select a category', 'error');
             return;
         }
         
-        if (!title) {
-            showToast('Title is required', 'error');
+        if (!name) {
+            showToast('Product name is required', 'error');
             return;
         }
         
-        if (!startDate) {
-            showToast('Start date is required', 'error');
+        if (!size) {
+            showToast('Size is required', 'error');
             return;
         }
         
-        if (!endDate) {
-            showToast('End date is required', 'error');
+        if (!price) {
+            showToast('Sale price is required', 'error');
             return;
         }
         
-        formData.append('product_id', productId);
-        formData.append('title', title);
+        if (!originalPrice) {
+            showToast('Original price is required', 'error');
+            return;
+        }
+        
+        if (!stock) {
+            showToast('Stock is required', 'error');
+            return;
+        }
+        
+        formData.append('category_id', categoryId);
+        formData.append('name', name);
+        formData.append('size', size);
+        formData.append('price', price);
+        formData.append('original_price', originalPrice);
+        formData.append('stock', stock);
         formData.append('description', description);
-        formData.append('start_date', startDate);
-        formData.append('end_date', endDate);
+        formData.append('is_active', isActive);
         
         if (imageFile) {
             formData.append('image', imageFile);
@@ -1262,71 +1341,72 @@
         btn.disabled = true;
         btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Updating...';
 
-        fetch(`/admin/api/posters/${posterId}/update/`, {
+        fetch(`/admin/api/products/${productId}/update/`, {
             method: 'POST',
             body: formData
         })
         .then(response => response.json())
         .then(data => {
             if (data.success) {
-                showToast('Poster updated successfully!', 'success');
+                showToast('Product updated successfully!', 'success');
                 
                 // Close modal
-                bootstrap.Modal.getInstance(document.getElementById('editPosterModal')).hide();
+                bootstrap.Modal.getInstance(document.getElementById('editProductModal')).hide();
                 
                 // Reset file input and preview
                 document.getElementById('edit_image').value = '';
                 document.getElementById('editPreview').innerHTML = '';
                 
-                // Update poster in table
-                updateTableAfterSave(data.poster, 'update');
+                // Update product in table
+                updateTableAfterSave(data.product, 'update');
             } else {
-                showToast(data.error || 'Error updating poster', 'error');
+                showToast(data.error || 'Error updating product', 'error');
             }
         })
         .catch(error => {
             console.error('Error:', error);
-            showToast('Error updating poster', 'error');
+            showToast('Error updating product', 'error');
         })
         .finally(() => {
             btn.disabled = false;
-            btn.innerHTML = '<i class="fas fa-save me-2"></i>Update Poster';
+            btn.innerHTML = '<i class="fas fa-save me-2"></i>Update Product';
         });
     }
 
-    // View poster details
-    function viewPosterDetails(posterId) {
-        const modal = new bootstrap.Modal(document.getElementById('viewPosterModal'));
-        const content = document.getElementById('viewPosterContent');
+    // View product details
+    function viewProductDetails(productId) {
+        const modal = new bootstrap.Modal(document.getElementById('viewProductModal'));
+        const content = document.getElementById('viewProductContent');
         
         modal.show();
         content.innerHTML = `
             <div class="text-center py-5">
                 <div class="spinner mx-auto"></div>
-                <p class="mt-3 text-muted">Loading poster details...</p>
+                <p class="mt-3 text-muted">Loading product details...</p>
             </div>
         `;
         
-        fetch(`/admin/api/posters/${posterId}/`)
+        fetch(`/admin/api/products/${productId}/`)
             .then(response => response.json())
-            .then(poster => {
-                const statusClass = poster.is_active ? 'success' : 'secondary';
-                const statusText = poster.is_active ? 'Active' : 'Inactive';
+            .then(product => {
+                const statusClass = product.is_active ? 'success' : 'secondary';
+                const statusText = product.is_active ? 'Active' : 'Inactive';
+                const stockClass = product.stock > 10 ? 'success' : (product.stock > 0 ? 'warning' : 'danger');
                 
                 // Fix image path
                 let imageHtml = '';
-                if (poster.image) {
-                    const imagePath = poster.image.startsWith('/') ? poster.image : `/${poster.image}`;
-                    imageHtml = `<img src="/static${imagePath}" class="poster-image-lg" style="width: 150px; height: 150px;" alt="${poster.title}">`;
+                if (product.image) {
+                    const imagePath = product.image.startsWith('/') ? product.image : `/${product.image}`;
+                    imageHtml = `<img src="/static${imagePath}" class="product-image-lg" style="width: 150px; height: 150px;" alt="${product.name}">`;
                 } else {
-                    imageHtml = `<div class="poster-avatar-lg" style="background: #cbd5e1;"><i class="fas fa-image"></i></div>`;
+                    imageHtml = `<div class="product-avatar-lg" style="background: #cbd5e1;"><i class="fas fa-image"></i></div>`;
                 }
                 
                 content.innerHTML = `
                     <div class="text-center mb-4">
                         ${imageHtml}
-                        <h4 class="mt-4 mb-1 fw-bold">${poster.title}</h4>
-                        <p class="text-muted mb-3">Poster ID: #${poster.id}</p>
+                        <h4 class="mt-4 mb-1 fw-bold">${product.name}</h4>
+                        <p class="text-muted mb-3">Product ID: #${product.id}</p>
                         <div class="d-flex justify-content-center gap-2">
                             <span class="badge bg-${statusClass} text-white px-3 py-2 rounded-pill">
                                 <i class="fas fa-circle me-1" style="font-size: 8px;"></i>${statusText}
@@ -1338,17 +1418,45 @@
                         <div class="col-md-6">
                             <div class="detail-card">
                                 <div class="detail-label">
-                                    <i class="fas fa-box me-1"></i> Product
+                                    <i class="fas fa-tag me-1"></i> Category
                                 </div>
-                                <div class="detail-value">${poster.product_name || poster.product?.name || '-'}</div>
+                                <div class="detail-value">${product.category_name || product.category?.name || '-'}</div>
                             </div>
                         </div>
                         <div class="col-md-6">
                             <div class="detail-card">
                                 <div class="detail-label">
-                                    <i class="fas fa-calendar-alt me-1"></i> Duration
+                                    <i class="fas fa-ruler me-1"></i> Size
                                 </div>
-                                <div class="detail-value">${formatDate(poster.start_date)} to ${formatDate(poster.end_date)}</div>
+                                <div class="detail-value">${product.size || '-'}</div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="detail-card">
+                                <div class="detail-label">
+                                    <i class="fas fa-tag me-1"></i> Sale Price
+                                </div>
+                                <div class="price-value">₹${product.price}</div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="detail-card">
+                                <div class="detail-label">
+                                    <i class="fas fa-tag me-1"></i> Original Price
+                                </div>
+                                <div class="detail-value"><del>₹${product.original_price}</del></div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="detail-card">
+                                <div class="detail-label">
+                                    <i class="fas fa-cubes me-1"></i> Stock
+                                </div>
+                                <div class="detail-value">
+                                    <span class="badge bg-${stockClass} text-white px-3 py-2">
+                                        ${product.stock} units
+                                    </span>
+                                </div>
                             </div>
                         </div>
                         <div class="col-12">
@@ -1356,38 +1464,20 @@
                                 <div class="detail-label">
                                     <i class="fas fa-align-left me-1"></i> Description
                                 </div>
-                                <div class="detail-value">${poster.description || 'No description provided'}</div>
-                            </div>
-                        </div>
-                        ${poster.created_at ? `
-                        <div class="col-md-6">
-                            <div class="detail-card">
-                                <div class="detail-label">
-                                    <i class="fas fa-calendar me-1"></i> Created Date
-                                </div>
-                                <div class="detail-value">${formatDate(poster.created_at)}</div>
-                            </div>
-                        </div>
-                        ` : ''}
-                        <div class="col-md-6">
-                            <div class="detail-card">
-                                <div class="detail-label">
-                                    <i class="fas fa-image me-1"></i> Image Path
-                                </div>
-                                <div class="detail-value small">${poster.image || 'No image'}</div>
+                                <div class="detail-value">${product.description || 'No description provided'}</div>
                             </div>
                         </div>
                     </div>
                 `;
                 
-                document.getElementById('editFromViewBtn').setAttribute('data-poster-id', poster.id);
+                document.getElementById('editFromViewBtn').setAttribute('data-product-id', product.id);
             })
             .catch(error => {
                 console.error('Error:', error);
                 content.innerHTML = `
                     <div class="text-center py-5 text-danger">
                         <i class="fas fa-exclamation-triangle fa-3x mb-3"></i>
-                        <p>Error loading poster details. Please try again.</p>
+                        <p>Error loading product details. Please try again.</p>
                     </div>
                 `;
             });
@@ -1395,25 +1485,28 @@
 
     // Edit from view modal
     function editFromView() {
-        const posterId = document.getElementById('editFromViewBtn').getAttribute('data-poster-id');
-        if (posterId) {
-            bootstrap.Modal.getInstance(document.getElementById('viewPosterModal')).hide();
-            setTimeout(() => editPoster(posterId), 500);
+        const productId = document.getElementById('editFromViewBtn').getAttribute('data-product-id');
+        if (productId) {
+            bootstrap.Modal.getInstance(document.getElementById('viewProductModal')).hide();
+            setTimeout(() => editProduct(productId), 500);
         }
     }
 
     // Reset forms when modals are closed
-    document.getElementById('createPosterModal').addEventListener('hidden.bs.modal', function () {
-        document.getElementById('create_product_id').value = '';
-        document.getElementById('create_title').value = '';
+    document.getElementById('createProductModal').addEventListener('hidden.bs.modal', function () {
+        document.getElementById('create_category_id').value = '';
+        document.getElementById('create_name').value = '';
+        document.getElementById('create_size').value = '';
+        document.getElementById('create_price').value = '';
+        document.getElementById('create_original_price').value = '';
+        document.getElementById('create_stock').value = '';
         document.getElementById('create_description').value = '';
-        document.getElementById('create_start_date').value = '';
-        document.getElementById('create_end_date').value = '';
+        document.getElementById('create_is_active').checked = true;
         document.getElementById('create_image').value = '';
         document.getElementById('createPreview').innerHTML = '';
     });
     
-    document.getElementById('editPosterModal').addEventListener('hidden.bs.modal', function () {
+    document.getElementById('editProductModal').addEventListener('hidden.bs.modal', function () {
         const loadingOverlay = document.getElementById('editModalLoading');
         loadingOverlay.style.display = 'none';
         document.getElementById('edit_image').value = '';

@@ -340,184 +340,413 @@ class PickupStatusUpdateView(View):
             }, status=500)
         
 
-#For Admin View
-
-@method_decorator(admin_required,name='dispatch')
-class AdminAllOrdersView(View):
-    def get(self, request):
-        filter_value = request.GET.get('filter', None)
-        if filter_value == 'pending':
-            filter_by = 'PENDING'
-        elif filter_value == 'processing':
-            filter_by = 'PROCESSING'
-        elif filter_value == 'outfordelivery':
-            filter_by = 'OUTFORDELIVERY'
-        elif filter_value == 'delivered':
-            filter_by = 'DELIVERED'
-        elif filter_value == 'cancelled':
-            filter_by = 'CANCELLED'
-        elif filter_value == 'confirmed':
-            filter_by = 'CONFIRMED'
-        else:
-            filter_by = 'all'
-
-        orders = order_service.get_all_orders(filter_by)
-        orders_data = [
-            {
-                'order':order,
-                'items_count':order.items.count(),
-                'status_name':OrderStatus(order.status).name,
-                'assigned_to':delivery_service.get_delivery_person_by_order(order.id)
-            }
-            for order in orders
-        ]
-        deliveryboys = deliveryperson_service.get_available_delivery_boys()
-        context = {'orders': orders_data,'deliveryboys':deliveryboys}
-        return render(request, 'admin/order/list.html', context)
-    
-
-@method_decorator(admin_required,name='dispatch')
-@method_decorator(csrf_exempt,name='dispatch')
-class AdminOrderAssignedView(View):
-    def get(self,request):
-        orders = order_service.get_all_unassigned_orders()
-        workers = deliveryperson_service.get_available_delivery_boys()
-        orders_data = []
-        if orders:
-            orders_data = [
-                {
-                    'id':order.id,
-                    'delivery_address':order.delivery_address,
-                    'created_at':order.created_at,
-                    'status':OrderStatus(order.status).name,
-                    'is_active':order.is_active,
-                    'full_name':f"{order.user.first_name} {order.user.last_name}"
-                }
-                for order in orders
-            ]
-        workers_data = [
-            {
-                'id':worker.id,
-                'full_name':f"{worker.user.first_name} {worker.user.last_name}"
-            }
-            for worker in workers
-        ]
-        return render(request,'admin/order/unassigned_order_list.html',{'orders':orders_data,'workers':workers_data})
-    
-    def post(self, request):
-        data = json.loads(request.body)
-        order_id = data.get('order_id')
-        assigned_to = data.get('assigned_to')
-        if not all([order_id,assigned_to]):
-            return JsonResponse({'success':False, 'message':'Order id or assigned_to is missing!'})
-        res = delivery_service.assigned_worker(order_id,assigned_to)
-        if res:
-            order = order_service.get_order_by_id(order_id)
-            order.status = OrderStatus.CONFIRMED.value
-            order.save()
-            return JsonResponse({'success':True, 'message':'Assigned successfully!'})
-        return JsonResponse({'success':False, 'message':'Assigned is failed!'})
-
-
-
-
+# ==================== ALL ORDERS MANAGEMENT (Full CRUD) ====================
 
 @method_decorator(admin_required, name='dispatch')
 class AdminOrderListView(View):
     def get(self, request):
         orders = order_service.get_all_orders()
-        return render(request, 'admin/order/order_list.html', {'orders': orders})
+        users = user_service.get_all_users()
+        products = product_service.get_all_active_products()
+        order_statuses = order_service.get_all_order_status()
+        deliveryboys = deliveryperson_service.get_available_delivery_boys()
+        
+        # Prepare orders data with additional info
+        orders_data = []
+        for order in orders:
+            # This now returns a DeliveryOrPickup object or None
+            delivery_item = delivery_service.get_delivery_person_by_order(order.id)
+            
+            # Safely get the assigned person's name
+            assigned_to_name = None
+            assigned_to_id = None
+            
+            if delivery_item and delivery_item.delivery_person:
+                assigned_to_name = delivery_item.delivery_person.user.get_full_name() if delivery_item.delivery_person.user else None
+                assigned_to_id = delivery_item.delivery_person.id
+            
+            orders_data.append({
+                'order': order,
+                'items_count': order.items.count(),
+                'status_name': OrderStatus(order.status).name,
+                'assigned_to': assigned_to_name,
+                'assigned_to_id': assigned_to_id
+            })
+        
+        context = {
+            'orders': orders_data,
+            'users': users,
+            'products': products,
+            'order_statuses': order_statuses,
+            'deliveryboys': deliveryboys
+        }
+        return render(request, 'admin/order_list.html', context)
 
 
 @method_decorator(admin_required, name='dispatch')
 @method_decorator(csrf_exempt, name='dispatch')
 class AdminOrderCreateView(View):
-    def get(self, request):
-        users = user_service.get_all_users()
-        order_statuses = order_service.get_all_order_status()
-        products = product_service.get_all_active_products()
-        return render(request, 'admin/order/order_create.html', {'users': users,'order_statuses':order_statuses,'products':products})
-    
-
     def post(self, request):
         try:
             data = json.loads(request.body)
-            user_id = data.get('user')
+            user_id = data.get('user_id')
             status = data.get('status')
             total_price = data.get('total_price')
             discount = data.get('discount', 0)
             delivery_fee = data.get('delivery_fee')
             listing_price = data.get('listing_price')
             delivery_address = data.get('delivery_address', '')
-            is_active = data.get('is_active', True)  # Fix: use data, default True
-            items = data.get('items', [])  # Add: extract items array
+            is_active = data.get('is_active', True)
+            items = data.get('items', [])
 
             if not all([user_id, status, total_price, delivery_fee, listing_price]):
                 return JsonResponse({'error': 'Missing required fields'}, status=400)
 
             order = order_service.order_create(
                 user_id, status, total_price, discount, 
-                delivery_fee, listing_price, delivery_address, is_active, items  # Pass items
+                delivery_fee, listing_price, delivery_address, is_active, items
             )
-            return JsonResponse({'message': 'Order created successfully!', 'order_id':order.id})
+            
+            # Return created order data for dynamic update
+            order_data = {
+                'id': order.id,
+                'user_name': order.user.get_full_name() or order.user.username,
+                'status': order.status,
+                'status_display': OrderStatus(order.status).name,
+                'total_price': str(order.total_price),
+                'delivery_fee': str(order.delivery_fee),
+                'created_at': order.created_at.strftime('%Y-%m-%d %H:%M:%S'),
+                'items_count': order.items.count(),
+                'is_active': order.is_active
+            }
+            
+            return JsonResponse({
+                'success': True,
+                'message': 'Order created successfully!',
+                'order': order_data
+            })
 
         except Exception as e:
             return JsonResponse({'error': str(e)}, status=500)
 
 
+@method_decorator(admin_required, name='dispatch')
+@method_decorator(csrf_exempt, name='dispatch')
+class AdminOrderDetailView(View):
+    def get(self, request, order_id):
+        try:
+            order = order_service.get_order_by_id(order_id)
+            
+            if not order:
+                return JsonResponse({'error': 'Order not found'}, status=404)
+            
+            # Get order items - using order_items related_name from OrderItem model
+            items = []
+            for item in order.order_items.filter(is_active=True):  # Use order_items instead of items
+                items.append({
+                    'id': item.id,
+                    'product_id': item.product.id,
+                    'product_name': item.product.name,  # Fixed: removed extra .product
+                    'product_image': item.product.image,
+                    'size': item.product.size,
+                    'quantity': item.quantity,
+                    'price': str(item.product.price),  # Price comes from Product
+                    'original_price': str(item.product.original_price)
+                })
+            
+            # Get assigned delivery person
+            assigned_to = delivery_service.get_delivery_person_by_order(order.id)
+            
+            order_data = {
+                'id': order.id,
+                'user_id': order.user.id,
+                'user_name': order.user.get_full_name() or order.user.username,
+                'user_email': order.user.email,
+                'user_phone': order.user.phone_number,
+                'status': order.status,
+                'status_display': OrderStatus(order.status).name if hasattr(OrderStatus, '__call__') else OrderStatus(order.status).name,
+                'total_price': str(order.total_price),
+                'discount': str(order.discount),
+                'delivery_fee': str(order.delivery_fee),
+                'listing_price': str(order.listing_price),
+                'delivery_address': order.delivery_address,
+                'created_at': order.created_at.strftime('%Y-%m-%d %H:%M:%S'),
+                'updated_at': order.updated_at.strftime('%Y-%m-%d %H:%M:%S') if order.updated_at else None,
+                'is_active': order.is_active,
+                'items': items,
+                'items_count': len(items),  # Changed to use len(items) instead of order.items.count()
+                'assigned_to': {
+                    'id': assigned_to.id if assigned_to else None,
+                    'name': assigned_to.delivery_person.user.get_full_name() if assigned_to and assigned_to.delivery_person.user else None
+                } if assigned_to else None
+            }
+            return JsonResponse(order_data)
+            
+        except Exception as e:
+            return JsonResponse({'error': str(e)}, status=500)
 
 @method_decorator(admin_required, name='dispatch')
 @method_decorator(csrf_exempt, name='dispatch')
 class AdminOrderUpdateView(View):
-    def get(self, request, order_id):
-        order = order_service.get_order_admin_data_by_id(order_id)
-        users = user_service.get_all_users()
-        products = product_service.get_all_active_products()
-        order_statuses = order_service.get_all_order_status()
-        return render(request, 'admin/order/order_update.html', {'order': order, 'users': users,'order_statuses':order_statuses,'products':products})
-    
     def post(self, request, order_id):
         try:
-            data = json.loads(request.body)            
-            user_id = data.get('user')
+            data = json.loads(request.body)
+            user_id = data.get('user_id')
             status = data.get('status')
-            current_items = data.get('current_items', [])
-            new_items = data.get('new_items', []) 
             total_price = data.get('total_price')
             discount = data.get('discount', '0.00')
             delivery_fee = data.get('delivery_fee')
             listing_price = data.get('listing_price')
             delivery_address = data.get('delivery_address', '')
             is_active = data.get('is_active', True)
+            current_items = data.get('current_items', [])
+            new_items = data.get('new_items', [])
 
             if not all([user_id, status, total_price, delivery_fee, listing_price]):
                 return JsonResponse({'error': 'Missing required fields'}, status=400)
 
-            # Update order using service
-            order_service.order_update(
+            order = order_service.order_update(
                 order_id, user_id, status, total_price, discount, 
                 delivery_fee, listing_price, delivery_address, is_active, 
                 current_items, new_items
             )
             
-            return JsonResponse({'message': 'Order updated successfully!'})
+            # Return updated order data
+            order_data = {
+                'id': order.id,
+                'user_name': order.user.get_full_name() or order.user.username,
+                'status': order.status,
+                'status_display': OrderStatus(order.status).name,
+                'total_price': str(order.total_price),
+                'delivery_fee': str(order.delivery_fee),
+                'created_at': order.created_at.strftime('%Y-%m-%d %H:%M:%S'),
+                'items_count': order.items.count(),
+                'is_active': order.is_active
+            }
+            
+            return JsonResponse({
+                'success': True,
+                'message': 'Order updated successfully!',
+                'order': order_data
+            })
 
         except Exception as e:
             return JsonResponse({'error': str(e)}, status=500)
+
 
 @method_decorator(admin_required, name='dispatch')
 @method_decorator(csrf_exempt, name='dispatch')
 class AdminOrderToggleActiveView(View):
     def post(self, request):
-        data = json.loads(request.body)
-        is_active = data.get('is_active')
-        order_id = data.get('order_id')
-        order = order_service.toggle_active_order(order_id, is_active)
-        return JsonResponse({
-            'success': True,
-            'order_id': order.id,
-            'is_active': order.is_active
-        })
+        try:
+            data = json.loads(request.body)
+            is_active = data.get('is_active')
+            order_id = data.get('order_id')
+            order = order_service.toggle_active_order(order_id, is_active)
+            return JsonResponse({
+                'success': True,
+                'order_id': order.id,
+                'is_active': order.is_active
+            })
+        except Exception as e:
+            return JsonResponse({'error': str(e)}, status=500)
 
+
+@method_decorator(admin_required, name='dispatch')
+@method_decorator(csrf_exempt, name='dispatch')
+class AdminOrderDeleteView(View):
+    def post(self, request, order_id):
+        try:
+            success = order_service.delete_order(order_id)
+            if success:
+                return JsonResponse({
+                    'success': True,
+                    'message': 'Order deleted successfully!'
+                })
+            return JsonResponse({'error': 'Failed to delete order'}, status=400)
+        except Exception as e:
+            return JsonResponse({'error': str(e)}, status=500)
+
+
+# ==================== UNASSIGNED ORDERS ====================
+
+@method_decorator(admin_required, name='dispatch')
+@method_decorator(csrf_exempt, name='dispatch')
+class AdminUnassignedOrdersView(View):
+    def get(self, request):
+        orders = order_service.get_all_unassigned_orders()
+        workers = deliveryperson_service.get_available_delivery_boys()
         
+        orders_data = []
+        if orders:
+            for order in orders:
+                orders_data.append({
+                    'id': order.id,
+                    'delivery_address': order.delivery_address,
+                    'created_at': order.created_at.strftime('%Y-%m-%d %H:%M:%S'),
+                    'status': OrderStatus(order.status).name,
+                    'is_active': order.is_active,
+                    'customer_name': f"{order.user.first_name} {order.user.last_name}".strip() or order.user.username,
+                    'customer_phone': order.user.phone_number,
+                    'total_price': str(order.total_price),
+                    'items_count': order.items.count()
+                })
         
+        workers_data = []
+        if workers:
+            for worker in workers:
+                workers_data.append({
+                    'id': worker.id,
+                    'full_name': worker.user.get_full_name() if worker.user else "Unknown",
+                    'is_available': worker.is_available
+                })
+        
+        return render(request, 'admin/unassigned_order_list.html', {
+            'orders': orders_data,
+            'workers': workers_data
+        })
+    
+    def post(self, request):
+        try:
+            data = json.loads(request.body)
+            order_id = data.get('order_id')
+            assigned_to = data.get('assigned_to')
+            
+            if not all([order_id, assigned_to]):
+                return JsonResponse({'success': False, 'message': 'Order ID or assigned_to is missing!'})
+            
+            res = delivery_service.assign_worker(order_id, assigned_to)
+            if res:
+                # Update order status to CONFIRMED
+                order = order_service.get_order_by_id(order_id)
+                order.status = OrderStatus.CONFIRMED.value
+                order.save()
+                
+                # Get updated order and worker data for response
+                worker = deliveryperson_service.get_delivery_person_by_id(assigned_to)
+                
+                return JsonResponse({
+                    'success': True,
+                    'message': 'Assigned successfully!',
+                    'order_id': order_id,
+                    'assigned_to': {
+                        'id': assigned_to,
+                        'name': worker.user.get_full_name() if worker and worker.user else "Unknown"
+                    }
+                })
+            
+            return JsonResponse({'success': False, 'message': 'Assignment failed!'})
+        except Exception as e:
+            return JsonResponse({'success': False, 'message': str(e)})
+
+
+# ==================== UNASSIGNED PICKUPS (Exchanges/Returns) ====================
+
+@method_decorator(admin_required, name='dispatch')
+@method_decorator(csrf_exempt, name='dispatch')
+class AdminUnassignedPickupsView(View):
+    def get(self, request):
+        # Get all unassigned exchanges/returns
+        from E_mart.services import exchange_or_return_service
+        
+        exchanges = exchange_or_return_service.get_all_unassigned_exchanges()
+        workers = deliveryperson_service.get_available_delivery_boys()
+        
+        exchanges_data = []
+        if exchanges:
+            for exchange in exchanges:
+                exchanges_data.append({
+                    'id': exchange.id,
+                    'order_id': exchange.order.id,
+                    'user_name': exchange.user.get_full_name() or exchange.user.username,
+                    'reason': exchange.reason,
+                    'status': exchange.get_status_display(),
+                    'status_value': exchange.status,
+                    'purpose': exchange.get_purpose_display(),
+                    'request_date': exchange.request_date.strftime('%Y-%m-%d %H:%M:%S'),
+                    'is_active': exchange.is_active,
+                    'product_name': exchange.product.name if exchange.product else 'N/A',
+                    'product_image': exchange.product.image if exchange.product else None
+                })
+        
+        workers_data = []
+        if workers:
+            for worker in workers:
+                workers_data.append({
+                    'id': worker.id,
+                    'full_name': worker.user.get_full_name() if worker.user else "Unknown",
+                    'is_available': worker.is_available
+                })
+        
+        return render(request, 'admin/unassigned_pickups.html', {
+            'exchanges': exchanges_data,
+            'workers': workers_data
+        })
+    
+    def post(self, request):
+        try:
+            data = json.loads(request.body)
+            exchange_id = data.get('exchange_id')
+            assigned_to = data.get('assigned_to')
+            
+            if not all([exchange_id, assigned_to]):
+                return JsonResponse({'success': False, 'message': 'Exchange ID or assigned_to is missing!'})
+            
+            from E_mart.services import exchange_or_return_service
+            res = exchange_or_return_service.assign_pickup_worker(exchange_id, assigned_to)
+            
+            if res:
+                # Get updated exchange and worker data
+                worker = deliveryperson_service.get_delivery_person_by_id(assigned_to)
+                
+                return JsonResponse({
+                    'success': True,
+                    'message': 'Pickup assigned successfully!',
+                    'exchange_id': exchange_id,
+                    'assigned_to': {
+                        'id': assigned_to,
+                        'name': worker.user.get_full_name() if worker and worker.user else "Unknown"
+                    }
+                })
+            
+            return JsonResponse({'success': False, 'message': 'Assignment failed!'})
+        except Exception as e:
+            return JsonResponse({'success': False, 'message': str(e)})
+
+
+# ==================== FILTERED ORDERS VIEW ====================
+
+@method_decorator(admin_required, name='dispatch')
+class AdminFilteredOrdersView(View):
+    def get(self, request):
+        filter_value = request.GET.get('filter', None)
+        filter_map = {
+            'pending': 'PENDING',
+            'processing': 'PROCESSING',
+            'outfordelivery': 'OUTFORDELIVERY',
+            'delivered': 'DELIVERED',
+            'cancelled': 'CANCELLED',
+            'confirmed': 'CONFIRMED'
+        }
+        
+        filter_by = filter_map.get(filter_value, 'all')
+        orders = order_service.get_all_orders(filter_by)
+        
+        orders_data = []
+        for order in orders:
+            assigned_to = delivery_service.get_delivery_person_by_order(order.id)
+            orders_data.append({
+                'order': order,
+                'items_count': order.items.count(),
+                'status_name': OrderStatus(order.status).name,
+                'assigned_to': assigned_to.user.get_full_name() if assigned_to and assigned_to.user else None,
+                'assigned_to_id': assigned_to.id if assigned_to else None
+            })
+        
+        deliveryboys = deliveryperson_service.get_available_delivery_boys()
+        
+        return render(request, 'admin/order/filtered_orders.html', {
+            'orders': orders_data,
+            'deliveryboys': deliveryboys,
+            'current_filter': filter_value
+        })

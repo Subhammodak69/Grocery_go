@@ -22,49 +22,7 @@ class AdminHomeView(View):
     def get(self, request):
         context = admin_dashboard_service.get_all_dashboard_data()
         return render(request, 'admin/dashboard.html', context)
-    
-@method_decorator(admin_required, name='dispatch')
-@method_decorator(csrf_exempt, name='dispatch')
-class AdminOrderDetailView(View):
-    def get(self, request, order_id):
-        context = admin_dashboard_service.get_order_data(order_id)
-        return render(request, 'admin/order/order_details.html', context)
 
-    def post(self, request, order_id):
-
-        action = request.POST.get('action')
-
-        if action == 'update_status':
-            new_status = request.POST.get('status')
-
-            if new_status:
-                old_status, updated_status = admin_dashboard_service.update_order_status(order_id, new_status)
-
-                messages.success(
-                    request,
-                    f'Order #{order_id} status updated from {OrderStatus(old_status).name} to {OrderStatus(updated_status).name}'
-                )
-
-        elif action == 'assign_delivery':
-            person_id = request.POST.get('delivery_person')
-
-            if person_id:
-                admin_dashboard_service.assign_delivery_person(order_id, person_id)
-                messages.success(request, f'Delivery person assigned successfully to Order #{order_id}')
-
-        elif action == 'update_payment':
-            payment_id = request.POST.get('payment_id')
-            new_status = request.POST.get('payment_status')
-
-            if payment_id and new_status:
-                admin_dashboard_service.update_payment_status(payment_id, new_status)
-                messages.success(request, f'Payment status updated for Order #{order_id}')
-
-        elif action == 'cancel_order':
-            admin_dashboard_service.cancel_order(order_id)
-            messages.success(request, f'Order #{order_id} has been cancelled')
-
-        return redirect('admin_order_detail', order_id=order_id)
 
 @method_decorator(admin_required, name='dispatch')
 class AdminNotificationsView(View):

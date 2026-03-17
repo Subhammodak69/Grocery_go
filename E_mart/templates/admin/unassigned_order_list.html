@@ -1,0 +1,303 @@
+{% extends "admin/home.html" %}
+{% load static %}
+{% block title %}Unassigned Orders{% endblock %}
+{% block content %}
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"/>
+
+<style>
+    :root {
+        --primary-gradient: linear-gradient(135deg, #667eea, #764ba2);
+        --success-gradient: linear-gradient(135deg, #43e97b, #38f9d7);
+        --warning-gradient: linear-gradient(135deg, #fa709a, #fee140);
+    }
+    
+    .page-header {
+        background: white;
+        border-radius: 20px;
+        padding: 1.5rem;
+        margin-bottom: 2rem;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+        border: 1px solid rgba(102, 126, 234, 0.1);
+    }
+    
+    .table-container {
+        background: white;
+        border-radius: 20px;
+        padding: 1.5rem;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+        border: 1px solid rgba(102, 126, 234, 0.1);
+    }
+    
+    .table thead th {
+        background: #f8fafc;
+        color: #4a5568;
+        font-weight: 600;
+        font-size: 0.85rem;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        border-bottom: 2px solid #667eea;
+        padding: 1rem;
+    }
+    
+    .table tbody tr {
+        transition: all 0.2s ease;
+    }
+    
+    .table tbody tr:hover {
+        background: rgba(102, 126, 234, 0.05);
+        transform: scale(1.01);
+        box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+    }
+    
+    .table td {
+        padding: 1rem;
+        vertical-align: middle;
+        border-bottom: 1px solid #edf2f7;
+        max-width: 150px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+    
+    .btn-assign {
+        background: var(--primary-gradient);
+        color: white;
+        border: none;
+        padding: 0.5rem 1rem;
+        border-radius: 8px;
+        font-weight: 500;
+        font-size: 0.9rem;
+        transition: all 0.3s ease;
+    }
+    
+    .btn-assign:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 15px rgba(102, 126, 234, 0.3);
+        color: white;
+    }
+    
+    .toast-notification {
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        z-index: 9999;
+        min-width: 350px;
+        animation: slideInRight 0.3s ease;
+    }
+    
+    @keyframes slideInRight {
+        from {
+            transform: translateX(100%);
+            opacity: 0;
+        }
+        to {
+            transform: translateX(0);
+            opacity: 1;
+        }
+    }
+    
+    .empty-state {
+        text-align: center;
+        padding: 4rem 2rem;
+    }
+    
+    .empty-state i {
+        font-size: 5rem;
+        color: #cbd5e1;
+        margin-bottom: 1.5rem;
+    }
+    
+    .worker-select {
+        min-width: 180px;
+        border-radius: 8px;
+        border: 2px solid #edf2f7;
+        padding: 0.4rem;
+    }
+    
+    @keyframes highlight {
+        0% { background-color: rgba(102, 126, 234, 0.2); }
+        100% { background-color: transparent; }
+    }
+    
+    .row-highlight {
+        animation: highlight 2s ease;
+    }
+</style>
+
+<div class="container-fluid p-4 custom-scroll">
+    <!-- Page Header -->
+    <div class="page-header animate__animated animate__fadeInDown">
+        <div class="d-flex align-items-center gap-3">
+            <div class="worker-avatar-sm" style="width: 50px; height: 50px; font-size: 24px;">
+                <i class="fas fa-truck"></i>
+            </div>
+            <div>
+                <h2 class="fw-bold mb-1" style="color: #2d3748;">Unassigned Orders</h2>
+                <p class="text-muted mb-0">Assign delivery workers to pending orders</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Orders Table -->
+    {% if orders %}
+    <div class="table-container animate__animated animate__fadeInUp">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead>
+                    <tr>
+                        <th>Order ID</th>
+                        <th>Customer</th>
+                        <th>Delivery Address</th>
+                        <th>Status</th>
+                        <th>Total</th>
+                        <th>Items</th>
+                        <th>Created At</th>
+                        <th>Status</th>
+                        <th>Assign To</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for order in orders %}
+                    <tr id="order-row-{{ order.id }}" data-order-id="{{ order.id }}">
+                        <td><span class="fw-semibold">#{{ order.id }}</span></td>
+                        <td>
+                            <div>
+                                <div>{{ order.customer_name }}</div>
+                                <small class="text-muted">{{ order.customer_phone|default:"" }}</small>
+                            </div>
+                        </td>
+                        <td title="{{ order.delivery_address }}">{{ order.delivery_address|truncatechars:50 }}</td>
+                        <td>
+                            <span class="badge bg-warning text-dark px-3 py-2">
+                                {{ order.status }}
+                            </span>
+                        </td>
+                        <td class="fw-bold text-success">₹{{ order.total_price }}</td>
+                        <td>
+                            <span class="badge bg-info bg-opacity-10 text-info px-3 py-2">
+                                {{ order.items_count }} items
+                            </span>
+                        </td>
+                        <td>{{ order.created_at }}</td>
+                        <td>
+                            <div class="d-flex align-items-center gap-2">
+                                <span class="status-indicator {% if order.is_active %}status-active{% else %}status-inactive{% endif %}"></span>
+                                <span class="badge-product">
+                                    {% if order.is_active %}Active{% else %}Inactive{% endif %}
+                                </span>
+                            </div>
+                        </td>
+                        <td>
+                            <div class="d-flex gap-2">
+                                <select class="worker-select form-select form-select-sm" id="worker-{{ order.id }}">
+                                    <option value="">Select Worker</option>
+                                    {% for worker in workers %}
+                                    <option value="{{ worker.id }}">{{ worker.full_name }}</option>
+                                    {% endfor %}
+                                </select>
+                                <button class="btn-assign" onclick="assignOrder({{ order.id }})">
+                                    <i class="fas fa-check me-1"></i>Assign
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+    {% else %}
+    <!-- Empty State -->
+    <div class="table-container text-center py-5 animate__animated animate__fadeIn">
+        <div class="empty-state">
+            <i class="fas fa-check-circle text-success opacity-25"></i>
+            <h4 class="mt-4 text-secondary">No Unassigned Orders</h4>
+            <p class="text-muted">All orders have been assigned to delivery workers.</p>
+        </div>
+    </div>
+    {% endif %}
+</div>
+
+<!-- Toast Notification -->
+<div class="toast-notification" id="toast" style="display: none;"></div>
+
+<script>
+    // Show toast notification
+    function showToast(message, type = 'success') {
+        const toast = document.getElementById('toast');
+        const bgColor = type === 'success' ? 'linear-gradient(135deg, #43e97b, #38f9d7)' : 'linear-gradient(135deg, #f093fb, #f5576c)';
+        const icon = type === 'success' ? 'check-circle' : 'exclamation-circle';
+        
+        toast.innerHTML = `
+            <div class="alert border-0 text-white shadow-lg" style="background: ${bgColor};">
+                <i class="fas fa-${icon} me-2"></i>
+                ${message}
+            </div>
+        `;
+        toast.style.display = 'block';
+        setTimeout(() => {
+            toast.style.display = 'none';
+        }, 3000);
+    }
+
+    // Assign order to worker
+    function assignOrder(orderId) {
+        const select = document.getElementById(`worker-${orderId}`);
+        const workerId = select.value;
+        
+        if (!workerId) {
+            showToast('Please select a worker', 'error');
+            return;
+        }
+        
+        const btn = event.target;
+        const originalText = btn.innerHTML;
+        btn.disabled = true;
+        btn.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span>Assigning...';
+        
+        fetch('/admin/orders/unassigned/', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': '{{ csrf_token }}'
+            },
+            body: JSON.stringify({
+                order_id: orderId,
+                assigned_to: workerId
+            })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                showToast('Order assigned successfully!', 'success');
+                
+                // Highlight and remove row
+                const row = document.getElementById(`order-row-${orderId}`);
+                row.classList.add('row-highlight');
+                
+                setTimeout(() => {
+                    row.remove();
+                    
+                    // Check if table is now empty
+                    const tbody = document.querySelector('tbody');
+                    if (tbody && tbody.children.length === 0) {
+                        location.reload(); // Reload to show empty state
+                    }
+                }, 1000);
+            } else {
+                showToast(data.message || 'Assignment failed', 'error');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            showToast('Error assigning order', 'error');
+        })
+        .finally(() => {
+            btn.disabled = false;
+            btn.innerHTML = originalText;
+        });
+    }
+</script>
+{% endblock %}

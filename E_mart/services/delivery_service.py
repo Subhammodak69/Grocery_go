@@ -7,12 +7,15 @@ import datetime
 from django.shortcuts import get_object_or_404
 from django.db import models
 
-def get_delivery_person_by_order(order):
-    item = DeliveryOrPickup.objects.filter(order = order).first()
-    assigned_by = None
-    if item:
-        assigned_by =item.delivery_person.id if item.delivery_person else None
-    return assigned_by
+def get_delivery_person_by_order(order_id):
+    """
+    Returns the DeliveryOrPickup object for the given order
+    """
+    try:
+        delivery_item = DeliveryOrPickup.objects.filter(order_id=order_id).first()
+        return delivery_item
+    except:
+        return None
 
 def get_delivery_worker_obj_by_user_id(user):
     return DeliveryPerson.objects.get(user = user, is_active = True)

@@ -1,0 +1,1782 @@
+{% extends "admin/home.html" %}
+{% load static %}
+{% block title %}Order Management{% endblock %}
+{% block content %}
+
+<!-- Include Animate.css for animations -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
+
+<!-- Font Awesome for icons -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"/>
+
+<style>
+    :root {
+        --primary-gradient: linear-gradient(135deg, #667eea, #764ba2);
+        --success-gradient: linear-gradient(135deg, #43e97b, #38f9d7);
+        --warning-gradient: linear-gradient(135deg, #fa709a, #fee140);
+        --danger-gradient: linear-gradient(135deg, #f093fb, #f5576c);
+    }
+    
+    .page-header {
+        background: white;
+        border-radius: 20px;
+        padding: 1.5rem;
+        margin-bottom: 2rem;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+        border: 1px solid rgba(102, 126, 234, 0.1);
+    }
+    
+    .table-container {
+        background: white;
+        border-radius: 20px;
+        padding: 1.5rem;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+        border: 1px solid rgba(102, 126, 234, 0.1);
+    }
+    
+    .table thead th {
+        background: #f8fafc;
+        color: #4a5568;
+        font-weight: 600;
+        font-size: 0.85rem;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        border-bottom: 2px solid #667eea;
+        padding: 1rem;
+    }
+    
+    .table tbody tr {
+        transition: all 0.2s ease;
+    }
+    
+    .table tbody tr:hover {
+        background: rgba(102, 126, 234, 0.05);
+        transform: scale(1.01);
+        box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+    }
+    
+    .table td {
+        padding: 1rem;
+        vertical-align: middle;
+        border-bottom: 1px solid #edf2f7;
+        max-width: 150px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+    
+    .btn-create {
+        background: var(--primary-gradient);
+        color: white;
+        border: none;
+        padding: 0.75rem 1.8rem;
+        border-radius: 12px;
+        font-weight: 600;
+        font-size: 0.95rem;
+        transition: all 0.3s ease;
+        box-shadow: 0 8px 20px rgba(102, 126, 234, 0.3);
+    }
+    
+    .btn-create:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 12px 25px rgba(102, 126, 234, 0.4);
+        color: white;
+    }
+    
+    .btn-action {
+        width: 38px;
+        height: 38px;
+        border-radius: 10px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        transition: all 0.2s ease;
+        margin: 0 3px;
+        border: none;
+        background: #f1f5f9;
+        color: #4a5568;
+    }
+    
+    .btn-action:hover {
+        transform: translateY(-3px) scale(1.1);
+    }
+    
+    .btn-view:hover {
+        background: #667eea;
+        color: white;
+    }
+    
+    .btn-edit:hover {
+        background: #fbbf24;
+        color: white;
+    }
+    
+    .btn-delete:hover {
+        background: #ef4444;
+        color: white;
+    }
+    
+    .modal-content {
+        border: none;
+        border-radius: 25px;
+        overflow: hidden;
+    }
+    
+    .modal-header {
+        background: var(--primary-gradient);
+        color: white;
+        border: none;
+        padding: 1.8rem 2rem;
+    }
+    
+    .modal-header .btn-close {
+        filter: brightness(0) invert(1);
+        opacity: 0.8;
+    }
+    
+    .modal-header .btn-close:hover {
+        opacity: 1;
+    }
+    
+    .modal-body {
+        padding: 2rem;
+        max-height: 70vh;
+        overflow-y: auto;
+    }
+    
+    .modal-footer {
+        border-top: 1px solid #edf2f7;
+        padding: 1.5rem 2rem;
+    }
+    
+    .form-card {
+        background: #f8fafc;
+        border-radius: 16px;
+        padding: 1.5rem;
+        border: 1px solid #edf2f7;
+        transition: all 0.3s ease;
+    }
+    
+    .form-card:hover {
+        border-color: #667eea;
+        box-shadow: 0 10px 25px rgba(102, 126, 234, 0.1);
+    }
+    
+    .form-card .form-label {
+        font-size: 0.75rem;
+        text-transform: uppercase;
+        color: #94a3b8;
+        letter-spacing: 0.5px;
+        margin-bottom: 0.5rem;
+        font-weight: 600;
+    }
+    
+    .form-card .form-control, 
+    .form-card .form-select,
+    .form-card textarea {
+        border-radius: 12px;
+        padding: 0.75rem 1rem;
+        border: 2px solid #edf2f7;
+        transition: all 0.3s ease;
+        background: white;
+    }
+    
+    .form-card .form-control:focus, 
+    .form-card .form-select:focus,
+    .form-card textarea:focus {
+        border-color: #667eea;
+        box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+    }
+    
+    .profile-section {
+        text-align: center;
+        margin-bottom: 2rem;
+    }
+    
+    .detail-card {
+        background: #f8fafc;
+        border-radius: 16px;
+        padding: 1.5rem;
+        height: 100%;
+        border: 1px solid #edf2f7;
+        transition: all 0.3s ease;
+    }
+    
+    .detail-card:hover {
+        border-color: #667eea;
+        transform: translateY(-3px);
+        box-shadow: 0 10px 25px rgba(102, 126, 234, 0.1);
+    }
+    
+    .detail-label {
+        font-size: 0.7rem;
+        text-transform: uppercase;
+        color: #94a3b8;
+        letter-spacing: 0.5px;
+        margin-bottom: 0.5rem;
+    }
+    
+    .detail-value {
+        font-size: 1rem;
+        font-weight: 600;
+        color: #1e293b;
+        word-break: break-word;
+    }
+    
+    .toast-notification {
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        z-index: 9999;
+        min-width: 350px;
+        animation: slideInRight 0.3s ease;
+    }
+    
+    @keyframes slideInRight {
+        from {
+            transform: translateX(100%);
+            opacity: 0;
+        }
+        to {
+            transform: translateX(0);
+            opacity: 1;
+        }
+    }
+    
+    .empty-state {
+        text-align: center;
+        padding: 4rem 2rem;
+    }
+    
+    .empty-state i {
+        font-size: 5rem;
+        color: #cbd5e1;
+        margin-bottom: 1.5rem;
+    }
+    
+    .status-indicator {
+        display: inline-block;
+        width: 10px;
+        height: 10px;
+        border-radius: 50%;
+        margin-right: 6px;
+    }
+    
+    .status-active {
+        background: #10b981;
+        box-shadow: 0 0 0 2px rgba(16, 185, 129, 0.2);
+    }
+    
+    .status-inactive {
+        background: #ef4444;
+        box-shadow: 0 0 0 2px rgba(239, 68, 68, 0.2);
+    }
+    
+    .spinner {
+        width: 40px;
+        height: 40px;
+        border: 4px solid #e3e3e3;
+        border-top: 4px solid #667eea;
+        border-radius: 50%;
+        animation: spin 1s linear infinite;
+    }
+    
+    @keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+    }
+    
+    .modal-body-loading {
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(255, 255, 255, 0.9);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 1060;
+        border-radius: 0;
+        backdrop-filter: blur(5px);
+    }
+    
+    .loading-content {
+        text-align: center;
+    }
+    
+    .loading-content .spinner {
+        width: 50px;
+        height: 50px;
+        margin-bottom: 1rem;
+    }
+    
+    .loading-content p {
+        color: #667eea;
+        font-weight: 500;
+        margin: 0;
+    }
+    
+    @keyframes highlight {
+        0% { background-color: rgba(102, 126, 234, 0.2); }
+        100% { background-color: transparent; }
+    }
+    
+    .row-highlight {
+        animation: highlight 2s ease;
+    }
+    
+    .filter-select {
+        min-width: 200px;
+        border-radius: 10px;
+        border: 2px solid #edf2f7;
+        padding: 0.5rem 1rem;
+    }
+    
+    .order-items-list {
+        max-height: 300px;
+        overflow-y: auto;
+        border: 1px solid #edf2f7;
+        border-radius: 12px;
+        padding: 1rem;
+    }
+    
+    .order-item-row {
+        padding: 0.5rem;
+        border-bottom: 1px solid #edf2f7;
+    }
+    
+    .order-item-row:last-child {
+        border-bottom: none;
+    }
+    
+    .product-image-small {
+        width: 50px;
+        height: 50px;
+        object-fit: cover;
+        border-radius: 8px;
+    }
+    
+    .summary-card {
+        background: linear-gradient(135deg, #667eea10, #764ba210);
+        border-radius: 16px;
+        padding: 1rem;
+    }
+    
+    .delete-confirm-modal .modal-header {
+        background: var(--danger-gradient);
+    }
+</style>
+
+<div class="container-fluid p-4 custom-scroll">
+    <!-- Page Header -->
+    <div class="page-header animate__animated animate__fadeInDown">
+        <div class="d-flex flex-wrap align-items-center justify-content-between gap-3">
+            <div class="d-flex align-items-center gap-3">
+                <div class="worker-avatar-sm" style="width: 50px; height: 50px; font-size: 24px;">
+                    <i class="fas fa-shopping-cart"></i>
+                </div>
+                <div>
+                    <h2 class="fw-bold mb-1" style="color: #2d3748;">Order Management</h2>
+                    <p class="text-muted mb-0">Manage all orders in one place</p>
+                </div>
+            </div>
+            <div class="d-flex gap-3">
+                <select id="orderFilter" class="filter-select">
+                    <option value="all">All Orders</option>
+                    <option value="pending">Pending</option>
+                    <option value="confirmed">Confirmed</option>
+                    <option value="processing">Processing</option>
+                    <option value="outfordelivery">Out for Delivery</option>
+                    <option value="delivered">Delivered</option>
+                    <option value="cancelled">Cancelled</option>
+                </select>
+                <button class="btn-create d-flex align-items-center gap-2" data-bs-toggle="modal" data-bs-target="#createOrderModal">
+                    <i class="fas fa-plus-circle"></i> Create New Order
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Orders Table Container -->
+    <div id="ordersTableContainer">
+        {% if orders %}
+        <div class="table-container animate__animated animate__fadeInUp">
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0" id="ordersTable">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Customer</th>
+                            <th>Status</th>
+                            <th>Total Price</th>
+                            <th>Delivery Fee</th>
+                            <th>Created At</th>
+                            <th>Items</th>
+                            <th>Assigned To</th>
+                            <th>Status</th>
+                            <th>Toggle</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="ordersTableBody">
+                        {% for item in orders %}
+                        <tr id="order-row-{{ item.order.id }}" data-order-id="{{ item.order.id }}">
+                            <td><span class="fw-semibold">#{{ item.order.id }}</span></td>
+                            <td>
+                                <div class="d-flex align-items-center gap-2">
+                                    <div class="user-avatar-sm">
+                                        {{ item.order.user.get_full_name|first|upper|default:"U" }}
+                                    </div>
+                                    <div>
+                                        <div>{{ item.order.user.get_full_name|default:item.order.user.username }}</div>
+                                        <small class="text-muted">{{ item.order.user.email }}</small>
+                                    </div>
+                                </div>
+                            </td>
+                            <td>
+                                <span class="badge bg-{% if item.order.status == 1 %}primary{% elif item.order.status == 2 %}warning{% elif item.order.status == 3 %}success{% elif item.order.status == 4 %}info{% elif item.order.status == 5 %}danger{% else %}secondary{% endif %} text-white px-3 py-2">
+                                    {{ item.status_name }}
+                                </span>
+                            </td>
+                            <td class="fw-bold text-success">₹{{ item.order.total_price }}</td>
+                            <td>₹{{ item.order.delivery_fee }}</td>
+                            <td>{{ item.order.created_at|date:"M d, Y" }}</td>
+                            <td>
+                                <span class="badge bg-primary bg-opacity-10 text-primary px-3 py-2">
+                                    {{ item.items_count }} items
+                                </span>
+                            </td>
+                            <td>
+                                {% if item.assigned_to %}
+                                <span class="badge bg-success bg-opacity-10 text-success px-3 py-2">
+                                    {{ item.assigned_to }}
+                                </span>
+                                {% else %}
+                                <span class="badge bg-warning bg-opacity-10 text-warning px-3 py-2">
+                                    Unassigned
+                                </span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <div class="d-flex align-items-center gap-2">
+                                    <span class="status-indicator {% if item.order.is_active %}status-active{% else %}status-inactive{% endif %}"></span>
+                                    <span class="badge-product">
+                                        {% if item.order.is_active %}Active{% else %}Inactive{% endif %}
+                                    </span>
+                                </div>
+                            </td>
+                            <td>
+                                <div class="form-check form-switch">
+                                    <input class="form-check-input status-toggle" type="checkbox" 
+                                        data-order-id="{{ item.order.id }}"
+                                        {% if item.order.is_active %}checked{% endif %}>
+                                </div>
+                            </td>
+                            <td>
+                                <div class="d-flex gap-2">
+                                    <button class="btn-action btn-view" onclick="viewOrderDetails({{ item.order.id }})" 
+                                            data-bs-toggle="tooltip" title="View Details">
+                                        <i class="fas fa-eye"></i>
+                                    </button>
+                                    <button class="btn-action btn-edit" onclick="editOrder({{ item.order.id }})" 
+                                            data-bs-toggle="tooltip" title="Edit Order">
+                                        <i class="fas fa-edit"></i>
+                                    </button>
+                                    <button class="btn-action btn-delete" onclick="deleteOrder({{ item.order.id }})" 
+                                            data-bs-toggle="tooltip" title="Delete Order">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        {% else %}
+        <!-- Empty State -->
+        <div class="table-container text-center py-5 animate__animated animate__fadeIn">
+            <div class="empty-state">
+                <i class="fas fa-shopping-cart text-secondary opacity-25"></i>
+                <h4 class="mt-4 text-secondary">No Orders Found</h4>
+                <p class="text-muted mb-4">Click the "Create New Order" button to create your first order.</p>
+                <button class="btn-create d-inline-flex align-items-center gap-2" data-bs-toggle="modal" data-bs-target="#createOrderModal">
+                    <i class="fas fa-plus-circle"></i> Create New Order
+                </button>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<!-- Create Order Modal -->
+<div class="modal fade" id="createOrderModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">
+                    <i class="fas fa-plus-circle me-2"></i>Create New Order
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <!-- Profile Section -->
+                <div class="profile-section">
+                    <div class="user-avatar-lg" style="width: 80px; height: 80px; font-size: 32px;">
+                        <i class="fas fa-shopping-cart"></i>
+                    </div>
+                    <h5 class="mt-3 mb-0 fw-bold">New Order</h5>
+                    <p class="text-muted small">Enter order details below</p>
+                </div>
+
+                <form id="createOrderForm">
+                    {% csrf_token %}
+                    <div class="row g-4">
+                        <!-- Customer Selection -->
+                        <div class="col-12">
+                            <div class="form-card">
+                                <div class="form-label">
+                                    <i class="fas fa-user me-1"></i> Customer <span class="text-danger">*</span>
+                                </div>
+                                <select id="create_user_id" class="form-select" required>
+                                    <option value="">Select Customer</option>
+                                    {% for user in users %}
+                                    <option value="{{ user.id }}">{{ user.get_full_name|default:user.username }} ({{ user.email }})</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                        </div>
+
+                        <!-- Status Selection -->
+                        <div class="col-md-6">
+                            <div class="form-card">
+                                <div class="form-label">
+                                    <i class="fas fa-tag me-1"></i> Status <span class="text-danger">*</span>
+                                </div>
+                                <select id="create_status" class="form-select" required>
+                                    <option value="">Select Status</option>
+                                    {% for status in order_statuses %}
+                                    <option value="{{ status.value }}">{{ status.name }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                        </div>
+
+                        <!-- Delivery Address -->
+                        <div class="col-md-6">
+                            <div class="form-card">
+                                <div class="form-label">
+                                    <i class="fas fa-map-marker-alt me-1"></i> Delivery Address
+                                </div>
+                                <textarea id="create_delivery_address" class="form-control" rows="2" placeholder="Enter delivery address"></textarea>
+                            </div>
+                        </div>
+
+                        <!-- Products Selection -->
+                        <div class="col-12">
+                            <div class="form-card">
+                                <div class="form-label">
+                                    <i class="fas fa-box me-1"></i> Select Products <span class="text-danger">*</span>
+                                </div>
+                                <div class="order-items-list" id="createProductsList">
+                                    {% for product in products %}
+                                    <div class="order-item-row row align-items-center" data-product-id="{{ product.id }}">
+                                        <div class="col-2">
+                                            <img src="{% static product.image %}" alt="{{ product.name }}" class="product-image-small">
+                                        </div>
+                                        <div class="col-4">
+                                            <strong>{{ product.name }}</strong>
+                                            <div>
+                                                <span class="text-success fw-bold">₹{{ product.price }}</span>
+                                                <span class="text-muted text-decoration-line-through ms-2">₹{{ product.original_price }}</span>
+                                            </div>
+                                            <small class="text-muted">Size: {{ product.size }}</small>
+                                        </div>
+                                        <div class="col-3">
+                                            <div class="input-group">
+                                                <span class="input-group-text">Qty</span>
+                                                <input type="number" class="form-control product-quantity" 
+                                                       min="0" max="99" value="0"
+                                                       data-product-id="{{ product.id }}"
+                                                       data-price="{{ product.price }}">
+                                            </div>
+                                        </div>
+                                        <div class="col-3">
+                                            <div class="form-check">
+                                                <input class="form-check-input product-checkbox" type="checkbox" 
+                                                       id="create_product_{{ product.id }}"
+                                                       data-product-id="{{ product.id }}">
+                                                <label class="form-check-label" for="create_product_{{ product.id }}">
+                                                    Include
+                                                </label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    {% empty %}
+                                    <div class="text-center py-4">
+                                        <p class="text-muted">No products available</p>
+                                    </div>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Order Summary -->
+                        <div class="col-12">
+                            <div class="summary-card">
+                                <div class="row">
+                                    <div class="col-md-3">
+                                        <div class="form-card mb-0">
+                                            <div class="form-label">Sub Total</div>
+                                            <div class="detail-value" id="create_sub_total">₹0.00</div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <div class="form-card mb-0">
+                                            <div class="form-label">Discount</div>
+                                            <input type="number" step="0.01" id="create_discount" class="form-control" value="0">
+                                        </div>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <div class="form-card mb-0">
+                                            <div class="form-label">Delivery Fee</div>
+                                            <input type="number" step="0.01" id="create_delivery_fee" class="form-control" value="40" required>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <div class="form-card mb-0">
+                                            <div class="form-label">Total Price</div>
+                                            <div class="detail-value text-success fw-bold" id="create_total_price">₹0.00</div>
+                                            <input type="hidden" id="create_total_price_input">
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Active Switch -->
+                        <div class="col-12">
+                            <div class="form-check form-switch">
+                                <input class="form-check-input" type="checkbox" id="create_is_active" checked>
+                                <label class="form-check-label fw-semibold" for="create_is_active">Active</label>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-light px-4" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-primary px-4" onclick="createOrder()" id="createOrderBtn">
+                    <i class="fas fa-check-circle me-2"></i>Create Order
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Edit Order Modal -->
+<div class="modal fade" id="editOrderModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">
+                    <i class="fas fa-edit me-2"></i>Edit Order
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body position-relative" style="min-height: 400px;">
+                <!-- Loading Overlay -->
+                <div class="modal-body-loading" id="editModalLoading" style="display: none;">
+                    <div class="loading-content">
+                        <div class="spinner"></div>
+                        <p>Loading order data...</p>
+                    </div>
+                </div>
+                
+                <!-- Profile Section -->
+                <div class="profile-section" id="editProfileSection">
+                    <div class="user-avatar-lg" style="width: 80px; height: 80px; font-size: 32px;">
+                        <i class="fas fa-shopping-cart"></i>
+                    </div>
+                    <h5 class="mt-3 mb-0 fw-bold" id="editOrderTitle">Loading...</h5>
+                    <p class="text-muted small" id="editOrderId">ID: #0</p>
+                </div>
+
+                <form id="editOrderForm">
+                    {% csrf_token %}
+                    <input type="hidden" id="edit_order_id">
+                    <div class="row g-4">
+                        <!-- Customer Selection -->
+                        <div class="col-12">
+                            <div class="form-card">
+                                <div class="form-label">
+                                    <i class="fas fa-user me-1"></i> Customer <span class="text-danger">*</span>
+                                </div>
+                                <select id="edit_user_id" class="form-select" required>
+                                    <option value="">Select Customer</option>
+                                    {% for user in users %}
+                                    <option value="{{ user.id }}">{{ user.get_full_name|default:user.username }} ({{ user.email }})</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                        </div>
+
+                        <!-- Status Selection -->
+                        <div class="col-md-6">
+                            <div class="form-card">
+                                <div class="form-label">
+                                    <i class="fas fa-tag me-1"></i> Status <span class="text-danger">*</span>
+                                </div>
+                                <select id="edit_status" class="form-select" required>
+                                    <option value="">Select Status</option>
+                                    {% for status in order_statuses %}
+                                    <option value="{{ status.value }}">{{ status.name }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                        </div>
+
+                        <!-- Delivery Address -->
+                        <div class="col-md-6">
+                            <div class="form-card">
+                                <div class="form-label">
+                                    <i class="fas fa-map-marker-alt me-1"></i> Delivery Address
+                                </div>
+                                <textarea id="edit_delivery_address" class="form-control" rows="2"></textarea>
+                            </div>
+                        </div>
+
+                        <!-- Current Items -->
+                        <div class="col-12">
+                            <div class="form-card">
+                                <div class="form-label">
+                                    <i class="fas fa-box me-1"></i> Current Items
+                                </div>
+                                <div id="editCurrentItems" class="order-items-list"></div>
+                            </div>
+                        </div>
+
+                        <!-- Add New Items -->
+                        <div class="col-12">
+                            <div class="form-card">
+                                <div class="form-label">
+                                    <i class="fas fa-plus-circle me-1"></i> Add New Items
+                                </div>
+                                <div id="editNewItems" class="order-items-list">
+                                    {% for product in products %}
+                                    <div class="order-item-row row align-items-center" data-product-id="{{ product.id }}">
+                                        <div class="col-2">
+                                            <img src="{% static product.image %}" alt="{{ product.name }}" class="product-image-small">
+                                        </div>
+                                        <div class="col-4">
+                                            <strong>{{ product.name }}</strong>
+                                            <div>
+                                                <span class="text-success fw-bold">₹{{ product.price }}</span>
+                                                <span class="text-muted text-decoration-line-through ms-2">₹{{ product.original_price }}</span>
+                                            </div>
+                                            <small class="text-muted">Size: {{ product.size }}</small>
+                                        </div>
+                                        <div class="col-3">
+                                            <div class="input-group">
+                                                <span class="input-group-text">Qty</span>
+                                                <input type="number" class="form-control edit-new-quantity" 
+                                                       min="0" max="99" value="0"
+                                                       data-product-id="{{ product.id }}"
+                                                       data-price="{{ product.price }}">
+                                            </div>
+                                        </div>
+                                        <div class="col-3">
+                                            <div class="form-check">
+                                                <input class="form-check-input edit-new-checkbox" type="checkbox" 
+                                                       id="edit_product_{{ product.id }}"
+                                                       data-product-id="{{ product.id }}">
+                                                <label class="form-check-label" for="edit_product_{{ product.id }}">
+                                                    Add
+                                                </label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    {% empty %}
+                                    <div class="text-center py-4">
+                                        <p class="text-muted">No products available</p>
+                                    </div>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Order Summary -->
+                        <div class="col-12">
+                            <div class="summary-card">
+                                <div class="row">
+                                    <div class="col-md-3">
+                                        <div class="form-card mb-0">
+                                            <div class="form-label">Sub Total</div>
+                                            <div class="detail-value" id="edit_sub_total">₹0.00</div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <div class="form-card mb-0">
+                                            <div class="form-label">Discount</div>
+                                            <input type="number" step="0.01" id="edit_discount" class="form-control" value="0">
+                                        </div>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <div class="form-card mb-0">
+                                            <div class="form-label">Delivery Fee</div>
+                                            <input type="number" step="0.01" id="edit_delivery_fee" class="form-control" value="40" required>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <div class="form-card mb-0">
+                                            <div class="form-label">Total Price</div>
+                                            <div class="detail-value text-success fw-bold" id="edit_total_price">₹0.00</div>
+                                            <input type="hidden" id="edit_total_price_input">
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Active Switch -->
+                        <div class="col-12">
+                            <div class="form-check form-switch">
+                                <input class="form-check-input" type="checkbox" id="edit_is_active" checked>
+                                <label class="form-check-label fw-semibold" for="edit_is_active">Active</label>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-light px-4" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-primary px-4" onclick="updateOrder()" id="updateOrderBtn">
+                    <i class="fas fa-save me-2"></i>Update Order
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- View Order Modal -->
+<div class="modal fade" id="viewOrderModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">
+                    <i class="fas fa-info-circle me-2"></i>Order Details
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div id="viewOrderContent">
+                    <div class="text-center py-5">
+                        <div class="spinner mx-auto"></div>
+                        <p class="mt-3 text-muted">Loading order details...</p>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-light px-4" data-bs-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-warning px-4" onclick="editFromView()" id="editFromViewBtn">
+                    <i class="fas fa-edit me-2"></i>Edit Order
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Delete Confirmation Modal -->
+<div class="modal fade" id="deleteOrderModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content delete-confirm-modal">
+            <div class="modal-header">
+                <h5 class="modal-title">
+                    <i class="fas fa-exclamation-triangle me-2"></i>Confirm Delete
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body text-center py-4">
+                <i class="fas fa-trash-alt fa-4x text-danger mb-3"></i>
+                <h5>Are you sure you want to delete this order?</h5>
+                <p class="text-muted">This action cannot be undone.</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-light px-4" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-danger px-4" onclick="confirmDelete()" id="confirmDeleteBtn">
+                    <i class="fas fa-trash me-2"></i>Delete Order
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Toast Notification -->
+<div class="toast-notification" id="toast" style="display: none;"></div>
+
+<script>
+    // Store delete ID globally
+    let deleteOrderId = null;
+    
+    // Initialize tooltips
+    document.addEventListener('DOMContentLoaded', function() {
+        var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+        tooltipTriggerList.map(function(tooltipTriggerEl) {
+            return new bootstrap.Tooltip(tooltipTriggerEl);
+        });
+        
+        attachStatusToggleListeners();
+        setupCreateOrderCalculations();
+        
+        // Initialize filter
+        const urlParams = new URLSearchParams(window.location.search);
+        const filter = urlParams.get('filter') || 'all';
+        document.getElementById('orderFilter').value = filter;
+        
+        document.getElementById('orderFilter').addEventListener('change', function() {
+            const filter = this.value;
+            const params = new URLSearchParams(window.location.search);
+            if (filter === 'all') {
+                params.delete('filter');
+            } else {
+                params.set('filter', filter);
+            }
+            window.location.search = params.toString();
+        });
+    });
+
+    // Show toast notification
+    function showToast(message, type = 'success') {
+        const toast = document.getElementById('toast');
+        const bgColor = type === 'success' ? 'linear-gradient(135deg, #43e97b, #38f9d7)' : 'linear-gradient(135deg, #f093fb, #f5576c)';
+        const icon = type === 'success' ? 'check-circle' : 'exclamation-circle';
+        
+        toast.innerHTML = `
+            <div class="alert border-0 text-white shadow-lg" style="background: ${bgColor};">
+                <i class="fas fa-${icon} me-2"></i>
+                ${message}
+            </div>
+        `;
+        toast.style.display = 'block';
+        setTimeout(() => {
+            toast.style.display = 'none';
+        }, 3000);
+    }
+
+    // Format date
+    function formatDate(dateString) {
+        if (!dateString) return '-';
+        const date = new Date(dateString);
+        return date.toLocaleDateString('en-US', { 
+            year: 'numeric', 
+            month: 'short', 
+            day: 'numeric',
+            hour: '2-digit',
+            minute: '2-digit'
+        });
+    }
+
+    // Get status badge class
+    function getStatusBadgeClass(status) {
+        const classes = {
+            1: 'primary',    // PENDING
+            2: 'warning',     // PROCESSING
+            3: 'success',     // DELIVERED
+            4: 'info',        // OUTFORDELIVERY
+            5: 'danger',      // CANCELLED
+            6: 'secondary'    // CONFIRMED
+        };
+        return classes[status] || 'secondary';
+    }
+
+    // Get status display name
+    function getStatusDisplay(status) {
+        const names = {
+            1: 'Pending',
+            2: 'Processing',
+            3: 'Delivered',
+            4: 'Out for Delivery',
+            5: 'Cancelled',
+            6: 'Confirmed'
+        };
+        return names[status] || 'Unknown';
+    }
+
+    // Setup create order calculations
+    function setupCreateOrderCalculations() {
+        const checkboxes = document.querySelectorAll('#createProductsList .product-checkbox');
+        const quantities = document.querySelectorAll('#createProductsList .product-quantity');
+        
+        function updateTotals() {
+            let subtotal = 0;
+            
+            checkboxes.forEach((checkbox, index) => {
+                if (checkbox.checked) {
+                    const quantity = parseInt(quantities[index].value) || 0;
+                    const price = parseFloat(quantities[index].dataset.price) || 0;
+                    subtotal += quantity * price;
+                }
+            });
+            
+            const discount = parseFloat(document.getElementById('create_discount').value) || 0;
+            const deliveryFee = parseFloat(document.getElementById('create_delivery_fee').value) || 0;
+            
+            const total = subtotal - discount + deliveryFee;
+            
+            document.getElementById('create_sub_total').textContent = `₹${subtotal.toFixed(2)}`;
+            document.getElementById('create_total_price').textContent = `₹${total.toFixed(2)}`;
+            document.getElementById('create_total_price_input').value = total.toFixed(2);
+        }
+        
+        checkboxes.forEach(checkbox => {
+            checkbox.addEventListener('change', updateTotals);
+        });
+        
+        quantities.forEach(quantity => {
+            quantity.addEventListener('input', updateTotals);
+        });
+        
+        document.getElementById('create_discount').addEventListener('input', updateTotals);
+        document.getElementById('create_delivery_fee').addEventListener('input', updateTotals);
+    }
+
+    // Create order row HTML
+    function createOrderRow(order) {
+        const statusClass = order.is_active ? 'status-active' : 'status-inactive';
+        const statusText = order.is_active ? 'Active' : 'Inactive';
+        const badgeClass = getStatusBadgeClass(order.status);
+        const statusDisplay = getStatusDisplay(order.status);
+
+        return `
+            <tr id="order-row-${order.id}" data-order-id="${order.id}">
+                <td><span class="fw-semibold">#${order.id}</span></td>
+                <td>
+                    <div class="d-flex align-items-center gap-2">
+                        <div class="user-avatar-sm">
+                            ${order.user_name ? order.user_name.charAt(0).toUpperCase() : 'U'}
+                        </div>
+                        <div>
+                            <div>${order.user_name}</div>
+                            <small class="text-muted">${order.user_email || ''}</small>
+                        </div>
+                    </div>
+                </td>
+                <td>
+                    <span class="badge bg-${badgeClass} text-white px-3 py-2">
+                        ${statusDisplay}
+                    </span>
+                </td>
+                <td class="fw-bold text-success">₹${parseFloat(order.total_price).toFixed(2)}</td>
+                <td>₹${parseFloat(order.delivery_fee).toFixed(2)}</td>
+                <td>${formatDate(order.created_at)}</td>
+                <td>
+                    <span class="badge bg-primary bg-opacity-10 text-primary px-3 py-2">
+                        ${order.items_count || 0} items
+                    </span>
+                </td>
+                <td>
+                    ${order.assigned_to ? 
+                        `<span class="badge bg-success bg-opacity-10 text-success px-3 py-2">
+                            ${order.assigned_to}
+                        </span>` : 
+                        `<span class="badge bg-warning bg-opacity-10 text-warning px-3 py-2">
+                            Unassigned
+                        </span>`
+                    }
+                </td>
+                <td>
+                    <div class="d-flex align-items-center gap-2">
+                        <span class="status-indicator ${statusClass}"></span>
+                        <span class="badge-product">${statusText}</span>
+                    </div>
+                </td>
+                <td>
+                    <div class="form-check form-switch">
+                        <input class="form-check-input status-toggle" type="checkbox" 
+                            data-order-id="${order.id}"
+                            ${order.is_active ? 'checked' : ''}>
+                    </div>
+                </td>
+                <td>
+                    <div class="d-flex gap-2">
+                        <button class="btn-action btn-view" onclick="viewOrderDetails(${order.id})" 
+                                data-bs-toggle="tooltip" title="View Details">
+                            <i class="fas fa-eye"></i>
+                        </button>
+                        <button class="btn-action btn-edit" onclick="editOrder(${order.id})" 
+                                data-bs-toggle="tooltip" title="Edit Order">
+                            <i class="fas fa-edit"></i>
+                        </button>
+                        <button class="btn-action btn-delete" onclick="deleteOrder(${order.id})" 
+                                data-bs-toggle="tooltip" title="Delete Order">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </div>
+                </td>
+            </tr>
+        `;
+    }
+
+    // Update table with new/updated order
+    function updateTableAfterSave(order, action = 'create') {
+        const tableContainer = document.getElementById('ordersTableContainer');
+        const existingRow = document.getElementById(`order-row-${order.id}`);
+        
+        if (action === 'create') {
+            if (tableContainer.innerHTML.includes('No Orders Found')) {
+                tableContainer.innerHTML = `
+                    <div class="table-container animate__animated animate__fadeInUp">
+                        <div class="table-responsive">
+                            <table class="table table-hover align-middle mb-0" id="ordersTable">
+                                <thead>
+                                    <tr>
+                                        <th>ID</th>
+                                        <th>Customer</th>
+                                        <th>Status</th>
+                                        <th>Total Price</th>
+                                        <th>Delivery Fee</th>
+                                        <th>Created At</th>
+                                        <th>Items</th>
+                                        <th>Assigned To</th>
+                                        <th>Status</th>
+                                        <th>Toggle</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="ordersTableBody">
+                                    ${createOrderRow(order)}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                `;
+            } else {
+                const tbody = document.getElementById('ordersTableBody') || 
+                             document.querySelector('#ordersTable tbody');
+                if (tbody) {
+                    tbody.insertAdjacentHTML('beforeend', createOrderRow(order));
+                }
+            }
+            
+            setTimeout(() => {
+                const newRow = document.getElementById(`order-row-${order.id}`);
+                if (newRow) {
+                    newRow.classList.add('row-highlight');
+                }
+            }, 100);
+        } else if (action === 'update' && existingRow) {
+            existingRow.outerHTML = createOrderRow(order);
+            
+            setTimeout(() => {
+                const updatedRow = document.getElementById(`order-row-${order.id}`);
+                if (updatedRow) {
+                    updatedRow.classList.add('row-highlight');
+                }
+            }, 100);
+        }
+        
+        // Reinitialize tooltips and status listeners
+        var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+        tooltipTriggerList.map(function(tooltipTriggerEl) {
+            return new bootstrap.Tooltip(tooltipTriggerEl);
+        });
+        
+        attachStatusToggleListeners();
+    }
+
+    // Attach status toggle listeners
+    function attachStatusToggleListeners() {
+        document.querySelectorAll('.status-toggle').forEach(toggle => {
+            toggle.removeEventListener('change', handleStatusChange);
+            toggle.addEventListener('change', handleStatusChange);
+        });
+    }
+
+    // Handle status change
+    function handleStatusChange(event) {
+        const toggle = event.target;
+        const orderId = toggle.dataset.orderId;
+        const isActive = toggle.checked;
+        
+        fetch('/admin/api/orders/toggle-status/', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': '{{ csrf_token }}'
+            },
+            body: JSON.stringify({
+                order_id: orderId,
+                is_active: isActive
+            })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                showToast(`Order status updated to ${isActive ? 'Active' : 'Inactive'}`, 'success');
+                fetch(`/admin/api/orders/${orderId}/`)
+                    .then(res => res.json())
+                    .then(order => {
+                        updateTableAfterSave(order, 'update');
+                    });
+            } else {
+                showToast(data.error || 'Error updating status', 'error');
+                toggle.checked = !isActive;
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            showToast('Error updating order status', 'error');
+            toggle.checked = !isActive;
+        });
+    }
+
+    // Create order
+    function createOrder() {
+        const btn = document.getElementById('createOrderBtn');
+        
+        // Gather items
+        const items = [];
+        const productRows = document.querySelectorAll('#createProductsList .order-item-row');
+        
+        productRows.forEach(row => {
+            const checkbox = row.querySelector('.product-checkbox');
+            const quantityInput = row.querySelector('.product-quantity');
+            
+            if (checkbox && checkbox.checked) {
+                const quantity = parseInt(quantityInput.value) || 0;
+                if (quantity > 0) {
+                    items.push({
+                        product_id: checkbox.dataset.productId,
+                        quantity: quantity,
+                        price: parseFloat(quantityInput.dataset.price)
+                    });
+                }
+            }
+        });
+        
+        if (items.length === 0) {
+            showToast('Please select at least one product', 'error');
+            return;
+        }
+        
+        const userId = document.getElementById('create_user_id').value;
+        if (!userId) {
+            showToast('Please select a customer', 'error');
+            return;
+        }
+        
+        const status = document.getElementById('create_status').value;
+        if (!status) {
+            showToast('Please select a status', 'error');
+            return;
+        }
+        
+        const data = {
+            user_id: userId,
+            status: status,
+            total_price: document.getElementById('create_total_price_input').value,
+            discount: document.getElementById('create_discount').value || 0,
+            delivery_fee: document.getElementById('create_delivery_fee').value,
+            listing_price: document.getElementById('create_total_price_input').value,
+            delivery_address: document.getElementById('create_delivery_address').value,
+            is_active: document.getElementById('create_is_active').checked,
+            items: items
+        };
+        
+        btn.disabled = true;
+        btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Creating...';
+
+        fetch('/admin/api/orders/create/', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': '{{ csrf_token }}'
+            },
+            body: JSON.stringify(data)
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                showToast('Order created successfully!', 'success');
+                bootstrap.Modal.getInstance(document.getElementById('createOrderModal')).hide();
+                
+                // Reset form
+                document.getElementById('create_user_id').value = '';
+                document.getElementById('create_status').value = '';
+                document.getElementById('create_delivery_address').value = '';
+                document.getElementById('create_discount').value = '0';
+                document.getElementById('create_delivery_fee').value = '40';
+                document.getElementById('create_is_active').checked = true;
+                
+                document.querySelectorAll('#createProductsList .product-checkbox').forEach(cb => cb.checked = false);
+                document.querySelectorAll('#createProductsList .product-quantity').forEach(q => q.value = '0');
+                
+                updateTableAfterSave(data.order, 'create');
+            } else {
+                showToast(data.error || 'Error creating order', 'error');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            showToast('Error creating order', 'error');
+        })
+        .finally(() => {
+            btn.disabled = false;
+            btn.innerHTML = '<i class="fas fa-check-circle me-2"></i>Create Order';
+        });
+    }
+
+    // Edit order
+    function editOrder(orderId) {
+        const modal = new bootstrap.Modal(document.getElementById('editOrderModal'));
+        const loadingOverlay = document.getElementById('editModalLoading');
+        
+        modal.show();
+        loadingOverlay.style.display = 'flex';
+        
+        document.getElementById('edit_order_id').value = '';
+        document.getElementById('edit_user_id').value = '';
+        document.getElementById('edit_status').value = '';
+        document.getElementById('edit_delivery_address').value = '';
+        document.getElementById('edit_discount').value = '0';
+        document.getElementById('edit_delivery_fee').value = '40';
+        document.getElementById('edit_is_active').checked = true;
+        document.getElementById('editCurrentItems').innerHTML = '';
+        
+        document.querySelectorAll('#editNewItems .edit-new-checkbox').forEach(cb => cb.checked = false);
+        document.querySelectorAll('#editNewItems .edit-new-quantity').forEach(q => q.value = '0');
+        
+        fetch(`/admin/api/orders/${orderId}/`)
+            .then(response => response.json())
+            .then(order => {
+                document.getElementById('editOrderTitle').textContent = `Order #${order.id}`;
+                document.getElementById('editOrderId').textContent = `ID: #${order.id}`;
+                document.getElementById('edit_order_id').value = order.id;
+                document.getElementById('edit_user_id').value = order.user_id;
+                document.getElementById('edit_status').value = order.status;
+                document.getElementById('edit_delivery_address').value = order.delivery_address || '';
+                document.getElementById('edit_discount').value = parseFloat(order.discount).toFixed(2);
+                document.getElementById('edit_delivery_fee').value = parseFloat(order.delivery_fee).toFixed(2);
+                document.getElementById('edit_is_active').checked = order.is_active;
+                
+                // Render current items
+                let itemsHtml = '';
+                order.items.forEach(item => {
+                    itemsHtml += `
+                        <div class="order-item-row row align-items-center current-item" data-product-id="${item.product_id}">
+                            <div class="col-2">
+                                <img src="/static/${item.product_image}" alt="${item.product_name}" class="product-image-small">
+                            </div>
+                            <div class="col-4">
+                                <strong>${item.product_name}</strong>
+                                <div>
+                                    <span class="text-success fw-bold">₹${item.price}</span>
+                                </div>
+                                <small class="text-muted">Size: ${item.size || ''}</small>
+                            </div>
+                            <div class="col-3">
+                                <div class="input-group">
+                                    <span class="input-group-text">Qty</span>
+                                    <input type="number" class="form-control edit-current-quantity" 
+                                           value="${item.quantity}" min="0" max="99"
+                                           data-product-id="${item.product_id}"
+                                           data-price="${item.price}">
+                                </div>
+                            </div>
+                            <div class="col-3">
+                                <button type="button" class="btn btn-outline-danger btn-sm remove-current-item" onclick="removeCurrentItem(this, ${item.product_id})">
+                                    <i class="fas fa-trash"></i> Remove
+                                </button>
+                            </div>
+                        </div>
+                    `;
+                });
+                document.getElementById('editCurrentItems').innerHTML = itemsHtml;
+                
+                setupEditCalculations();
+                loadingOverlay.style.display = 'none';
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                showToast('Error loading order data', 'error');
+                loadingOverlay.style.display = 'none';
+                bootstrap.Modal.getInstance(document.getElementById('editOrderModal')).hide();
+            });
+    }
+
+    // Remove current item from edit
+    function removeCurrentItem(button, productId) {
+        const row = button.closest('.current-item');
+        if (row) {
+            row.remove();
+            updateEditTotals();
+        }
+    }
+
+    // Setup edit order calculations
+    function setupEditCalculations() {
+        function updateTotals() {
+            let subtotal = 0;
+            
+            // Current items
+            document.querySelectorAll('#editCurrentItems .edit-current-quantity').forEach(q => {
+                const quantity = parseInt(q.value) || 0;
+                const price = parseFloat(q.dataset.price) || 0;
+                subtotal += quantity * price;
+            });
+            
+            // New items
+            document.querySelectorAll('#editNewItems .edit-new-checkbox:checked').forEach(cb => {
+                const row = cb.closest('.order-item-row');
+                const quantity = parseInt(row.querySelector('.edit-new-quantity').value) || 0;
+                const price = parseFloat(row.querySelector('.edit-new-quantity').dataset.price) || 0;
+                subtotal += quantity * price;
+            });
+            
+            const discount = parseFloat(document.getElementById('edit_discount').value) || 0;
+            const deliveryFee = parseFloat(document.getElementById('edit_delivery_fee').value) || 0;
+            
+            const total = subtotal - discount + deliveryFee;
+            
+            document.getElementById('edit_sub_total').textContent = `₹${subtotal.toFixed(2)}`;
+            document.getElementById('edit_total_price').textContent = `₹${total.toFixed(2)}`;
+            document.getElementById('edit_total_price_input').value = total.toFixed(2);
+        }
+        
+        document.querySelectorAll('#editCurrentItems .edit-current-quantity').forEach(q => {
+            q.removeEventListener('input', updateTotals);
+            q.addEventListener('input', updateTotals);
+        });
+        
+        document.querySelectorAll('#editNewItems .edit-new-checkbox, #editNewItems .edit-new-quantity').forEach(el => {
+            el.removeEventListener('change', updateTotals);
+            el.removeEventListener('input', updateTotals);
+            el.addEventListener('change', updateTotals);
+            el.addEventListener('input', updateTotals);
+        });
+        
+        document.getElementById('edit_discount').removeEventListener('input', updateTotals);
+        document.getElementById('edit_delivery_fee').removeEventListener('input', updateTotals);
+        document.getElementById('edit_discount').addEventListener('input', updateTotals);
+        document.getElementById('edit_delivery_fee').addEventListener('input', updateTotals);
+        
+        updateTotals();
+    }
+
+    // Update order
+    function updateOrder() {
+        const btn = document.getElementById('updateOrderBtn');
+        const orderId = document.getElementById('edit_order_id').value;
+        
+        // Gather current items
+        const currentItems = [];
+        document.querySelectorAll('#editCurrentItems .current-item').forEach(row => {
+            const quantity = parseInt(row.querySelector('.edit-current-quantity').value) || 0;
+            if (quantity > 0) {
+                currentItems.push({
+                    product_id: row.dataset.productId,
+                    quantity: quantity,
+                    price: parseFloat(row.querySelector('.edit-current-quantity').dataset.price)
+                });
+            }
+        });
+        
+        // Gather new items
+        const newItems = [];
+        document.querySelectorAll('#editNewItems .edit-new-checkbox:checked').forEach(cb => {
+            const row = cb.closest('.order-item-row');
+            const quantity = parseInt(row.querySelector('.edit-new-quantity').value) || 0;
+            if (quantity > 0) {
+                newItems.push({
+                    product_id: cb.dataset.productId,
+                    quantity: quantity,
+                    price: parseFloat(row.querySelector('.edit-new-quantity').dataset.price)
+                });
+            }
+        });
+        
+        const userId = document.getElementById('edit_user_id').value;
+        if (!userId) {
+            showToast('Please select a customer', 'error');
+            return;
+        }
+        
+        const status = document.getElementById('edit_status').value;
+        if (!status) {
+            showToast('Please select a status', 'error');
+            return;
+        }
+        
+        const data = {
+            user_id: userId,
+            status: status,
+            total_price: document.getElementById('edit_total_price_input').value,
+            discount: document.getElementById('edit_discount').value || 0,
+            delivery_fee: document.getElementById('edit_delivery_fee').value,
+            listing_price: document.getElementById('edit_total_price_input').value,
+            delivery_address: document.getElementById('edit_delivery_address').value,
+            is_active: document.getElementById('edit_is_active').checked,
+            current_items: currentItems,
+            new_items: newItems
+        };
+        
+        btn.disabled = true;
+        btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Updating...';
+
+        fetch(`/admin/api/orders/${orderId}/update/`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': '{{ csrf_token }}'
+            },
+            body: JSON.stringify(data)
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                showToast('Order updated successfully!', 'success');
+                bootstrap.Modal.getInstance(document.getElementById('editOrderModal')).hide();
+                
+                fetch(`/admin/api/orders/${orderId}/`)
+                    .then(res => res.json())
+                    .then(order => {
+                        updateTableAfterSave(order, 'update');
+                    });
+            } else {
+                showToast(data.error || 'Error updating order', 'error');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            showToast('Error updating order', 'error');
+        })
+        .finally(() => {
+            btn.disabled = false;
+            btn.innerHTML = '<i class="fas fa-save me-2"></i>Update Order';
+        });
+    }
+
+    // View order details
+    function viewOrderDetails(orderId) {
+        const modal = new bootstrap.Modal(document.getElementById('viewOrderModal'));
+        const content = document.getElementById('viewOrderContent');
+        
+        modal.show();
+        content.innerHTML = `
+            <div class="text-center py-5">
+                <div class="spinner mx-auto"></div>
+                <p class="mt-3 text-muted">Loading order details...</p>
+            </div>
+        `;
+        
+        fetch(`/admin/api/orders/${orderId}/`)
+            .then(response => response.json())
+            .then(order => {
+                const statusClass = getStatusBadgeClass(order.status);
+                const statusDisplay = getStatusDisplay(order.status);
+                
+                let itemsHtml = '';
+                order.items.forEach(item => {
+                    itemsHtml += `
+                        <div class="col-12 mb-2">
+                            <div class="d-flex align-items-center justify-content-between p-2 border rounded">
+                                <div class="d-flex align-items-center gap-3">
+                                    <img src="/static/${item.product_image}" alt="${item.product_name}" style="width: 50px; height: 50px; object-fit: cover; border-radius: 8px;">
+                                    <div>
+                                        <strong>${item.product_name}</strong>
+                                        <div class="small text-muted">Size: ${item.size || 'N/A'}</div>
+                                    </div>
+                                </div>
+                                <div class="text-end">
+                                    <div>Qty: ${item.quantity}</div>
+                                    <div class="text-success fw-bold">₹${item.price}</div>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                });
+                
+                content.innerHTML = `
+                    <div class="text-center mb-4">
+                        <div class="user-avatar-lg" style="width: 80px; height: 80px; font-size: 32px;">
+                            <i class="fas fa-shopping-cart"></i>
+                        </div>
+                        <h4 class="mt-3 mb-1 fw-bold">Order #${order.id}</h4>
+                        <p class="text-muted mb-3">Created: ${formatDate(order.created_at)}</p>
+                        <div class="d-flex justify-content-center gap-2">
+                            <span class="badge bg-${statusClass} text-white px-3 py-2">
+                                ${statusDisplay}
+                            </span>
+                        </div>
+                    </div>
+                    
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <div class="detail-card">
+                                <div class="detail-label">Customer</div>
+                                <div class="detail-value">${order.user_name}</div>
+                                <div class="small text-muted">${order.user_email}</div>
+                                <div class="small text-muted">${order.user_phone || ''}</div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="detail-card">
+                                <div class="detail-label">Delivery Address</div>
+                                <div class="detail-value">${order.delivery_address || 'Not provided'}</div>
+                            </div>
+                        </div>
+                        
+                        <div class="col-12">
+                            <div class="detail-card">
+                                <div class="detail-label mb-2">Order Items (${order.items_count})</div>
+                                <div class="row g-2">
+                                    ${itemsHtml}
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="col-md-4">
+                            <div class="detail-card text-center">
+                                <div class="detail-label">Sub Total</div>
+                                <div class="detail-value">₹${parseFloat(order.total_price) + parseFloat(order.discount) - parseFloat(order.delivery_fee)}</div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="detail-card text-center">
+                                <div class="detail-label">Discount</div>
+                                <div class="detail-value text-danger">-₹${order.discount}</div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="detail-card text-center">
+                                <div class="detail-label">Delivery Fee</div>
+                                <div class="detail-value">₹${order.delivery_fee}</div>
+                            </div>
+                        </div>
+                        
+                        <div class="col-12">
+                            <div class="detail-card text-center bg-primary bg-opacity-10">
+                                <div class="detail-label">Total Amount</div>
+                                <div class="detail-value text-success fw-bold fs-4">₹${order.total_price}</div>
+                            </div>
+                        </div>
+                        
+                        ${order.assigned_to ? `
+                        <div class="col-12">
+                            <div class="detail-card">
+                                <div class="detail-label">Assigned To</div>
+                                <div class="detail-value">${order.assigned_to.name}</div>
+                            </div>
+                        </div>
+                        ` : ''}
+                    </div>
+                `;
+                
+                document.getElementById('editFromViewBtn').setAttribute('data-order-id', order.id);
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                content.innerHTML = `
+                    <div class="text-center py-5 text-danger">
+                        <i class="fas fa-exclamation-triangle fa-3x mb-3"></i>
+                        <p>Error loading order details. Please try again.</p>
+                    </div>
+                `;
+            });
+    }
+
+    // Delete order
+    function deleteOrder(orderId) {
+        deleteOrderId = orderId;
+        new bootstrap.Modal(document.getElementById('deleteOrderModal')).show();
+    }
+
+    // Confirm delete
+    function confirmDelete() {
+        if (!deleteOrderId) return;
+        
+        const btn = document.getElementById('confirmDeleteBtn');
+        btn.disabled = true;
+        btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Deleting...';
+        
+        fetch(`/admin/api/orders/${deleteOrderId}/delete/`, {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': '{{ csrf_token }}'
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                showToast('Order deleted successfully!', 'success');
+                
+                const row = document.getElementById(`order-row-${deleteOrderId}`);
+                if (row) {
+                    row.remove();
+                }
+                
+                // Check if table is now empty
+                const tbody = document.getElementById('ordersTableBody');
+                if (tbody && tbody.children.length === 0) {
+                    document.getElementById('ordersTableContainer').innerHTML = `
+                        <div class="table-container text-center py-5 animate__animated animate__fadeIn">
+                            <div class="empty-state">
+                                <i class="fas fa-shopping-cart text-secondary opacity-25"></i>
+                                <h4 class="mt-4 text-secondary">No Orders Found</h4>
+                                <p class="text-muted mb-4">Click the "Create New Order" button to create your first order.</p>
+                                <button class="btn-create d-inline-flex align-items-center gap-2" data-bs-toggle="modal" data-bs-target="#createOrderModal">
+                                    <i class="fas fa-plus-circle"></i> Create New Order
+                                </button>
+                            </div>
+                        </div>
+                    `;
+                }
+                
+                bootstrap.Modal.getInstance(document.getElementById('deleteOrderModal')).hide();
+            } else {
+                showToast(data.error || 'Error deleting order', 'error');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            showToast('Error deleting order', 'error');
+        })
+        .finally(() => {
+            btn.disabled = false;
+            btn.innerHTML = '<i class="fas fa-trash me-2"></i>Delete Order';
+            deleteOrderId = null;
+        });
+    }
+
+    // Edit from view modal
+    function editFromView() {
+        const orderId = document.getElementById('editFromViewBtn').getAttribute('data-order-id');
+        if (orderId) {
+            bootstrap.Modal.getInstance(document.getElementById('viewOrderModal')).hide();
+            setTimeout(() => editOrder(orderId), 500);
+        }
+    }
+
+    // Reset modals on close
+    document.getElementById('createOrderModal').addEventListener('hidden.bs.modal', function () {
+        document.getElementById('create_user_id').value = '';
+        document.getElementById('create_status').value = '';
+        document.getElementById('create_delivery_address').value = '';
+        document.getElementById('create_discount').value = '0';
+        document.getElementById('create_delivery_fee').value = '40';
+        document.getElementById('create_is_active').checked = true;
+        
+        document.querySelectorAll('#createProductsList .product-checkbox').forEach(cb => cb.checked = false);
+        document.querySelectorAll('#createProductsList .product-quantity').forEach(q => q.value = '0');
+        
+        document.getElementById('create_sub_total').textContent = '₹0.00';
+        document.getElementById('create_total_price').textContent = '₹0.00';
+    });
+    
+    document.getElementById('editOrderModal').addEventListener('hidden.bs.modal', function () {
+        document.getElementById('editModalLoading').style.display = 'none';
+    });
+</script>
+{% endblock %}
