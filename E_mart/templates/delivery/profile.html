@@ -9,6 +9,12 @@
   .status-badge { font-size: 0.85rem; }
   .metric-card { transition: transform 0.2s; }
   .metric-card:hover { transform: translateY(-5px); }
+  .col-auto{
+    cursor:pointer;
+  }
+  .card-body{
+    cursor:pointer;
+  }
 </style>
 {% endblock %}
 
@@ -31,7 +37,7 @@
             <div class="col-md-9 ps-md-4">
               <h2 class="fw-bold mb-1">{{ delivery_person.user.get_full_name|default:delivery_person.user.username }}</h2>
               <p class="fs-5 fw-semibold text-success mb-2">Delivery Executive</p>
-              <div class="row g-3 mb-3">
+              <div class="row g-3 mb-3 justify-content-center">
                 <div class="col-auto">
                   <span class="badge bg-light text-dark px-3 py-2 fs-6 fw-semibold">
                     {% if delivery_person.is_available %}
@@ -42,8 +48,9 @@
                   </span>
                 </div>
                 <div class="col-auto">
-                  <span class="badge bg-primary px-3 py-2 fs-6">
-                    <i class="bi bi-credit-card me-1"></i>₹{{ delivery_person.amount|default:"0.00" }}
+                  <span class="badge bg-danger px-3 py-2 fs-6 d-flex justify-content-center align-items-center gap-2">
+                    <i class="bi bi-box-arrow-right fs-5" onclick="logout()" title="Logout"></i>
+                    Logout
                   </span>
                 </div>
                 {% if delivery_person.user.role == 3 %}
@@ -100,15 +107,6 @@
         </div>
       </div>
     </div>
-    {% comment %} <div class="col-lg-3 col-md-6">
-      <div class="p-4 rounded bg-light h-100 metric-card shadow-sm border-0">
-        <div class="card-body text-center p-4">
-          <i class="bi bi-star-fill display-4 text-info mb-3"></i>
-          <h3 class="fw-bold text-info">4.9</h3>
-          <p class="mb-0 text-muted">Rating</p>
-        </div>
-      </div>
-    </div> {% endcomment %}
   </div>
 
   <!-- Profile Details -->
@@ -208,4 +206,32 @@
     </div>
   </div>
 </div>
+
+<script>
+  function logout() {
+      
+      const logoutLoader = document.getElementById('logoutLoader');
+      logoutLoader.style.display = 'flex';
+      
+      // Disable any further clicks on logout icon
+      const logoutIcon = document.querySelector('.bi-box-arrow-right');
+      if (logoutIcon) {
+        logoutIcon.style.pointerEvents = 'none';
+        logoutIcon.style.opacity = '0.5';
+      }
+      
+      // Wait 2 seconds then redirect to logout URL
+      setTimeout(function() {
+        window.location.href = '/logout/';
+      }, 2000);
+    }
+
+    // Handle responsive behavior
+    window.addEventListener('resize', function() {
+      if (window.innerWidth <= 768) {
+        sidebar.classList.add('mini');
+        contentArea.classList.add('expanded');
+      }
+    });
+</script>
 {% endblock %}

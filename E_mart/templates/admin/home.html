@@ -28,6 +28,159 @@
     <script src="{% static 'js/admin/admin_base.js' %}"></script>
   <script src="{% static 'js/admin/home.js' %}"></script>
   <script src="{% static 'js/auto_reload.js' %}"></script>
+  
+  <style>
+    /* Custom Modal Styles */
+    .logout-modal {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0, 0, 0, 0.5);
+      z-index: 9999;
+      justify-content: center;
+      align-items: center;
+      animation: fadeIn 0.3s ease;
+    }
+
+    .logout-modal-content {
+      background: white;
+      border-radius: 12px;
+      padding: 30px;
+      max-width: 400px;
+      width: 90%;
+      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+      animation: slideIn 0.3s ease;
+      position: relative;
+    }
+
+    .dark-mode .logout-modal-content {
+      background: #2a2c3e;
+      color: #fff;
+    }
+
+    .logout-modal-header {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+
+    .logout-modal-header i {
+      font-size: 60px;
+      color: #01ca91;
+      margin-bottom: 15px;
+    }
+
+    .logout-modal-header h3 {
+      font-size: 24px;
+      margin: 0;
+      color: #333;
+    }
+
+    .dark-mode .logout-modal-header h3 {
+      color: #fff;
+    }
+
+    .logout-modal-body {
+      text-align: center;
+      margin-bottom: 25px;
+      color: #666;
+      font-size: 16px;
+    }
+
+    .dark-mode .logout-modal-body {
+      color: #ccc;
+    }
+
+    .logout-modal-footer {
+      display: flex;
+      justify-content: center;
+      gap: 15px;
+    }
+
+    .logout-modal-footer button {
+      padding: 10px 30px;
+      border: none;
+      border-radius: 8px;
+      font-size: 16px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    .btn-cancel {
+      background: #e0e0e0;
+      color: #666;
+    }
+
+    .btn-cancel:hover {
+      background: #d0d0d0;
+      transform: translateY(-2px);
+    }
+
+    .dark-mode .btn-cancel {
+      background: #3a3c4e;
+      color: #ccc;
+    }
+
+    .dark-mode .btn-cancel:hover {
+      background: #4a4c5e;
+    }
+
+    .btn-logout-confirm {
+      background: #01ca91;
+      color: white;
+    }
+
+    .btn-logout-confirm:hover {
+      background: #01b07e;
+      transform: translateY(-2px);
+      box-shadow: 0 5px 15px rgba(1, 202, 145, 0.3);
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+
+    @keyframes slideIn {
+      from {
+        transform: translateY(-30px);
+        opacity: 0;
+      }
+      to {
+        transform: translateY(0);
+        opacity: 1;
+      }
+    }
+
+    /* Logout Loader Styles */
+    #logoutLoader {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.7);
+      z-index: 10000;
+      justify-content: center;
+      align-items: center;
+      flex-direction: column;
+    }
+
+    .spinner-border.text-light {
+      width: 3rem;
+      height: 3rem;
+    }
+
+    .logout-loader-text {
+      color: white;
+      margin-top: 1rem;
+      font-size: 1.2rem;
+    }
+  </style>
 </head>
 <body>
   <!-- Loader HTML -->
@@ -35,6 +188,31 @@
     <div id="loader">
       <div class="spinner"></div>
     </div>
+  </div>
+
+  <!-- Custom Logout Confirmation Modal -->
+  <div id="logoutConfirmModal" class="logout-modal">
+    <div class="logout-modal-content">
+      <div class="logout-modal-header">
+        <i class="bi bi-box-arrow-right"></i>
+        <h3>Confirm Logout</h3>
+      </div>
+      <div class="logout-modal-body">
+        Are you sure you want to logout from your account?
+      </div>
+      <div class="logout-modal-footer">
+        <button class="btn-cancel" onclick="closeLogoutModal()">Cancel</button>
+        <button class="btn-logout-confirm" onclick="confirmLogout()">Logout</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Custom Logout Loader (initially hidden) -->
+  <div id="logoutLoader">
+    <div class="spinner-border text-light" role="status">
+      <span class="visually-hidden">Loading...</span>
+    </div>
+    <div class="logout-loader-text">Logging out...</div>
   </div>
 
   <div class="d-flex">
@@ -119,7 +297,7 @@
           <i id="lightModeIcon" class="bi bi-sun-fill" onclick="toggleTheme('light')" title="Light Mode"></i>
           <i id="darkModeIcon" class="bi bi-moon-fill d-none" onclick="toggleTheme('dark')" title="Dark Mode"></i>
           <div class="vr" style="height: 30px;"></div>
-          <i class="bi bi-box-arrow-right fs-5" onclick="logout()" title="Logout"></i>
+          <i class="bi bi-box-arrow-right fs-5" onclick="showLogoutModal()" title="Logout"></i>
         </div>
       </header>
 
@@ -159,7 +337,7 @@
       });
     }
 
-    // Highlight active menu item (fixed to prevent multiple active)
+    // Highlight active menu item
     const currentPath = window.location.pathname;
     const navLinks = document.querySelectorAll('.sidebar-menu .nav-link');
     
@@ -178,7 +356,7 @@
       }
     });
 
-    // Theme toggle functionality (fixed)
+    // Theme toggle functionality
     function toggleTheme(mode) {
       const lightIcon = document.getElementById('lightModeIcon');
       const darkIcon = document.getElementById('darkModeIcon');
@@ -215,11 +393,43 @@
       toggleTheme('dark');
     }
 
-    // Logout function
-    function logout() {
-      if (confirm('Are you sure you want to logout?')) {
-        window.location.href = '/logout/';
+    // Logout Modal Functions
+    function showLogoutModal() {
+      const modal = document.getElementById('logoutConfirmModal');
+      modal.style.display = 'flex';
+      
+      // Add click outside to close
+      modal.addEventListener('click', function(e) {
+        if (e.target === modal) {
+          closeLogoutModal();
+        }
+      });
+    }
+
+    function closeLogoutModal() {
+      const modal = document.getElementById('logoutConfirmModal');
+      modal.style.display = 'none';
+    }
+
+    function confirmLogout() {
+      // Close the confirmation modal
+      closeLogoutModal();
+      
+      // Show the logout loader
+      const logoutLoader = document.getElementById('logoutLoader');
+      logoutLoader.style.display = 'flex';
+      
+      // Disable any further clicks on logout icon
+      const logoutIcon = document.querySelector('.bi-box-arrow-right');
+      if (logoutIcon) {
+        logoutIcon.style.pointerEvents = 'none';
+        logoutIcon.style.opacity = '0.5';
       }
+      
+      // Wait 2 seconds then redirect to logout URL
+      setTimeout(function() {
+        window.location.href = '/logout/';
+      }, 2000);
     }
 
     // Handle responsive behavior
@@ -227,6 +437,13 @@
       if (window.innerWidth <= 768) {
         sidebar.classList.add('mini');
         contentArea.classList.add('expanded');
+      }
+    });
+
+    // Close modal with Escape key
+    document.addEventListener('keydown', function(e) {
+      if (e.key === 'Escape') {
+        closeLogoutModal();
       }
     });
   </script>
