@@ -162,11 +162,6 @@ body {
     border-bottom: 1px solid #eef2f6;
 }
 
-/* Main content with padding for fixed header */
-main {
-    padding: 28px !important;
-    min-height: calc(100vh - 80px);
-}
 
 .sidebar-header {
     padding: 24px 20px;
@@ -508,4 +503,29 @@ body.dark-mode .admin-table th {
 body.dark-mode .admin-table td {
     color: #e2e8f0;
     border-bottom-color: #334155;
+}
+
+.modal-content{
+    max-height: 600px;
+    max-width:1000px;
+    overflow-y: scroll;
+    scrollbar-width: none;
+}
+.modal-dialog{
+    max-width:1000px!important;
+}
+.custom-scroll {
+    max-height: 90vh;
+    overflow-y: auto;
+    scrollbar-width: thin; /* Firefox */
+}
+
+/* Chrome, Edge, Safari */
+.custom-scroll::-webkit-scrollbar {
+    width: 6px;
+}
+
+.custom-scroll::-webkit-scrollbar-thumb {
+    background: #888;
+    border-radius: 10px;
 }

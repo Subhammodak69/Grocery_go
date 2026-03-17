@@ -1,52 +1,1228 @@
 {% extends "admin/home.html" %}
 {% load static %}
-{% block title %}worker List{% endblock %}
+{% block title %}Worker Management{% endblock %}
 {% block content %}
-<script src="{% static 'js/admin/worker/worker_list.js'%}"></script>
-<div class="overflow-auto p-4 rounded h-100">
-    <div class="d-flex align-items-center justify-content-between mb-3">
-        <h4>worker List</h4>
-        <button class="btn btn-success" onclick="create_worker()">+Create worker</button>
+
+<!-- Include Animate.css for animations -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
+
+<!-- Font Awesome for icons -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+
+<style>
+    /* Custom styles complementing Bootstrap */
+    :root {
+        --primary-gradient: linear-gradient(135deg, #667eea, #764ba2);
+        --success-gradient: linear-gradient(135deg, #43e97b, #38f9d7);
+        --warning-gradient: linear-gradient(135deg, #fa709a, #fee140);
+        --danger-gradient: linear-gradient(135deg, #f093fb, #f5576c);
+    }
+    
+    .worker-avatar-sm {
+        width: 36px;
+        height: 36px;
+        background: var(--primary-gradient);
+        color: white;
+        border-radius: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 600;
+        font-size: 16px;
+        box-shadow: 0 4px 10px rgba(102, 126, 234, 0.3);
+    }
+    
+    .worker-avatar-lg {
+        width: 90px;
+        height: 90px;
+        background: var(--primary-gradient);
+        color: white;
+        border-radius: 25px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 40px;
+        font-weight: 600;
+        margin: 0 auto;
+        box-shadow: 0 10px 25px rgba(102, 126, 234, 0.4);
+        animation: float 3s ease-in-out infinite;
+    }
+    
+    @keyframes float {
+        0%, 100% { transform: translateY(0); }
+        50% { transform: translateY(-5px); }
+    }
+    
+    .page-header {
+        background: white;
+        border-radius: 20px;
+        padding: 1.5rem;
+        margin-bottom: 2rem;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+        border: 1px solid rgba(102, 126, 234, 0.1);
+    }
+    
+    .table-container {
+        background: white;
+        border-radius: 20px;
+        padding: 1.5rem;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+        border: 1px solid rgba(102, 126, 234, 0.1);
+    }
+    
+    .table thead th {
+        background: #f8fafc;
+        color: #4a5568;
+        font-weight: 600;
+        font-size: 0.85rem;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        border-bottom: 2px solid #667eea;
+        padding: 1rem;
+    }
+    
+    .table tbody tr {
+        transition: all 0.2s ease;
+    }
+    
+    .table tbody tr:hover {
+        background: rgba(102, 126, 234, 0.05);
+        transform: scale(1.01);
+        box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+    }
+    
+    .table td {
+        padding: 1rem;
+        vertical-align: middle;
+        border-bottom: 1px solid #edf2f7;
+    }
+    
+    .btn-create {
+        background: var(--primary-gradient);
+        color: white;
+        border: none;
+        padding: 0.75rem 1.8rem;
+        border-radius: 12px;
+        font-weight: 600;
+        font-size: 0.95rem;
+        transition: all 0.3s ease;
+        box-shadow: 0 8px 20px rgba(102, 126, 234, 0.3);
+    }
+    
+    .btn-create:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 12px 25px rgba(102, 126, 234, 0.4);
+        color: white;
+    }
+    
+    .btn-action {
+        width: 38px;
+        height: 38px;
+        border-radius: 10px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        transition: all 0.2s ease;
+        margin: 0 3px;
+        border: none;
+        background: #f1f5f9;
+        color: #4a5568;
+    }
+    
+    .btn-action:hover {
+        transform: translateY(-3px) scale(1.1);
+    }
+    
+    .btn-view:hover {
+        background: #667eea;
+        color: white;
+    }
+    
+    .btn-edit:hover {
+        background: #fbbf24;
+        color: white;
+    }
+    
+    .badge-worker {
+        background: rgba(102, 126, 234, 0.1);
+        color: #667eea;
+        padding: 0.5rem 1rem;
+        border-radius: 30px;
+        font-weight: 500;
+        font-size: 0.8rem;
+    }
+    
+    .badge-available {
+        background: rgba(67, 233, 123, 0.1);
+        color: #10b981;
+        padding: 0.35rem 0.8rem;
+        border-radius: 30px;
+        font-size: 0.75rem;
+        font-weight: 600;
+    }
+    
+    .badge-busy {
+        background: rgba(249, 115, 22, 0.1);
+        color: #f97316;
+        padding: 0.35rem 0.8rem;
+        border-radius: 30px;
+        font-size: 0.75rem;
+        font-weight: 600;
+    }
+    
+    .modal-content {
+        border: none;
+        border-radius: 25px;
+        overflow: hidden;
+    }
+    
+    .modal-header {
+        background: var(--primary-gradient);
+        color: white;
+        border: none;
+        padding: 1.8rem 2rem;
+    }
+    
+    .modal-header .btn-close {
+        filter: brightness(0) invert(1);
+        opacity: 0.8;
+    }
+    
+    .modal-header .btn-close:hover {
+        opacity: 1;
+    }
+    
+    .modal-body {
+        padding: 2rem;
+        max-height: 70vh;
+        overflow-y: auto;
+    }
+    
+    .modal-footer {
+        border-top: 1px solid #edf2f7;
+        padding: 1.5rem 2rem;
+    }
+    
+    .form-card {
+        background: #f8fafc;
+        border-radius: 16px;
+        padding: 1.5rem;
+        border: 1px solid #edf2f7;
+        transition: all 0.3s ease;
+    }
+    
+    .form-card:hover {
+        border-color: #667eea;
+        box-shadow: 0 10px 25px rgba(102, 126, 234, 0.1);
+    }
+    
+    .form-card .form-label {
+        font-size: 0.75rem;
+        text-transform: uppercase;
+        color: #94a3b8;
+        letter-spacing: 0.5px;
+        margin-bottom: 0.5rem;
+        font-weight: 600;
+    }
+    
+    .form-card .form-control, 
+    .form-card .form-select {
+        border-radius: 12px;
+        padding: 0.75rem 1rem;
+        border: 2px solid #edf2f7;
+        transition: all 0.3s ease;
+        background: white;
+    }
+    
+    .form-card .form-control:focus, 
+    .form-card .form-select:focus {
+        border-color: #667eea;
+        box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+    }
+    
+    .profile-section {
+        text-align: center;
+        margin-bottom: 2rem;
+    }
+    
+    .form-switch .form-check-input {
+        width: 3em;
+        height: 1.5em;
+        cursor: pointer;
+    }
+    
+    .form-switch .form-check-input:checked {
+        background-color: #667eea;
+        border-color: #667eea;
+    }
+    
+    .detail-card {
+        background: #f8fafc;
+        border-radius: 16px;
+        padding: 1.5rem;
+        height: 100%;
+        border: 1px solid #edf2f7;
+        transition: all 0.3s ease;
+    }
+    
+    .detail-card:hover {
+        border-color: #667eea;
+        transform: translateY(-3px);
+        box-shadow: 0 10px 25px rgba(102, 126, 234, 0.1);
+    }
+    
+    .detail-label {
+        font-size: 0.7rem;
+        text-transform: uppercase;
+        color: #94a3b8;
+        letter-spacing: 0.5px;
+        margin-bottom: 0.5rem;
+    }
+    
+    .detail-value {
+        font-size: 1rem;
+        font-weight: 600;
+        color: #1e293b;
+    }
+    
+    .toast-notification {
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        z-index: 9999;
+        min-width: 350px;
+        animation: slideInRight 0.3s ease;
+    }
+    
+    @keyframes slideInRight {
+        from {
+            transform: translateX(100%);
+            opacity: 0;
+        }
+        to {
+            transform: translateX(0);
+            opacity: 1;
+        }
+    }
+    
+    .empty-state {
+        text-align: center;
+        padding: 4rem 2rem;
+    }
+    
+    .empty-state i {
+        font-size: 5rem;
+        color: #cbd5e1;
+        margin-bottom: 1.5rem;
+    }
+    
+    .status-indicator {
+        display: inline-block;
+        width: 10px;
+        height: 10px;
+        border-radius: 50%;
+        margin-right: 6px;
+    }
+    
+    .status-active {
+        background: #10b981;
+        box-shadow: 0 0 0 2px rgba(16, 185, 129, 0.2);
+    }
+    
+    .status-inactive {
+        background: #ef4444;
+        box-shadow: 0 0 0 2px rgba(239, 68, 68, 0.2);
+    }
+    
+    /* Loading animation */
+    .spinner {
+        width: 40px;
+        height: 40px;
+        border: 4px solid #e3e3e3;
+        border-top: 4px solid #667eea;
+        border-radius: 50%;
+        animation: spin 1s linear infinite;
+    }
+    
+    @keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+    }
+    
+    /* Body loading overlay */
+    .modal-body-loading {
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(255, 255, 255, 0.9);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 1060;
+        border-radius: 0;
+        backdrop-filter: blur(5px);
+    }
+    
+    .loading-content {
+        text-align: center;
+    }
+    
+    .loading-content .spinner {
+        width: 50px;
+        height: 50px;
+        margin-bottom: 1rem;
+    }
+    
+    .loading-content p {
+        color: #667eea;
+        font-weight: 500;
+        margin: 0;
+    }
+
+    /* Table row highlight animation */
+    @keyframes highlight {
+        0% { background-color: rgba(102, 126, 234, 0.2); }
+        100% { background-color: transparent; }
+    }
+    
+    .row-highlight {
+        animation: highlight 2s ease;
+    }
+</style>
+
+<div class="container-fluid p-4 custom-scroll">
+    <!-- Page Header with Animation -->
+    <div class="page-header animate__animated animate__fadeInDown">
+        <div class="d-flex align-items-center justify-content-between">
+            <div class="d-flex align-items-center gap-3">
+                <div class="worker-avatar-sm" style="width: 50px; height: 50px; font-size: 24px;">
+                    <i class="fas fa-truck"></i>
+                </div>
+                <div>
+                    <h2 class="fw-bold mb-1" style="color: #2d3748;">Worker Management</h2>
+                    <p class="text-muted mb-0">Manage all delivery workers in one place</p>
+                </div>
+            </div>
+            <button class="btn-create d-flex align-items-center gap-2" data-bs-toggle="modal" data-bs-target="#createWorkerModal">
+                <i class="fas fa-plus-circle"></i> Create New Worker
+            </button>
+        </div>
     </div>
-    <table class="table table-striped table-bordered w-100">
-        <thead class="table-dark">
-            <tr>
-                <th>ID</th>
-                <th>Full Name</th>
-                <th>Email ID</th>
-                <th>Phone No</th>
-                <th>Role</th>
-                <th>Is Active</th>
-                <th>Actions</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for worker in workers %}
-            <tr>
-                <td>{{ worker.id }}</td>
-                <td>{{ worker.get_full_name }}</td>
-                <td>{{ worker.email }}</td>
-                <td>{{ worker.phone_number }}</td>
-                <td>{{ worker.role }}</td>
+
+    <!-- Workers Table Container -->
+    <div id="workersTableContainer">
+        {% if workers %}
+        <div class="table-container animate__animated animate__fadeInUp">
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0" id="workersTable">
+                    <thead>
+                        <tr>
+                            <th>Worker</th>
+                            <th>Contact</th>
+                            <th>Status</th>
+                            <th>Availability</th>
+                            <th>Toggle</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="workersTableBody">
+                        {% for worker in workers %}
+                        <tr id="worker-row-{{ worker.id }}" data-worker-id="{{ worker.id }}">
+                            <td>
+                                <div class="d-flex align-items-center gap-3">
+                                    <div class="worker-avatar-sm">
+                                        {{ worker.get_full_name|first|upper }}
+                                    </div>
+                                    <div>
+                                        <div class="fw-semibold">{{ worker.get_full_name }}</div>
+                                        <small class="text-muted">ID: #{{ worker.id }}</small>
+                                    </div>
+                                </div>
+                            </td>
+                            <td>
+                                <div><i class="fas fa-envelope me-2 text-muted small"></i>{{ worker.email }}</div>
+                                <div><i class="fas fa-phone me-2 text-muted small"></i>{{ worker.phone_number|default:"-" }}</div>
+                            </td>
+                            <td>
+                                <div class="d-flex align-items-center gap-2">
+                                    <span class="status-indicator {% if worker.is_active %}status-active{% else %}status-inactive{% endif %}"></span>
+                                    <span class="badge-worker">
+                                        {% if worker.is_active %}Active{% else %}Inactive{% endif %}
+                                    </span>
+                                </div>
+                            </td>
+                            <td>
+                                {% if worker.is_active %}
+                                    {% with delivery_person=worker.deliveryorpickups.first %}
+                                        {% if delivery_person and delivery_person.is_available %}
+                                        <span class="badge-available">
+                                            <i class="fas fa-check-circle me-1"></i>Available
+                                        </span>
+                                        {% else %}
+                                        <span class="badge-busy">
+                                            <i class="fas fa-clock me-1"></i>Busy
+                                        </span>
+                                        {% endif %}
+                                    {% endwith %}
+                                {% else %}
+                                    <span class="badge-busy">
+                                        <i class="fas fa-ban me-1"></i>Unavailable
+                                    </span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <div class="form-check form-switch">
+                                    <input class="form-check-input status-toggle" type="checkbox" 
+                                        data-worker-id="{{ worker.id }}"
+                                        {% if worker.is_active %}checked{% endif %}>
+                                </div>
+                            </td>
+                            <td>
+                                <div class="d-flex gap-2">
+                                    <button class="btn-action btn-view" onclick="viewWorkerDetails({{ worker.id }})" 
+                                            data-bs-toggle="tooltip" title="View Details">
+                                        <i class="fas fa-eye"></i>
+                                    </button>
+                                    <button class="btn-action btn-edit" onclick="editWorker({{ worker.id }})" 
+                                            data-bs-toggle="tooltip" title="Edit Worker">
+                                        <i class="fas fa-edit"></i>
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        {% else %}
+        <div class="table-container text-center py-5 animate__animated animate__fadeIn">
+            <div class="empty-state">
+                <i class="fas fa-truck text-secondary opacity-25"></i>
+                <h4 class="mt-4 text-secondary">No Workers Found</h4>
+                <p class="text-muted mb-4">Click the "Create New Worker" button to add your first delivery worker.</p>
+                <button class="btn-create d-inline-flex align-items-center gap-2" data-bs-toggle="modal" data-bs-target="#createWorkerModal">
+                    <i class="fas fa-plus-circle"></i> Create New Worker
+                </button>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<!-- Create Worker Modal -->
+<div class="modal fade" id="createWorkerModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">
+                    <i class="fas fa-user-plus me-2"></i>Create New Worker
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <!-- Profile Section -->
+                <div class="profile-section">
+                    <div class="worker-avatar-lg">
+                        <i class="fas fa-user-plus"></i>
+                    </div>
+                    <h5 class="mt-3 mb-0 fw-bold">New Worker</h5>
+                    <p class="text-muted small">Enter worker details below</p>
+                </div>
+
+                <!-- Form in Cards -->
+                <form id="createWorkerForm">
+                    {% csrf_token %}
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <div class="form-card">
+                                <div class="form-label">
+                                    <i class="fas fa-user me-1"></i> First Name <span class="text-danger">*</span>
+                                </div>
+                                <input type="text" class="form-control" id="create_first_name" placeholder="John" required>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-card">
+                                <div class="form-label">
+                                    <i class="fas fa-user me-1"></i> Last Name <span class="text-danger">*</span>
+                                </div>
+                                <input type="text" class="form-control" id="create_last_name" placeholder="Doe" required>
+                            </div>
+                        </div>
+                        <div class="col-12">
+                            <div class="form-card">
+                                <div class="form-label">
+                                    <i class="fas fa-envelope me-1"></i> Email <span class="text-danger">*</span>
+                                </div>
+                                <input type="email" class="form-control" id="create_email" placeholder="worker@example.com" required>
+                            </div>
+                        </div>
+                        <div class="col-12">
+                            <div class="form-card">
+                                <div class="form-label">
+                                    <i class="fas fa-phone me-1"></i> Phone Number <span class="text-danger">*</span>
+                                </div>
+                                <input type="tel" class="form-control" id="create_phone" placeholder="+1 234 567 8900" required>
+                            </div>
+                        </div>
+                        <div class="col-12">
+                            <div class="form-card">
+                                <div class="form-label">
+                                    <i class="fas fa-lock me-1"></i> Password <span class="text-danger">*</span>
+                                </div>
+                                <input type="password" class="form-control" id="create_password" placeholder="••••••••" required>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-light px-4" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-primary px-4" onclick="createWorker()" id="createWorkerBtn">
+                    <i class="fas fa-check-circle me-2"></i>Create Worker
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Edit Worker Modal -->
+<div class="modal fade" id="editWorkerModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">
+                    <i class="fas fa-user-edit me-2"></i>Edit Worker
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body position-relative" style="min-height: 400px;">
+                <!-- Loading Overlay - Only covers body -->
+                <div class="modal-body-loading" id="editModalLoading" style="display: none;">
+                    <div class="loading-content">
+                        <div class="spinner"></div>
+                        <p>Loading worker data...</p>
+                    </div>
+                </div>
+                
+                <!-- Profile Section -->
+                <div class="profile-section" id="editProfileSection">
+                    <div class="worker-avatar-lg" id="editAvatar">
+                        <span id="editAvatarInitial">W</span>
+                    </div>
+                    <h5 class="mt-3 mb-0 fw-bold" id="editFullName">Loading...</h5>
+                    <p class="text-muted small" id="editUsername">@worker</p>
+                </div>
+
+                <!-- Form in Cards -->
+                <form id="editWorkerForm">
+                    {% csrf_token %}
+                    <input type="hidden" id="edit_worker_id">
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <div class="form-card">
+                                <div class="form-label">
+                                    <i class="fas fa-user me-1"></i> First Name <span class="text-danger">*</span>
+                                </div>
+                                <input type="text" class="form-control" id="edit_first_name" required>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-card">
+                                <div class="form-label">
+                                    <i class="fas fa-user me-1"></i> Last Name <span class="text-danger">*</span>
+                                </div>
+                                <input type="text" class="form-control" id="edit_last_name" required>
+                            </div>
+                        </div>
+                        <div class="col-12">
+                            <div class="form-card">
+                                <div class="form-label">
+                                    <i class="fas fa-envelope me-1"></i> Email <span class="text-danger">*</span>
+                                </div>
+                                <input type="email" class="form-control" id="edit_email" required>
+                            </div>
+                        </div>
+                        <div class="col-12">
+                            <div class="form-card">
+                                <div class="form-label">
+                                    <i class="fas fa-phone me-1"></i> Phone Number <span class="text-danger">*</span>
+                                </div>
+                                <input type="tel" class="form-control" id="edit_phone" required>
+                            </div>
+                        </div>
+                        <div class="col-12">
+                            <div class="form-card">
+                                <div class="form-label">
+                                    <i class="fas fa-lock me-1"></i> New Password (leave blank to keep current)
+                                </div>
+                                <input type="password" class="form-control" id="edit_password" placeholder="••••••••">
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-light px-4" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-primary px-4" onclick="updateWorker()" id="updateWorkerBtn">
+                    <i class="fas fa-save me-2"></i>Update Worker
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- View Worker Modal -->
+<div class="modal fade" id="viewWorkerModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">
+                    <i class="fas fa-id-card me-2"></i>Worker Details
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div id="viewWorkerContent">
+                    <!-- Dynamic content will be loaded here -->
+                    <div class="text-center py-5">
+                        <div class="spinner mx-auto"></div>
+                        <p class="mt-3 text-muted">Loading worker details...</p>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-light px-4" data-bs-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-warning px-4" onclick="editFromView()" id="editFromViewBtn">
+                    <i class="fas fa-edit me-2"></i>Edit Worker
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Toast Notification -->
+<div class="toast-notification" id="toast" style="display: none;"></div>
+
+<script>
+    // Initialize tooltips
+    document.addEventListener('DOMContentLoaded', function() {
+        var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+        tooltipTriggerList.map(function(tooltipTriggerEl) {
+            return new bootstrap.Tooltip(tooltipTriggerEl);
+        });
+        
+        // Attach status toggle listeners
+        attachStatusToggleListeners();
+    });
+
+    // Show toast notification
+    function showToast(message, type = 'success') {
+        const toast = document.getElementById('toast');
+        const bgColor = type === 'success' ? 'linear-gradient(135deg, #43e97b, #38f9d7)' : 'linear-gradient(135deg, #f093fb, #f5576c)';
+        const icon = type === 'success' ? 'check-circle' : 'exclamation-circle';
+        
+        toast.innerHTML = `
+            <div class="alert border-0 text-white shadow-lg" style="background: ${bgColor};">
+                <i class="fas fa-${icon} me-2"></i>
+                ${message}
+            </div>
+        `;
+        toast.style.display = 'block';
+        setTimeout(() => {
+            toast.style.display = 'none';
+        }, 3000);
+    }
+
+    // Format phone number
+    function formatPhoneNumber(phone) {
+        return phone || '-';
+    }
+
+    // Create worker row HTML
+    function createWorkerRow(worker) {
+        const fullName = `${worker.first_name} ${worker.last_name}`;
+        const initial = fullName.charAt(0).toUpperCase();
+        
+        // Determine status classes
+        const statusClass = worker.is_active ? 'status-active' : 'status-inactive';
+        const statusText = worker.is_active ? 'Active' : 'Inactive';
+        
+        // Determine availability classes
+        let availabilityClass, availabilityIcon, availabilityText;
+        
+        if (!worker.is_active) {
+            availabilityClass = 'badge-busy';
+            availabilityIcon = 'fa-ban';
+            availabilityText = 'Unavailable';
+        } else if (worker.is_available) {
+            availabilityClass = 'badge-available';
+            availabilityIcon = 'fa-check-circle';
+            availabilityText = 'Available';
+        } else {
+            availabilityClass = 'badge-busy';
+            availabilityIcon = 'fa-clock';
+            availabilityText = 'Busy';
+        }
+
+        return `
+            <tr id="worker-row-${worker.id}" data-worker-id="${worker.id}">
                 <td>
-                    <div class="form-check form-switch" onclick="isactive_toggle()">
-                        <input class="form-check-input toggle-active" type="checkbox" data-worker-id="{{ worker.id }}" {% if worker.is_active %}checked{% endif %} />
+                    <div class="d-flex align-items-center gap-3">
+                        <div class="worker-avatar-sm">
+                            ${initial}
+                        </div>
+                        <div>
+                            <div class="fw-semibold">${fullName}</div>
+                            <small class="text-muted">ID: #${worker.id}</small>
+                        </div>
                     </div>
                 </td>
                 <td>
-                    <button class="btn btn-warning btn-sm" onclick="update_worker({{worker.id}})">Update</button>
+                    <div><i class="fas fa-envelope me-2 text-muted small"></i>${worker.email}</div>
+                    <div><i class="fas fa-phone me-2 text-muted small"></i>${formatPhoneNumber(worker.phone_number)}</div>
+                </td>
+                <td>
+                    <div class="d-flex align-items-center gap-2">
+                        <span class="status-indicator ${statusClass}"></span>
+                        <span class="badge-worker">${statusText}</span>
+                    </div>
+                </td>
+                <td>
+                    <span class="${availabilityClass}">
+                        <i class="fas ${availabilityIcon} me-1"></i>${availabilityText}
+                    </span>
+                </td>
+                <td>
+                    <div class="form-check form-switch">
+                        <input class="form-check-input status-toggle" type="checkbox" 
+                            data-worker-id="${worker.id}"
+                            ${worker.is_active ? 'checked' : ''}>
+                    </div>
+                </td>
+                <td>
+                    <div class="d-flex gap-2">
+                        <button class="btn-action btn-view" onclick="viewWorkerDetails(${worker.id})" 
+                                data-bs-toggle="tooltip" title="View Details">
+                            <i class="fas fa-eye"></i>
+                        </button>
+                        <button class="btn-action btn-edit" onclick="editWorker(${worker.id})" 
+                                data-bs-toggle="tooltip" title="Edit Worker">
+                            <i class="fas fa-edit"></i>
+                        </button>
+                    </div>
                 </td>
             </tr>
-            {% endfor %}
-        </tbody>
-    </table>
-</div>
-<style>
-    td {
-  max-width: 150px;        
-  white-space: nowrap;     
-  overflow: hidden;       
-  text-overflow: ellipsis; 
-}
-</style>
+        `;
+    }
+
+    // Update table with new/updated worker
+    function updateTableAfterSave(worker, action = 'create') {
+        const tableContainer = document.getElementById('workersTableContainer');
+        const existingRow = document.getElementById(`worker-row-${worker.id}`);
+        
+        if (action === 'create') {
+            // Check if table is empty (look for empty state)
+            if (tableContainer.innerHTML.includes('No Workers Found')) {
+                // Replace empty state with table
+                tableContainer.innerHTML = `
+                    <div class="table-container animate__animated animate__fadeInUp">
+                        <div class="table-responsive">
+                            <table class="table table-hover align-middle mb-0" id="workersTable">
+                                <thead>
+                                    <tr>
+                                        <th>Worker</th>
+                                        <th>Contact</th>
+                                        <th>Status</th>
+                                        <th>Availability</th>
+                                        <th>Toggle</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="workersTableBody">
+                                    ${createWorkerRow(worker)}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                `;
+            } else {
+                // Add new row to existing table
+                const tbody = document.getElementById('workersTableBody') || 
+                             document.querySelector('#workersTable tbody');
+                if (tbody) {
+                    tbody.insertAdjacentHTML('beforeend', createWorkerRow(worker));
+                }
+            }
+            
+            // Highlight new row
+            setTimeout(() => {
+                const newRow = document.getElementById(`worker-row-${worker.id}`);
+                if (newRow) {
+                    newRow.classList.add('row-highlight');
+                }
+            }, 100);
+        } else if (action === 'update' && existingRow) {
+            // Update existing row
+            existingRow.outerHTML = createWorkerRow(worker);
+            
+            // Highlight updated row
+            setTimeout(() => {
+                const updatedRow = document.getElementById(`worker-row-${worker.id}`);
+                if (updatedRow) {
+                    updatedRow.classList.add('row-highlight');
+                }
+            }, 100);
+        }
+        
+        // Reinitialize tooltips
+        var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+        tooltipTriggerList.map(function(tooltipTriggerEl) {
+            return new bootstrap.Tooltip(tooltipTriggerEl);
+        });
+        
+        // Reattach status toggle listeners
+        attachStatusToggleListeners();
+    }
+
+    // Attach status toggle listeners
+    function attachStatusToggleListeners() {
+        document.querySelectorAll('.status-toggle').forEach(toggle => {
+            toggle.removeEventListener('change', handleStatusChange);
+            toggle.addEventListener('change', handleStatusChange);
+        });
+    }
+
+    // Handle status change
+    function handleStatusChange(event) {
+        const toggle = event.target;
+        const workerId = toggle.dataset.workerId;
+        const isActive = toggle.checked;
+        
+        fetch('/admin/api/workers/toggle-status/', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': '{{ csrf_token }}'
+            },
+            body: JSON.stringify({
+                worker_id: workerId,
+                is_active: isActive
+            })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                showToast(`Worker status updated to ${isActive ? 'Active' : 'Inactive'}`, 'success');
+                // Update the row with new data
+                fetch(`/admin/api/workers/${workerId}/`)
+                    .then(res => res.json())
+                    .then(worker => {
+                        updateTableAfterSave(worker, 'update');
+                    });
+            } else {
+                showToast(data.error || 'Error updating status', 'error');
+                toggle.checked = !isActive;
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            showToast('Error updating worker status', 'error');
+            toggle.checked = !isActive;
+        });
+    }
+
+    // Create worker
+    function createWorker() {
+        const btn = document.getElementById('createWorkerBtn');
+        btn.disabled = true;
+        btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Creating...';
+
+        const data = {
+            first_name: document.getElementById('create_first_name').value,
+            last_name: document.getElementById('create_last_name').value,
+            email: document.getElementById('create_email').value,
+            phone_number: document.getElementById('create_phone').value,
+            password: document.getElementById('create_password').value
+        };
+
+        fetch('/admin/api/workers/create/', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': '{{ csrf_token }}'
+            },
+            body: JSON.stringify(data)
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                showToast('Worker created successfully!', 'success');
+                
+                // Close modal
+                bootstrap.Modal.getInstance(document.getElementById('createWorkerModal')).hide();
+                
+                // Reset form
+                document.getElementById('createWorkerForm').reset();
+                
+                // Add new worker to table
+                updateTableAfterSave(data.worker, 'create');
+            } else {
+                showToast(data.error || 'Error creating worker', 'error');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            showToast('Error creating worker', 'error');
+        })
+        .finally(() => {
+            btn.disabled = false;
+            btn.innerHTML = '<i class="fas fa-check-circle me-2"></i>Create Worker';
+        });
+    }
+
+    // Edit worker with loading state
+    function editWorker(workerId) {
+        const modal = new bootstrap.Modal(document.getElementById('editWorkerModal'));
+        const loadingOverlay = document.getElementById('editModalLoading');
+        
+        // Show modal first
+        modal.show();
+        
+        // Show loading overlay
+        loadingOverlay.style.display = 'flex';
+        
+        // Clear previous form data
+        document.getElementById('edit_worker_id').value = '';
+        document.getElementById('edit_first_name').value = '';
+        document.getElementById('edit_last_name').value = '';
+        document.getElementById('edit_email').value = '';
+        document.getElementById('edit_phone').value = '';
+        document.getElementById('edit_password').value = '';
+        
+        // Reset profile section
+        document.getElementById('editFullName').textContent = 'Loading...';
+        document.getElementById('editUsername').textContent = '@worker';
+        document.getElementById('editAvatarInitial').textContent = 'W';
+        
+        // Fetch worker data
+        fetch(`/admin/api/workers/${workerId}/`)
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                return response.json();
+            })
+            .then(worker => {
+                // Update profile section
+                document.getElementById('editFullName').textContent = worker.full_name || 'Worker Name';
+                document.getElementById('editUsername').textContent = `@${worker.username || 'worker'}`;
+                document.getElementById('editAvatarInitial').textContent = worker.full_name ? worker.full_name.charAt(0).toUpperCase() : 'W';
+                
+                // Populate form with worker data
+                document.getElementById('edit_worker_id').value = worker.id;
+                document.getElementById('edit_first_name').value = worker.first_name || '';
+                document.getElementById('edit_last_name').value = worker.last_name || '';
+                document.getElementById('edit_email').value = worker.email || '';
+                document.getElementById('edit_phone').value = worker.phone_number || '';
+                
+                // Hide loading overlay
+                loadingOverlay.style.display = 'none';
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                showToast('Error loading worker data', 'error');
+                
+                // Hide loading overlay
+                loadingOverlay.style.display = 'none';
+                
+                // Close modal on error
+                bootstrap.Modal.getInstance(document.getElementById('editWorkerModal')).hide();
+            });
+    }
+
+    // Update worker
+    function updateWorker() {
+        const btn = document.getElementById('updateWorkerBtn');
+        const workerId = document.getElementById('edit_worker_id').value;
+        
+        btn.disabled = true;
+        btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Updating...';
+
+        const data = {
+            first_name: document.getElementById('edit_first_name').value,
+            last_name: document.getElementById('edit_last_name').value,
+            email: document.getElementById('edit_email').value,
+            phone_number: document.getElementById('edit_phone').value
+        };
+
+        const password = document.getElementById('edit_password').value;
+        if (password) {
+            data.password = password;
+        }
+
+        fetch(`/admin/api/workers/${workerId}/update/`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': '{{ csrf_token }}'
+            },
+            body: JSON.stringify(data)
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                showToast('Worker updated successfully!', 'success');
+                
+                // Close modal
+                bootstrap.Modal.getInstance(document.getElementById('editWorkerModal')).hide();
+                
+                // Update worker in table
+                updateTableAfterSave(data.worker, 'update');
+            } else {
+                showToast(data.error || 'Error updating worker', 'error');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            showToast('Error updating worker', 'error');
+        })
+        .finally(() => {
+            btn.disabled = false;
+            btn.innerHTML = '<i class="fas fa-save me-2"></i>Update Worker';
+        });
+    }
+
+    // View worker details
+    function viewWorkerDetails(workerId) {
+        const modal = new bootstrap.Modal(document.getElementById('viewWorkerModal'));
+        const content = document.getElementById('viewWorkerContent');
+        
+        modal.show();
+        content.innerHTML = `
+            <div class="text-center py-5">
+                <div class="spinner mx-auto"></div>
+                <p class="mt-3 text-muted">Loading worker details...</p>
+            </div>
+        `;
+        
+        fetch(`/admin/api/workers/${workerId}/`)
+            .then(response => response.json())
+            .then(worker => {
+                const statusClass = worker.is_active ? 'success' : 'secondary';
+                const statusText = worker.is_active ? 'Active' : 'Inactive';
+                const availabilityClass = worker.is_available ? 'success' : 'warning';
+                const availabilityText = worker.is_available ? 'Available' : 'Busy';
+                
+                content.innerHTML = `
+                    <div class="text-center mb-4">
+                        <div class="worker-avatar-lg">
+                            ${worker.full_name ? worker.full_name.charAt(0).toUpperCase() : 'W'}
+                        </div>
+                        <h4 class="mt-4 mb-1 fw-bold">${worker.full_name}</h4>
+                        <p class="text-muted mb-3">@${worker.username}</p>
+                        <div class="d-flex justify-content-center gap-2">
+                            <span class="badge badge-worker">
+                                <i class="fas fa-truck me-1"></i>Delivery Worker
+                            </span>
+                            <span class="badge bg-${statusClass} text-white px-3 py-2 rounded-pill">
+                                <i class="fas fa-circle me-1" style="font-size: 8px;"></i>${statusText}
+                            </span>
+                        </div>
+                    </div>
+                    
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <div class="detail-card">
+                                <div class="detail-label">
+                                    <i class="fas fa-envelope me-1"></i> Email Address
+                                </div>
+                                <div class="detail-value">${worker.email}</div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="detail-card">
+                                <div class="detail-label">
+                                    <i class="fas fa-phone me-1"></i> Phone Number
+                                </div>
+                                <div class="detail-value">${worker.phone_number || '-'}</div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="detail-card">
+                                <div class="detail-label">
+                                    <i class="fas fa-id-card me-1"></i> Worker ID
+                                </div>
+                                <div class="detail-value">#${worker.id}</div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="detail-card">
+                                <div class="detail-label">
+                                    <i class="fas fa-calendar me-1"></i> Date Joined
+                                </div>
+                                <div class="detail-value">${worker.date_joined || '-'}</div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="detail-card">
+                                <div class="detail-label">
+                                    <i class="fas fa-clock me-1"></i> Last Login
+                                </div>
+                                <div class="detail-value">${worker.last_login || 'Never'}</div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="detail-card">
+                                <div class="detail-label">
+                                    <i class="fas fa-check-circle me-1"></i> Availability
+                                </div>
+                                <div class="detail-value">
+                                    <span class="badge bg-${availabilityClass} text-white px-3 py-2 rounded-pill">
+                                        <i class="fas fa-${worker.is_available ? 'check' : 'clock'} me-1"></i>
+                                        ${availabilityText}
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                
+                // Store worker ID for edit button
+                document.getElementById('editFromViewBtn').setAttribute('data-worker-id', worker.id);
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                content.innerHTML = `
+                    <div class="text-center py-5 text-danger">
+                        <i class="fas fa-exclamation-triangle fa-3x mb-3"></i>
+                        <p>Error loading worker details. Please try again.</p>
+                    </div>
+                `;
+            });
+    }
+
+    // Edit from view modal
+    function editFromView() {
+        const workerId = document.getElementById('editFromViewBtn').getAttribute('data-worker-id');
+        if (workerId) {
+            bootstrap.Modal.getInstance(document.getElementById('viewWorkerModal')).hide();
+            setTimeout(() => editWorker(workerId), 500);
+        }
+    }
+
+    // Reset create form when modal is closed
+    document.getElementById('createWorkerModal').addEventListener('hidden.bs.modal', function () {
+        document.getElementById('createWorkerForm').reset();
+    });
+    
+    // Reset edit form when modal is closed and hide loading
+    document.getElementById('editWorkerModal').addEventListener('hidden.bs.modal', function () {
+        const loadingOverlay = document.getElementById('editModalLoading');
+        loadingOverlay.style.display = 'none';
+    });
+</script>
 {% endblock %}

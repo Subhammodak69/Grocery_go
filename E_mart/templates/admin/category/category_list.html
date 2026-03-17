@@ -1,52 +1,1233 @@
 {% extends "admin/home.html" %}
 {% load static %}
-{% block title %}categorys List{% endblock %}
+{% block title %}Category Management{% endblock %}
 {% block content %}
-<script src="{% static 'js/admin/category/category_list.js'%}"></script>
-<div class="overflow-auto p-4 rounded h-100">
-    <div class="d-flex align-items-center justify-content-between mb-3">
-        <h4>category List</h4>
-        <button class="btn btn-success" onclick="create_category()">+Create category</button>
+<style>
+    /* Custom styles complementing Bootstrap */
+    :root {
+        --primary-gradient: linear-gradient(135deg, #667eea, #764ba2);
+        --success-gradient: linear-gradient(135deg, #43e97b, #38f9d7);
+        --warning-gradient: linear-gradient(135deg, #fa709a, #fee140);
+        --danger-gradient: linear-gradient(135deg, #f093fb, #f5576c);
+    }
+    
+    .category-avatar-sm {
+        width: 40px;
+        height: 40px;
+        background: var(--primary-gradient);
+        color: white;
+        border-radius: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 600;
+        font-size: 18px;
+        box-shadow: 0 4px 10px rgba(102, 126, 234, 0.3);
+    }
+    
+    .category-avatar-lg {
+        width: 100px;
+        height: 100px;
+        background: var(--primary-gradient);
+        color: white;
+        border-radius: 20px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 40px;
+        font-weight: 600;
+        margin: 0 auto;
+        box-shadow: 0 10px 25px rgba(102, 126, 234, 0.4);
+        animation: float 3s ease-in-out infinite;
+        object-fit: cover;
+    }
+    
+    .category-image-lg {
+        width: 100px;
+        height: 100px;
+        border-radius: 20px;
+        object-fit: cover;
+        margin: 0 auto;
+        box-shadow: 0 10px 25px rgba(102, 126, 234, 0.4);
+        animation: float 3s ease-in-out infinite;
+        border: 3px solid white;
+    }
+    
+    @keyframes float {
+        0%, 100% { transform: translateY(0); }
+        50% { transform: translateY(-5px); }
+    }
+    
+    .page-header {
+        background: white;
+        border-radius: 20px;
+        padding: 1.5rem;
+        margin-bottom: 2rem;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+        border: 1px solid rgba(102, 126, 234, 0.1);
+    }
+    
+    .table-container {
+        background: white;
+        border-radius: 20px;
+        padding: 1.5rem;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+        border: 1px solid rgba(102, 126, 234, 0.1);
+    }
+    
+    .table thead th {
+        background: #f8fafc;
+        color: #4a5568;
+        font-weight: 600;
+        font-size: 0.85rem;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        border-bottom: 2px solid #667eea;
+        padding: 1rem;
+    }
+    
+    .table tbody tr {
+        transition: all 0.2s ease;
+    }
+    
+    .table tbody tr:hover {
+        background: rgba(102, 126, 234, 0.05);
+        transform: scale(1.01);
+        box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+    }
+    
+    .table td {
+        padding: 1rem;
+        vertical-align: middle;
+        border-bottom: 1px solid #edf2f7;
+    }
+    
+    .category-img-table {
+        width: 50px;
+        height: 40px;
+        border-radius: 8px;
+        object-fit: cover;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    }
+    
+    .btn-create {
+        background: var(--primary-gradient);
+        color: white;
+        border: none;
+        padding: 0.75rem 1.8rem;
+        border-radius: 12px;
+        font-weight: 600;
+        font-size: 0.95rem;
+        transition: all 0.3s ease;
+        box-shadow: 0 8px 20px rgba(102, 126, 234, 0.3);
+    }
+    
+    .btn-create:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 12px 25px rgba(102, 126, 234, 0.4);
+        color: white;
+    }
+    
+    .btn-action {
+        width: 38px;
+        height: 38px;
+        border-radius: 10px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        transition: all 0.2s ease;
+        margin: 0 3px;
+        border: none;
+        background: #f1f5f9;
+        color: #4a5568;
+    }
+    
+    .btn-action:hover {
+        transform: translateY(-3px) scale(1.1);
+    }
+    
+    .btn-view:hover {
+        background: #667eea;
+        color: white;
+    }
+    
+    .btn-edit:hover {
+        background: #fbbf24;
+        color: white;
+    }
+    
+    .badge-category {
+        background: rgba(102, 126, 234, 0.1);
+        color: #667eea;
+        padding: 0.5rem 1rem;
+        border-radius: 30px;
+        font-weight: 500;
+        font-size: 0.8rem;
+    }
+    
+    .modal-content {
+        border: none;
+        border-radius: 25px;
+        overflow: hidden;
+    }
+    
+    .modal-header {
+        background: var(--primary-gradient);
+        color: white;
+        border: none;
+        padding: 1.8rem 2rem;
+    }
+    
+    .modal-header .btn-close {
+        filter: brightness(0) invert(1);
+        opacity: 0.8;
+    }
+    
+    .modal-header .btn-close:hover {
+        opacity: 1;
+    }
+    
+    .modal-body {
+        padding: 2rem;
+        max-height: 70vh;
+        overflow-y: auto;
+    }
+    
+    .modal-footer {
+        border-top: 1px solid #edf2f7;
+        padding: 1.5rem 2rem;
+    }
+    
+    /* Card-based form styling */
+    .form-card {
+        background: #f8fafc;
+        border-radius: 16px;
+        padding: 1.5rem;
+        border: 1px solid #edf2f7;
+        transition: all 0.3s ease;
+    }
+    
+    .form-card:hover {
+        border-color: #667eea;
+        box-shadow: 0 10px 25px rgba(102, 126, 234, 0.1);
+    }
+    
+    .form-card .form-label {
+        font-size: 0.75rem;
+        text-transform: uppercase;
+        color: #94a3b8;
+        letter-spacing: 0.5px;
+        margin-bottom: 0.5rem;
+        font-weight: 600;
+    }
+    
+    .form-card .form-control, 
+    .form-card .form-select {
+        border-radius: 12px;
+        padding: 0.75rem 1rem;
+        border: 2px solid #edf2f7;
+        transition: all 0.3s ease;
+        background: white;
+    }
+    
+    .form-card .form-control:focus, 
+    .form-card .form-select:focus {
+        border-color: #667eea;
+        box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+    }
+    
+    .form-card textarea {
+        min-height: 100px;
+        resize: vertical;
+    }
+    
+    .profile-section {
+        text-align: center;
+        margin-bottom: 2rem;
+    }
+    
+    .file-upload-card {
+        background: #f8fafc;
+        border-radius: 16px;
+        padding: 1.5rem;
+        border: 2px dashed #cbd5e1;
+        text-align: center;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+    
+    .file-upload-card:hover {
+        border-color: #667eea;
+        background: rgba(102, 126, 234, 0.05);
+    }
+    
+    .file-upload-card i {
+        font-size: 2rem;
+        color: #667eea;
+        margin-bottom: 0.5rem;
+    }
+    
+    .file-upload-card p {
+        color: #64748b;
+        margin-bottom: 0;
+        font-size: 0.9rem;
+    }
+    
+    .preview-image {
+        max-width: 200px;
+        max-height: 150px;
+        border-radius: 12px;
+        margin-top: 1rem;
+        box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        border: 3px solid white;
+    }
+    
+    .form-switch .form-check-input {
+        width: 3em;
+        height: 1.5em;
+        cursor: pointer;
+    }
+    
+    .form-switch .form-check-input:checked {
+        background-color: #667eea;
+        border-color: #667eea;
+    }
+    
+    .detail-card {
+        background: #f8fafc;
+        border-radius: 16px;
+        padding: 1.5rem;
+        height: 100%;
+        border: 1px solid #edf2f7;
+        transition: all 0.3s ease;
+    }
+    
+    .detail-card:hover {
+        border-color: #667eea;
+        transform: translateY(-3px);
+        box-shadow: 0 10px 25px rgba(102, 126, 234, 0.1);
+    }
+    
+    .detail-label {
+        font-size: 0.7rem;
+        text-transform: uppercase;
+        color: #94a3b8;
+        letter-spacing: 0.5px;
+        margin-bottom: 0.5rem;
+    }
+    
+    .detail-value {
+        font-size: 1rem;
+        font-weight: 600;
+        color: #1e293b;
+    }
+    
+    .toast-notification {
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        z-index: 9999;
+        min-width: 350px;
+        animation: slideInRight 0.3s ease;
+    }
+    
+    @keyframes slideInRight {
+        from {
+            transform: translateX(100%);
+            opacity: 0;
+        }
+        to {
+            transform: translateX(0);
+            opacity: 1;
+        }
+    }
+    
+    .empty-state {
+        text-align: center;
+        padding: 4rem 2rem;
+    }
+    
+    .empty-state i {
+        font-size: 5rem;
+        color: #cbd5e1;
+        margin-bottom: 1.5rem;
+    }
+    
+    .status-indicator {
+        display: inline-block;
+        width: 10px;
+        height: 10px;
+        border-radius: 50%;
+        margin-right: 6px;
+    }
+    
+    .status-active {
+        background: #10b981;
+        box-shadow: 0 0 0 2px rgba(16, 185, 129, 0.2);
+    }
+    
+    .status-inactive {
+        background: #ef4444;
+        box-shadow: 0 0 0 2px rgba(239, 68, 68, 0.2);
+    }
+    
+    /* Loading animation */
+    .spinner {
+        width: 40px;
+        height: 40px;
+        border: 4px solid #e3e3e3;
+        border-top: 4px solid #667eea;
+        border-radius: 50%;
+        animation: spin 1s linear infinite;
+    }
+    
+    @keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+    }
+    
+    /* Body loading overlay */
+    .modal-body-loading {
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(255, 255, 255, 0.9);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 1060;
+        border-radius: 0;
+        backdrop-filter: blur(5px);
+    }
+    
+    .loading-content {
+        text-align: center;
+    }
+    
+    .loading-content .spinner {
+        width: 50px;
+        height: 50px;
+        margin-bottom: 1rem;
+    }
+    
+    .loading-content p {
+        color: #667eea;
+        font-weight: 500;
+        margin: 0;
+    }
+
+    /* Table row highlight animation */
+    @keyframes highlight {
+        0% { background-color: rgba(102, 126, 234, 0.2); }
+        100% { background-color: transparent; }
+    }
+    
+    .row-highlight {
+        animation: highlight 2s ease;
+    }
+</style>
+
+<div class="container-fluid p-4 custom-scroll">
+    <!-- Page Header with Animation -->
+    <div class="page-header animate__animated animate__fadeInDown">
+        <div class="d-flex align-items-center justify-content-between">
+            <div class="d-flex align-items-center gap-3">
+                <div class="category-avatar-sm" style="width: 50px; height: 50px; font-size: 24px;">
+                    <i class="fas fa-tags"></i>
+                </div>
+                <div>
+                    <h2 class="fw-bold mb-1" style="color: #2d3748;">Category Management</h2>
+                    <p class="text-muted mb-0">Manage all product categories in one place</p>
+                </div>
+            </div>
+            <button class="btn-create d-flex align-items-center gap-2" data-bs-toggle="modal" data-bs-target="#createCategoryModal">
+                <i class="fas fa-plus-circle"></i> Create New Category
+            </button>
+        </div>
     </div>
-    <table class="table table-striped table-bordered w-100">
-        <thead class="table-dark">
-            <tr>
-                <th>ID</th>
-                <th>Name</th>
-                <th>Description</th>
-                <th>Image</th>
-                <th>Is Active</th>
-                <th>Actions</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for category in categories %}
-            <tr>
-                <td>{{ category.id }}</td>
-                <td>{{ category.name }}</td>
-                <td>{{ category.description }}</td>
+
+    <!-- Categories Table Container -->
+    <div id="categoriesTableContainer">
+        {% if categories %}
+        <div class="table-container animate__animated animate__fadeInUp">
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0" id="categoriesTable">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Category</th>
+                            <th>Description</th>
+                            <th>Image</th>
+                            <th>Status</th>
+                            <th>Toggle</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="categoriesTableBody">
+                        {% for category in categories %}
+                        <tr id="category-row-{{ category.id }}" data-category-id="{{ category.id }}">
+                            <td><span class="fw-semibold">#{{ category.id }}</span></td>
+                            <td>
+                                <div class="d-flex align-items-center gap-3">
+                                    <div class="category-avatar-sm">
+                                        {{ category.name|first|upper }}
+                                    </div>
+                                    <div class="fw-semibold">{{ category.name }}</div>
+                                </div>
+                            </td>
+                            <td>
+                                <span class="text-truncate d-inline-block" style="max-width: 200px;" 
+                                      data-bs-toggle="tooltip" title="{{ category.description }}">
+                                    {{ category.description|default:"-"|truncatechars:50 }}
+                                </span>
+                            </td>
+                            <td>
+                                {% if category.image %}
+                                <img src="{% static category.image %}" class="category-img-table" alt="{{ category.name }}">
+                                {% else %}
+                                <div class="category-avatar-sm" style="background: #cbd5e1;">
+                                    <i class="fas fa-image"></i>
+                                </div>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <div class="d-flex align-items-center gap-2">
+                                    <span class="status-indicator {% if category.is_active %}status-active{% else %}status-inactive{% endif %}"></span>
+                                    <span class="badge-category">
+                                        {% if category.is_active %}Active{% else %}Inactive{% endif %}
+                                    </span>
+                                </div>
+                            </td>
+                            <td>
+                                <div class="form-check form-switch">
+                                    <input class="form-check-input status-toggle" type="checkbox" 
+                                        data-category-id="{{ category.id }}"
+                                        {% if category.is_active %}checked{% endif %}>
+                                </div>
+                            </td>
+                            <td>
+                                <div class="d-flex gap-2">
+                                    <button class="btn-action btn-view" onclick="viewCategoryDetails({{ category.id }})" 
+                                            data-bs-toggle="tooltip" title="View Details">
+                                        <i class="fas fa-eye"></i>
+                                    </button>
+                                    <button class="btn-action btn-edit" onclick="editCategory({{ category.id }})" 
+                                            data-bs-toggle="tooltip" title="Edit Category">
+                                        <i class="fas fa-edit"></i>
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        {% else %}
+        <!-- Empty State -->
+        <div class="table-container text-center py-5 animate__animated animate__fadeIn">
+            <div class="empty-state">
+                <i class="fas fa-tags text-secondary opacity-25"></i>
+                <h4 class="mt-4 text-secondary">No Categories Found</h4>
+                <p class="text-muted mb-4">Click the "Create New Category" button to add your first category.</p>
+                <button class="btn-create d-inline-flex align-items-center gap-2" data-bs-toggle="modal" data-bs-target="#createCategoryModal">
+                    <i class="fas fa-plus-circle"></i> Create New Category
+                </button>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<!-- Create Category Modal -->
+<div class="modal fade" id="createCategoryModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">
+                    <i class="fas fa-tag me-2"></i>Create New Category
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <!-- Profile Section -->
+                <div class="profile-section">
+                    <div class="category-avatar-lg">
+                        <i class="fas fa-tag"></i>
+                    </div>
+                    <h5 class="mt-3 mb-0 fw-bold">New Category</h5>
+                    <p class="text-muted small">Enter category details below</p>
+                </div>
+
+                <!-- Form in Cards -->
+                <form id="createCategoryForm" enctype="multipart/form-data">
+                    {% csrf_token %}
+                    <div class="row g-3">
+                        <div class="col-12">
+                            <div class="form-card">
+                                <div class="form-label">
+                                    <i class="fas fa-tag me-1"></i> Category Name <span class="text-danger">*</span>
+                                </div>
+                                <input type="text" class="form-control" id="create_name" placeholder="Electronics, Clothing, etc." required>
+                            </div>
+                        </div>
+                        <div class="col-12">
+                            <div class="form-card">
+                                <div class="form-label">
+                                    <i class="fas fa-align-left me-1"></i> Description
+                                </div>
+                                <textarea class="form-control" id="create_description" placeholder="Enter category description..."></textarea>
+                            </div>
+                        </div>
+                        <div class="col-12">
+                            <div class="form-label">
+                                <i class="fas fa-image me-1"></i> Category Image <span class="text-danger">*</span>
+                            </div>
+                            <div class="file-upload-card" id="createFileUploadCard">
+                                <i class="fas fa-cloud-upload-alt"></i>
+                                <p>Click to choose an image</p>
+                                <small class="text-muted">PNG, JPG, JPEG up to 5MB</small>
+                                <input type="file" id="create_image" name="image" accept="image/*" style="display: none;" required>
+                            </div>
+                            <div class="text-center" id="createPreview"></div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-light px-4" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-primary px-4" onclick="createCategory()" id="createCategoryBtn">
+                    <i class="fas fa-check-circle me-2"></i>Create Category
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Edit Category Modal -->
+<div class="modal fade" id="editCategoryModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">
+                    <i class="fas fa-edit me-2"></i>Edit Category
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body position-relative" style="min-height: 400px;">
+                <!-- Loading Overlay - Only covers body -->
+                <div class="modal-body-loading" id="editModalLoading" style="display: none;">
+                    <div class="loading-content">
+                        <div class="spinner"></div>
+                        <p>Loading category data...</p>
+                    </div>
+                </div>
+                
+                <!-- Profile Section - will be populated dynamically -->
+                <div class="profile-section" id="editProfileSection">
+                    <img src="" alt="Category" class="category-image-lg" id="editCategoryImage">
+                    <h5 class="mt-3 mb-0 fw-bold" id="editCategoryName">Loading...</h5>
+                    <p class="text-muted small" id="editCategoryId">ID: #0</p>
+                </div>
+
+                <!-- Form in Cards -->
+                <form id="editCategoryForm" enctype="multipart/form-data">
+                    {% csrf_token %}
+                    <input type="hidden" id="edit_category_id">
+                    <div class="row g-3">
+                        <div class="col-12">
+                            <div class="form-card">
+                                <div class="form-label">
+                                    <i class="fas fa-tag me-1"></i> Category Name <span class="text-danger">*</span>
+                                </div>
+                                <input type="text" class="form-control" id="edit_name" required>
+                            </div>
+                        </div>
+                        <div class="col-12">
+                            <div class="form-card">
+                                <div class="form-label">
+                                    <i class="fas fa-align-left me-1"></i> Description
+                                </div>
+                                <textarea class="form-control" id="edit_description" rows="3"></textarea>
+                            </div>
+                        </div>
+                        <div class="col-12">
+                            <div class="form-label">
+                                <i class="fas fa-image me-1"></i> New Image (optional)
+                            </div>
+                            <div class="file-upload-card" id="editFileUploadCard">
+                                <i class="fas fa-cloud-upload-alt"></i>
+                                <p>Click to choose new image</p>
+                                <small class="text-muted">Leave empty to keep current image</small>
+                                <input type="file" id="edit_image" name="image" accept="image/*" style="display: none;">
+                            </div>
+                            <div class="text-center" id="editPreview"></div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-light px-4" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-primary px-4" onclick="updateCategory()" id="updateCategoryBtn">
+                    <i class="fas fa-save me-2"></i>Update Category
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- View Category Modal -->
+<div class="modal fade" id="viewCategoryModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">
+                    <i class="fas fa-info-circle me-2"></i>Category Details
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div id="viewCategoryContent">
+                    <!-- Dynamic content will be loaded here -->
+                    <div class="text-center py-5">
+                        <div class="spinner mx-auto"></div>
+                        <p class="mt-3 text-muted">Loading category details...</p>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-light px-4" data-bs-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-warning px-4" onclick="editFromView()" id="editFromViewBtn">
+                    <i class="fas fa-edit me-2"></i>Edit Category
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Toast Notification -->
+<div class="toast-notification" id="toast" style="display: none;"></div>
+
+<script>
+    // Initialize tooltips and file uploads
+    document.addEventListener('DOMContentLoaded', function() {
+        var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+        tooltipTriggerList.map(function(tooltipTriggerEl) {
+            return new bootstrap.Tooltip(tooltipTriggerEl);
+        });
+        
+        // Setup file upload for create modal
+        setupFileUpload('create');
+        
+        // Setup file upload for edit modal
+        setupFileUpload('edit');
+        
+        // Attach status toggle listeners
+        attachStatusToggleListeners();
+    });
+
+    // Setup file upload functionality
+    function setupFileUpload(modalType) {
+        const fileInput = document.getElementById(`${modalType}_image`);
+        const uploadCard = document.getElementById(`${modalType}FileUploadCard`);
+        const previewDiv = document.getElementById(`${modalType}Preview`);
+        
+        if (uploadCard) {
+            uploadCard.addEventListener('click', () => {
+                fileInput.click();
+            });
+        }
+        
+        if (fileInput) {
+            fileInput.addEventListener('change', (event) => {
+                previewDiv.innerHTML = '';
+                const file = event.target.files[0];
+                if (file) {
+                    const img = document.createElement('img');
+                    img.className = 'preview-image';
+                    img.src = URL.createObjectURL(file);
+                    previewDiv.appendChild(img);
+                }
+            });
+        }
+    }
+
+    // Show toast notification
+    function showToast(message, type = 'success') {
+        const toast = document.getElementById('toast');
+        const bgColor = type === 'success' ? 'linear-gradient(135deg, #43e97b, #38f9d7)' : 'linear-gradient(135deg, #f093fb, #f5576c)';
+        const icon = type === 'success' ? 'check-circle' : 'exclamation-circle';
+        
+        toast.innerHTML = `
+            <div class="alert border-0 text-white shadow-lg" style="background: ${bgColor};">
+                <i class="fas fa-${icon} me-2"></i>
+                ${message}
+            </div>
+        `;
+        toast.style.display = 'block';
+        setTimeout(() => {
+            toast.style.display = 'none';
+        }, 3000);
+    }
+
+    // Create category row HTML
+    function createCategoryRow(category) {
+        const initial = category.name.charAt(0).toUpperCase();
+        const statusClass = category.is_active ? 'status-active' : 'status-inactive';
+        const statusText = category.is_active ? 'Active' : 'Inactive';
+        
+        // Handle image display
+        let imageHtml = '';
+        if (category.image) {
+            const imagePath = category.image.startsWith('/') ? category.image : `/${category.image}`;
+            imageHtml = `<img src="/static${imagePath}" class="category-img-table" alt="${category.name}">`;
+        } else {
+            imageHtml = `<div class="category-avatar-sm" style="background: #cbd5e1;"><i class="fas fa-image"></i></div>`;
+        }
+
+        return `
+            <tr id="category-row-${category.id}" data-category-id="${category.id}">
+                <td><span class="fw-semibold">#${category.id}</span></td>
                 <td>
-                    <img src="{% static category.image %}" height="40px" width="60px" >
-                </td>
-                <td>
-                    <div class="form-check form-switch" onclick="isactive_toggle()">
-                        <input class="form-check-input toggle-active" type="checkbox" data-category-id="{{ category.id }}" {% if category.is_active %}checked{% endif %} />
+                    <div class="d-flex align-items-center gap-3">
+                        <div class="category-avatar-sm">
+                            ${initial}
+                        </div>
+                        <div class="fw-semibold">${category.name}</div>
                     </div>
                 </td>
                 <td>
-                    <button class="btn btn-warning btn-sm" onclick="update_category({{category.id}})">Update</button>
+                    <span class="text-truncate d-inline-block" style="max-width: 200px;" 
+                          data-bs-toggle="tooltip" title="${category.description || ''}">
+                        ${category.description ? category.description.substring(0, 50) + '...' : '-'}
+                    </span>
+                </td>
+                <td>
+                    ${imageHtml}
+                </td>
+                <td>
+                    <div class="d-flex align-items-center gap-2">
+                        <span class="status-indicator ${statusClass}"></span>
+                        <span class="badge-category">${statusText}</span>
+                    </div>
+                </td>
+                <td>
+                    <div class="form-check form-switch">
+                        <input class="form-check-input status-toggle" type="checkbox" 
+                            data-category-id="${category.id}"
+                            ${category.is_active ? 'checked' : ''}>
+                    </div>
+                </td>
+                <td>
+                    <div class="d-flex gap-2">
+                        <button class="btn-action btn-view" onclick="viewCategoryDetails(${category.id})" 
+                                data-bs-toggle="tooltip" title="View Details">
+                            <i class="fas fa-eye"></i>
+                        </button>
+                        <button class="btn-action btn-edit" onclick="editCategory(${category.id})" 
+                                data-bs-toggle="tooltip" title="Edit Category">
+                            <i class="fas fa-edit"></i>
+                        </button>
+                    </div>
                 </td>
             </tr>
-            {% endfor %}
-        </tbody>
-    </table>
-</div>
-<style>
-td {
-  max-width: 150px;        
-  white-space: nowrap;     
-  overflow: hidden;       
-  text-overflow: ellipsis; 
-}
-</style>
+        `;
+    }
+
+    // Update table with new/updated category
+    function updateTableAfterSave(category, action = 'create') {
+        const tableContainer = document.getElementById('categoriesTableContainer');
+        const existingRow = document.getElementById(`category-row-${category.id}`);
+        
+        if (action === 'create') {
+            // Check if table is empty
+            if (tableContainer.innerHTML.includes('No Categories Found')) {
+                // Replace empty state with table
+                tableContainer.innerHTML = `
+                    <div class="table-container animate__animated animate__fadeInUp">
+                        <div class="table-responsive">
+                            <table class="table table-hover align-middle mb-0" id="categoriesTable">
+                                <thead>
+                                    <tr>
+                                        <th>ID</th>
+                                        <th>Category</th>
+                                        <th>Description</th>
+                                        <th>Image</th>
+                                        <th>Status</th>
+                                        <th>Toggle</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="categoriesTableBody">
+                                    ${createCategoryRow(category)}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                `;
+            } else {
+                // Add new row to existing table
+                const tbody = document.getElementById('categoriesTableBody') || 
+                             document.querySelector('#categoriesTable tbody');
+                if (tbody) {
+                    tbody.insertAdjacentHTML('beforeend', createCategoryRow(category));
+                }
+            }
+            
+            // Highlight new row
+            setTimeout(() => {
+                const newRow = document.getElementById(`category-row-${category.id}`);
+                if (newRow) {
+                    newRow.classList.add('row-highlight');
+                }
+            }, 100);
+        } else if (action === 'update' && existingRow) {
+            // Update existing row
+            existingRow.outerHTML = createCategoryRow(category);
+            
+            // Highlight updated row
+            setTimeout(() => {
+                const updatedRow = document.getElementById(`category-row-${category.id}`);
+                if (updatedRow) {
+                    updatedRow.classList.add('row-highlight');
+                }
+            }, 100);
+        }
+        
+        // Reinitialize tooltips
+        var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+        tooltipTriggerList.map(function(tooltipTriggerEl) {
+            return new bootstrap.Tooltip(tooltipTriggerEl);
+        });
+        
+        // Reattach status toggle listeners
+        attachStatusToggleListeners();
+    }
+
+    // Attach status toggle listeners
+    function attachStatusToggleListeners() {
+        document.querySelectorAll('.status-toggle').forEach(toggle => {
+            toggle.removeEventListener('change', handleStatusChange);
+            toggle.addEventListener('change', handleStatusChange);
+        });
+    }
+
+    // Handle status change
+    function handleStatusChange(event) {
+        const toggle = event.target;
+        const categoryId = toggle.dataset.categoryId;
+        const isActive = toggle.checked;
+        
+        fetch('/admin/api/categories/toggle-status/', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': '{{ csrf_token }}'
+            },
+            body: JSON.stringify({
+                category_id: categoryId,
+                is_active: isActive
+            })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                showToast(`Category status updated to ${isActive ? 'Active' : 'Inactive'}`, 'success');
+                // Update the row with new data
+                fetch(`/admin/api/categories/${categoryId}/`)
+                    .then(res => res.json())
+                    .then(category => {
+                        updateTableAfterSave(category, 'update');
+                    });
+            } else {
+                showToast(data.error || 'Error updating status', 'error');
+                toggle.checked = !isActive;
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            showToast('Error updating category status', 'error');
+            toggle.checked = !isActive;
+        });
+    }
+
+    // Create category
+    function createCategory() {
+        const btn = document.getElementById('createCategoryBtn');
+        const formData = new FormData();
+        
+        const nameInput = document.getElementById('create_name');
+        const descriptionInput = document.getElementById('create_description');
+        const imageInput = document.getElementById('create_image');
+        
+        if (!nameInput.value) {
+            showToast('Category name is required', 'error');
+            return;
+        }
+        
+        if (!imageInput.files[0]) {
+            showToast('Category image is required', 'error');
+            return;
+        }
+        
+        formData.append('name', nameInput.value);
+        formData.append('description', descriptionInput.value);
+        formData.append('image', imageInput.files[0]);
+        formData.append('csrfmiddlewaretoken', '{{ csrf_token }}');
+        
+        btn.disabled = true;
+        btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Creating...';
+
+        fetch('/admin/api/categories/create/', {
+            method: 'POST',
+            body: formData
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                showToast('Category created successfully!', 'success');
+                
+                // Close modal
+                bootstrap.Modal.getInstance(document.getElementById('createCategoryModal')).hide();
+                
+                // Reset form
+                document.getElementById('create_name').value = '';
+                document.getElementById('create_description').value = '';
+                document.getElementById('create_image').value = '';
+                document.getElementById('createPreview').innerHTML = '';
+                
+                // Add new category to table
+                updateTableAfterSave(data.category, 'create');
+            } else {
+                showToast(data.error || 'Error creating category', 'error');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            showToast('Error creating category', 'error');
+        })
+        .finally(() => {
+            btn.disabled = false;
+            btn.innerHTML = '<i class="fas fa-check-circle me-2"></i>Create Category';
+        });
+    }
+
+    // Edit category
+    function editCategory(categoryId) {
+        const modal = new bootstrap.Modal(document.getElementById('editCategoryModal'));
+        const loadingOverlay = document.getElementById('editModalLoading');
+        
+        modal.show();
+        loadingOverlay.style.display = 'flex';
+        
+        // Clear previous data
+        document.getElementById('edit_category_id').value = '';
+        document.getElementById('edit_name').value = '';
+        document.getElementById('edit_description').value = '';
+        document.getElementById('edit_image').value = '';
+        document.getElementById('editPreview').innerHTML = '';
+        
+        // Reset profile section
+        document.getElementById('editCategoryName').textContent = 'Loading...';
+        document.getElementById('editCategoryId').textContent = 'ID: #0';
+        document.getElementById('editCategoryImage').src = '';
+        
+        fetch(`/admin/api/categories/${categoryId}/`)
+            .then(response => response.json())
+            .then(category => {
+                // Update profile section
+                document.getElementById('editCategoryName').textContent = category.name;
+                document.getElementById('editCategoryId').textContent = `ID: #${category.id}`;
+                
+                // Fix image path
+                if (category.image) {
+                    const imagePath = category.image.startsWith('/') ? category.image : `/${category.image}`;
+                    document.getElementById('editCategoryImage').src = `/static${imagePath}`;
+                } else {
+                    document.getElementById('editCategoryImage').src = '';
+                }
+                
+                // Populate form
+                document.getElementById('edit_category_id').value = category.id;
+                document.getElementById('edit_name').value = category.name;
+                document.getElementById('edit_description').value = category.description || '';
+                
+                loadingOverlay.style.display = 'none';
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                showToast('Error loading category data', 'error');
+                loadingOverlay.style.display = 'none';
+                bootstrap.Modal.getInstance(document.getElementById('editCategoryModal')).hide();
+            });
+    }
+
+    // Update category
+    function updateCategory() {
+        const btn = document.getElementById('updateCategoryBtn');
+        const categoryId = document.getElementById('edit_category_id').value;
+        const formData = new FormData();
+        
+        const nameInput = document.getElementById('edit_name');
+        const descriptionInput = document.getElementById('edit_description');
+        const imageInput = document.getElementById('edit_image');
+        
+        if (!nameInput.value) {
+            showToast('Category name is required', 'error');
+            return;
+        }
+        
+        formData.append('name', nameInput.value);
+        formData.append('description', descriptionInput.value);
+        
+        if (imageInput.files[0]) {
+            formData.append('image', imageInput.files[0]);
+        }
+        
+        formData.append('csrfmiddlewaretoken', '{{ csrf_token }}');
+        
+        btn.disabled = true;
+        btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Updating...';
+
+        fetch(`/admin/api/categories/${categoryId}/update/`, {
+            method: 'POST',
+            body: formData
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                showToast('Category updated successfully!', 'success');
+                
+                // Close modal
+                bootstrap.Modal.getInstance(document.getElementById('editCategoryModal')).hide();
+                
+                // Reset file input and preview
+                document.getElementById('edit_image').value = '';
+                document.getElementById('editPreview').innerHTML = '';
+                
+                // Update category in table
+                updateTableAfterSave(data.category, 'update');
+            } else {
+                showToast(data.error || 'Error updating category', 'error');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            showToast('Error updating category', 'error');
+        })
+        .finally(() => {
+            btn.disabled = false;
+            btn.innerHTML = '<i class="fas fa-save me-2"></i>Update Category';
+        });
+    }
+
+    // View category details
+    function viewCategoryDetails(categoryId) {
+        const modal = new bootstrap.Modal(document.getElementById('viewCategoryModal'));
+        const content = document.getElementById('viewCategoryContent');
+        
+        modal.show();
+        content.innerHTML = `
+            <div class="text-center py-5">
+                <div class="spinner mx-auto"></div>
+                <p class="mt-3 text-muted">Loading category details...</p>
+            </div>
+        `;
+        
+        fetch(`/admin/api/categories/${categoryId}/`)
+            .then(response => response.json())
+            .then(category => {
+                const statusClass = category.is_active ? 'success' : 'secondary';
+                const statusText = category.is_active ? 'Active' : 'Inactive';
+                
+                // Fix image path
+                let imageHtml = '';
+                if (category.image) {
+                    const imagePath = category.image.startsWith('/') ? category.image : `/${category.image}`;
+                    imageHtml = `<img src="/static${imagePath}" class="category-image-lg" style="width: 150px; height: 150px;" alt="${category.name}">`;
+                } else {
+                    imageHtml = `<div class="category-avatar-lg" style="background: #cbd5e1;"><i class="fas fa-image"></i></div>`;
+                }
+                
+                content.innerHTML = `
+                    <div class="text-center mb-4">
+                        ${imageHtml}
+                        <h4 class="mt-4 mb-1 fw-bold">${category.name}</h4>
+                        <p class="text-muted mb-3">Category ID: #${category.id}</p>
+                        <div class="d-flex justify-content-center gap-2">
+                            <span class="badge bg-${statusClass} text-white px-3 py-2 rounded-pill">
+                                <i class="fas fa-circle me-1" style="font-size: 8px;"></i>${statusText}
+                            </span>
+                        </div>
+                    </div>
+                    
+                    <div class="row g-3">
+                        <div class="col-12">
+                            <div class="detail-card">
+                                <div class="detail-label">
+                                    <i class="fas fa-align-left me-1"></i> Description
+                                </div>
+                                <div class="detail-value">${category.description || 'No description provided'}</div>
+                            </div>
+                        </div>
+                        ${category.created_at ? `
+                        <div class="col-md-6">
+                            <div class="detail-card">
+                                <div class="detail-label">
+                                    <i class="fas fa-calendar me-1"></i> Created Date
+                                </div>
+                                <div class="detail-value">${category.created_at}</div>
+                            </div>
+                        </div>
+                        ` : ''}
+                        <div class="col-md-6">
+                            <div class="detail-card">
+                                <div class="detail-label">
+                                    <i class="fas fa-image me-1"></i> Image Path
+                                </div>
+                                <div class="detail-value small">${category.image || 'No image'}</div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                
+                document.getElementById('editFromViewBtn').setAttribute('data-category-id', category.id);
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                content.innerHTML = `
+                    <div class="text-center py-5 text-danger">
+                        <i class="fas fa-exclamation-triangle fa-3x mb-3"></i>
+                        <p>Error loading category details. Please try again.</p>
+                    </div>
+                `;
+            });
+    }
+
+    // Edit from view modal
+    function editFromView() {
+        const categoryId = document.getElementById('editFromViewBtn').getAttribute('data-category-id');
+        if (categoryId) {
+            bootstrap.Modal.getInstance(document.getElementById('viewCategoryModal')).hide();
+            setTimeout(() => editCategory(categoryId), 500);
+        }
+    }
+
+    // Reset forms when modals are closed
+    document.getElementById('createCategoryModal').addEventListener('hidden.bs.modal', function () {
+        document.getElementById('create_name').value = '';
+        document.getElementById('create_description').value = '';
+        document.getElementById('create_image').value = '';
+        document.getElementById('createPreview').innerHTML = '';
+    });
+    
+    document.getElementById('editCategoryModal').addEventListener('hidden.bs.modal', function () {
+        const loadingOverlay = document.getElementById('editModalLoading');
+        loadingOverlay.style.display = 'none';
+        document.getElementById('edit_image').value = '';
+        document.getElementById('editPreview').innerHTML = '';
+    });
+</script>
 {% endblock %}

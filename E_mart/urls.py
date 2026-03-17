@@ -22,10 +22,12 @@ urlpatterns = [
     path('admin/poster/update/<int:poster_id>/',AdminPosterUpdateView.as_view(), name='admin_user_update'),
     path('admin/posters/toggle-active/',AdminPosterToggleActiveView.as_view(), name='admin_user_toggle_active'),
 
-    path('admin/categories/',AdminCategoryListView.as_view(), name='admin_category_list'),
-    path('admin/category/create/',AdminCategoryCreateView.as_view(), name='admin_category_create'),
-    path('admin/category/update/<int:category_id>/',AdminCategoryUpdateView.as_view(), name='admin_category_update'),
-    path('admin/categories/toggle-active/',AdminCategoryToggleActiveView.as_view(), name='admin_category_toggle_active'),
+    path('admin/categories/', AdminCategoryManagementView.as_view(), name='admin_category_management'),
+    path('admin/api/categories/create/', AdminCategoryCreateAPIView.as_view(), name='admin_category_create_api'),
+    path('admin/api/categories/<int:category_id>/update/', AdminCategoryUpdateAPIView.as_view(), name='admin_category_update_api'),
+    path('admin/api/categories/toggle-status/', AdminCategoryToggleActiveView.as_view(), name='admin_category_toggle'),
+    path('admin/api/categories/<int:category_id>/', AdminCategoryDetailAPIView.as_view(), name='admin_category_detail_api'),
+
 
     path('admin/products/',AdminProductListView.as_view(), name='admin_product_list'),
     path('admin/product/create/',AdminProductCreateView.as_view(), name='admin_product_create'),
@@ -91,10 +93,11 @@ urlpatterns = [
     path("delivery-worker/pickup/order-details/<int:order_id>/", PickupOrderDetails.as_view(), name="worker_pickup_order_details"),
     path('api/delivery/<int:delivery_id>/status/update/', DeliveryStatusUpdateView.as_view(), name='delivery_status_update'),
     path('api/pickup/<int:pickup_id>/status/update/', PickupStatusUpdateView.as_view(), name='pickup_status_update'),
-    path('admin/delivery-worker/create/',AdminWorkerCreateView.as_view(), name='delivery_worker_create'), 
-    path('admin/delivery-worker/update/<int:worker_id>/',AdminWorkerUpdateView.as_view(), name='delivery_worker_update'),
-    path('admin/delivery-workers/',AdminWorkerListView.as_view(), name='delivery_worker_update'), 
-    path('admin/delivery-workers/toggle-active/',AdminworkerToggleActiveView.as_view(), name='delivery_worker_update'), 
+    path('admin/workers/', AdminWorkerManagementView.as_view(), name='admin_worker_management'),
+    path('admin/api/workers/toggle-status/', AdminWorkerToggleActiveView.as_view(), name='admin_worker_toggle'),
+    path('admin/api/workers/create/', AdminWorkerCreateAPIView.as_view(), name='admin_worker_create_api'),
+    path('admin/api/workers/<int:worker_id>/update/', AdminWorkerUpdateAPIView.as_view(), name='admin_worker_update_api'),
+    path('admin/api/workers/<int:worker_id>/', AdminWorkerDetailAPIView.as_view(), name='admin_worker_detail_api'),
     path('api/delivery-worker/notifications/',DeliveryOrPickupNotifications.as_view(),name='api_delivery_pickup_notification'),
 
 

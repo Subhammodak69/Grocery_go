@@ -2,62 +2,151 @@
 {% load static %}
 {% block title %}User Management{% endblock %}
 {% block content %}
-
-<!-- Include Animate.css for animations -->
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
-
 <style>
     /* Custom styles complementing Bootstrap */
+    :root {
+        --primary-gradient: linear-gradient(135deg, #667eea, #764ba2);
+        --success-gradient: linear-gradient(135deg, #43e97b, #38f9d7);
+        --warning-gradient: linear-gradient(135deg, #fa709a, #fee140);
+        --danger-gradient: linear-gradient(135deg, #f093fb, #f5576c);
+    }
+    
     .user-avatar-sm {
-        width: 32px;
-        height: 32px;
-        background: linear-gradient(135deg, #667eea, #764ba2);
+        width: 36px;
+        height: 36px;
+        background: var(--primary-gradient);
         color: white;
-        border-radius: 8px;
+        border-radius: 10px;
         display: flex;
         align-items: center;
         justify-content: center;
         font-weight: 600;
-        font-size: 14px;
+        font-size: 16px;
+        box-shadow: 0 4px 10px rgba(102, 126, 234, 0.3);
     }
     
     .user-avatar-lg {
-        width: 80px;
-        height: 80px;
-        background: linear-gradient(135deg, #667eea, #764ba2);
+        width: 90px;
+        height: 90px;
+        background: var(--primary-gradient);
         color: white;
-        border-radius: 20px;
+        border-radius: 25px;
         display: flex;
         align-items: center;
         justify-content: center;
-        font-size: 36px;
+        font-size: 40px;
         font-weight: 600;
         margin: 0 auto;
-        box-shadow: 0 10px 25px rgba(102, 126, 234, 0.3);
+        box-shadow: 0 10px 25px rgba(102, 126, 234, 0.4);
+        animation: float 3s ease-in-out infinite;
     }
     
-    .table-hover tbody tr {
+    @keyframes float {
+        0%, 100% { transform: translateY(0); }
+        50% { transform: translateY(-5px); }
+    }
+    
+    .page-header {
+        background: white;
+        border-radius: 20px;
+        padding: 1.5rem;
+        margin-bottom: 2rem;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+        border: 1px solid rgba(102, 126, 234, 0.1);
+    }
+    
+    .table-container {
+        background: white;
+        border-radius: 20px;
+        padding: 1.5rem;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+        border: 1px solid rgba(102, 126, 234, 0.1);
+    }
+    
+    .table thead th {
+        background: #f8fafc;
+        color: #4a5568;
+        font-weight: 600;
+        font-size: 0.85rem;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        border-bottom: 2px solid #667eea;
+        padding: 1rem;
+    }
+    
+    .table tbody tr {
         transition: all 0.2s ease;
-        cursor: pointer;
     }
     
-    .table-hover tbody tr:hover {
-        transform: translateY(-2px);
+    .table tbody tr:hover {
+        background: rgba(102, 126, 234, 0.05);
+        transform: scale(1.01);
         box-shadow: 0 5px 15px rgba(0,0,0,0.1);
-        background-color: rgba(102, 126, 234, 0.05) !important;
+    }
+    
+    .table td {
+        padding: 1rem;
+        vertical-align: middle;
+        border-bottom: 1px solid #edf2f7;
+    }
+    
+    .btn-create {
+        background: var(--primary-gradient);
+        color: white;
+        border: none;
+        padding: 0.75rem 1.8rem;
+        border-radius: 12px;
+        font-weight: 600;
+        font-size: 0.95rem;
+        transition: all 0.3s ease;
+        box-shadow: 0 8px 20px rgba(102, 126, 234, 0.3);
+    }
+    
+    .btn-create:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 12px 25px rgba(102, 126, 234, 0.4);
+        color: white;
+    }
+    
+    .btn-action {
+        width: 38px;
+        height: 38px;
+        border-radius: 10px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        transition: all 0.2s ease;
+        margin: 0 3px;
+        border: none;
+        background: #f1f5f9;
+        color: #4a5568;
+    }
+    
+    .btn-action:hover {
+        transform: translateY(-3px) scale(1.1);
+    }
+    
+    .btn-view:hover {
+        background: #667eea;
+        color: white;
+    }
+    
+    .btn-edit:hover {
+        background: #fbbf24;
+        color: white;
     }
     
     .modal-content {
         border: none;
-        border-radius: 20px;
+        border-radius: 25px;
         overflow: hidden;
     }
     
     .modal-header {
-        background: linear-gradient(135deg, #667eea, #764ba2);
+        background: var(--primary-gradient);
         color: white;
         border: none;
-        padding: 1.5rem;
+        padding: 1.8rem 2rem;
     }
     
     .modal-header .btn-close {
@@ -71,48 +160,58 @@
     
     .modal-body {
         padding: 2rem;
+        max-height: 70vh;
+        overflow-y: auto;
     }
     
     .modal-footer {
-        border-top: 1px solid #eef2f6;
+        border-top: 1px solid #edf2f7;
+        padding: 1.5rem 2rem;
+    }
+    
+    /* Form styling */
+    .form-card {
+        background: #f8fafc;
+        border-radius: 16px;
         padding: 1.5rem;
-    }
-    
-    .badge {
-        padding: 0.5rem 1rem;
-        font-weight: 500;
-        letter-spacing: 0.3px;
-    }
-    
-    .btn-create {
-        background: linear-gradient(135deg, #667eea, #764ba2);
-        color: white;
-        border: none;
-        padding: 0.75rem 1.5rem;
-        border-radius: 12px;
-        font-weight: 600;
+        border: 1px solid #edf2f7;
         transition: all 0.3s ease;
     }
     
-    .btn-create:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 10px 25px rgba(102, 126, 234, 0.4);
-        color: white;
+    .form-card:hover {
+        border-color: #667eea;
+        box-shadow: 0 10px 25px rgba(102, 126, 234, 0.1);
     }
     
-    .btn-action {
-        width: 36px;
-        height: 36px;
-        border-radius: 10px;
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        transition: all 0.2s ease;
-        margin: 0 3px;
+    .form-card .form-label {
+        font-size: 0.75rem;
+        text-transform: uppercase;
+        color: #94a3b8;
+        letter-spacing: 0.5px;
+        margin-bottom: 0.5rem;
+        font-weight: 600;
     }
     
-    .btn-action:hover {
-        transform: scale(1.1);
+    .form-card .form-control, 
+    .form-card .form-select,
+    .form-card textarea {
+        border-radius: 12px;
+        padding: 0.75rem 1rem;
+        border: 2px solid #edf2f7;
+        transition: all 0.3s ease;
+        background: white;
+    }
+    
+    .form-card .form-control:focus, 
+    .form-card .form-select:focus,
+    .form-card textarea:focus {
+        border-color: #667eea;
+        box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+    }
+    
+    .profile-section {
+        text-align: center;
+        margin-bottom: 2rem;
     }
     
     .detail-card {
@@ -120,18 +219,18 @@
         border-radius: 16px;
         padding: 1.5rem;
         height: 100%;
-        border: 1px solid #eef2f6;
+        border: 1px solid #edf2f7;
         transition: all 0.3s ease;
     }
     
     .detail-card:hover {
-        transform: translateY(-5px);
-        box-shadow: 0 10px 25px rgba(0,0,0,0.05);
         border-color: #667eea;
+        transform: translateY(-3px);
+        box-shadow: 0 10px 25px rgba(102, 126, 234, 0.1);
     }
     
     .detail-label {
-        font-size: 0.75rem;
+        font-size: 0.7rem;
         text-transform: uppercase;
         color: #94a3b8;
         letter-spacing: 0.5px;
@@ -150,7 +249,7 @@
         top: 20px;
         right: 20px;
         z-index: 9999;
-        min-width: 300px;
+        min-width: 350px;
         animation: slideInRight 0.3s ease;
     }
     
@@ -165,117 +264,239 @@
         }
     }
     
-    .form-control, .form-select {
-        border-radius: 12px;
-        padding: 0.75rem 1rem;
-        border: 2px solid #eef2f6;
-        transition: all 0.3s ease;
+    .empty-state {
+        text-align: center;
+        padding: 4rem 2rem;
     }
     
-    .form-control:focus, .form-select:focus {
-        border-color: #667eea;
-        box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+    .empty-state i {
+        font-size: 5rem;
+        color: #cbd5e1;
+        margin-bottom: 1.5rem;
     }
     
-    .form-switch .form-check-input {
-        width: 3em;
-        height: 1.5em;
-        cursor: pointer;
+    .status-indicator {
+        display: inline-block;
+        width: 10px;
+        height: 10px;
+        border-radius: 50%;
+        margin-right: 6px;
     }
     
-    .form-switch .form-check-input:checked {
-        background-color: #667eea;
-        border-color: #667eea;
+    .status-active {
+        background: #10b981;
+        box-shadow: 0 0 0 2px rgba(16, 185, 129, 0.2);
+    }
+    
+    .status-inactive {
+        background: #ef4444;
+        box-shadow: 0 0 0 2px rgba(239, 68, 68, 0.2);
+    }
+    
+    /* Loading animation */
+    .spinner {
+        width: 40px;
+        height: 40px;
+        border: 4px solid #e3e3e3;
+        border-top: 4px solid #667eea;
+        border-radius: 50%;
+        animation: spin 1s linear infinite;
+    }
+    
+    @keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+    }
+    
+    /* Body loading overlay */
+    .modal-body-loading {
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(255, 255, 255, 0.9);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 1060;
+        border-radius: 0;
+        backdrop-filter: blur(5px);
+    }
+    
+    .loading-content {
+        text-align: center;
+    }
+    
+    .loading-content .spinner {
+        width: 50px;
+        height: 50px;
+        margin-bottom: 1rem;
+    }
+    
+    .loading-content p {
+        color: #667eea;
+        font-weight: 500;
+        margin: 0;
+    }
+
+    /* Table row highlight animation */
+    @keyframes highlight {
+        0% { background-color: rgba(102, 126, 234, 0.2); }
+        100% { background-color: transparent; }
+    }
+    
+    .row-highlight {
+        animation: highlight 2s ease;
+    }
+
+    .badge-role-admin {
+        background: rgba(239, 68, 68, 0.1);
+        color: #ef4444;
+        padding: 0.35rem 0.8rem;
+        border-radius: 30px;
+        font-size: 0.75rem;
+        font-weight: 600;
+    }
+    
+    .badge-role-customer {
+        background: rgba(102, 126, 234, 0.1);
+        color: #667eea;
+        padding: 0.35rem 0.8rem;
+        border-radius: 30px;
+        font-size: 0.75rem;
+        font-weight: 600;
+    }
+    
+    .badge-role-worker {
+        background: rgba(16, 185, 129, 0.1);
+        color: #10b981;
+        padding: 0.35rem 0.8rem;
+        border-radius: 30px;
+        font-size: 0.75rem;
+        font-weight: 600;
+    }
+
+    .badge-status {
+        padding: 0.35rem 0.8rem;
+        border-radius: 30px;
+        font-size: 0.75rem;
+        font-weight: 600;
     }
 </style>
 
-<div class="container-fluid p-4">
-    <!-- Header Section with Animation -->
-    <div class="d-flex align-items-center justify-content-between mb-4 animate__animated animate__fadeInDown">
-        <div>
-            <h2 class="fw-bold text-dark mb-1">
-                <i class="bi bi-people-fill me-2" style="color: #667eea;"></i>User Management
-            </h2>
-            <p class="text-muted">Manage all users in one place</p>
+<div class="container-fluid p-4 custom-scroll">
+    <!-- Page Header with Animation -->
+    <div class="page-header animate__animated animate__fadeInDown">
+        <div class="d-flex align-items-center justify-content-between">
+            <div class="d-flex align-items-center gap-3">
+                <div class="user-avatar-sm" style="width: 50px; height: 50px; font-size: 24px;">
+                    <i class="bi bi-people-fill"></i>
+                </div>
+                <div>
+                    <h2 class="fw-bold mb-1" style="color: #2d3748;">User Management</h2>
+                    <p class="text-muted mb-0">Manage all users in one place</p>
+                </div>
+            </div>
+            <button class="btn-create d-flex align-items-center gap-2" data-bs-toggle="modal" data-bs-target="#createUserModal">
+                <i class="bi bi-plus-circle"></i> Create New User
+            </button>
         </div>
-        <button class="btn-create d-flex align-items-center gap-2" data-bs-toggle="modal" data-bs-target="#createUserModal">
-            <i class="bi bi-plus-circle"></i> Create New User
-        </button>
     </div>
 
-    <!-- Users Table -->
-    {% if users %}
-    <div class="table-responsive animate__animated animate__fadeInUp">
-        <table class="table table-hover align-middle bg-white rounded-4 overflow-hidden shadow-sm">
-            <thead class="bg-light">
-                <tr>
-                    <th class="px-4 py-3">ID</th>
-                    <th class="px-4 py-3">User</th>
-                    <th class="px-4 py-3">Email</th>
-                    <th class="px-4 py-3">Phone</th>
-                    <th class="px-4 py-3">Role</th>
-                    <th class="px-4 py-3">Status</th>
-                    <th class="px-4 py-3">Actions</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for user in users %}
-                <tr>
-                    <td class="px-4 fw-medium">#{{ user.id }}</td>
-                    <td class="px-4">
-                        <div class="d-flex align-items-center gap-3">
-                            <div class="user-avatar-sm">
-                                {{ user.get_full_name|first|upper|default:"U" }}
-                            </div>
-                            <div>
-                                <div class="fw-semibold">{{ user.get_full_name|default:"-" }}</div>
-                                <small class="text-muted">@{{ user.username }}</small>
-                            </div>
-                        </div>
-                    </td>
-                    <td class="px-4">{{ user.email|default:"-" }}</td>
-                    <td class="px-4">{{ user.phone_number|default:"-" }}</td>
-                    <td class="px-4">
-                        {% if user.role == 1 %}
-                        <span class="badge bg-danger bg-opacity-10 text-danger rounded-pill">Admin</span>
-                        {% elif user.role == 2 %}
-                        <span class="badge bg-primary bg-opacity-10 text-primary rounded-pill">Customer</span>
-                        {% elif user.role == 3 %}
-                        <span class="badge bg-success bg-opacity-10 text-success rounded-pill">Worker</span>
-                        {% endif %}
-                    </td>
-                    <td class="px-4">
-                        <div class="form-check form-switch">
-                            <input class="form-check-input status-toggle" type="checkbox" 
-                                   data-user-id="{{ user.id }}"
-                                   {% if user.is_active %}checked{% endif %}>
-                        </div>
-                    </td>
-                    <td class="px-4">
-                        <button class="btn btn-sm btn-outline-primary btn-action" 
-                                onclick="viewUserDetails({{ user.id }})"
-                                data-bs-toggle="tooltip" title="View Details">
-                            <i class="bi bi-eye-fill"></i>
-                        </button>
-                        <button class="btn btn-sm btn-outline-warning btn-action"
-                                onclick="editUser({{ user.id }})"
-                                data-bs-toggle="tooltip" title="Edit User">
-                            <i class="bi bi-pencil-fill"></i>
-                        </button>
-                    </td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
+    <!-- Users Table Container -->
+    <div id="usersTableContainer">
+        {% if users %}
+        <div class="table-container animate__animated animate__fadeInUp">
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0" id="usersTable">
+                    <thead>
+                        <tr>
+                            <th class="px-4 py-3">ID</th>
+                            <th class="px-4 py-3">User</th>
+                            <th class="px-4 py-3">Email</th>
+                            <th class="px-4 py-3">Phone</th>
+                            <th class="px-4 py-3">Role</th>
+                            <th class="px-4 py-3">Status</th>
+                            <th class="px-4 py-3">Toggle</th>
+                            <th class="px-4 py-3">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="usersTableBody">
+                        {% for user in users %}
+                        <tr id="user-row-{{ user.id }}" data-user-id="{{ user.id }}">
+                            <td class="px-4 fw-medium">#{{ user.id }}</td>
+                            <td class="px-4">
+                                <div class="d-flex align-items-center gap-3">
+                                    <div class="user-avatar-sm">
+                                        {{ user.get_full_name|first|upper|default:"U" }}
+                                    </div>
+                                    <div>
+                                        <div class="fw-semibold">{{ user.get_full_name|default:"-" }}</div>
+                                        <small class="text-muted">@{{ user.username }}</small>
+                                    </div>
+                                </div>
+                            </td>
+                            <td class="px-4">{{ user.email|default:"-" }}</td>
+                            <td class="px-4">{{ user.phone_number|default:"-" }}</td>
+                            <td class="px-4">
+                                {% if user.role == 1 %}
+                                <span class="badge-role-admin">Admin</span>
+                                {% elif user.role == 2 %}
+                                <span class="badge-role-customer">Customer</span>
+                                {% elif user.role == 3 %}
+                                <span class="badge-role-worker">Worker</span>
+                                {% endif %}
+                            </td>
+                            <td class="px-4">
+                                <div class="d-flex align-items-center gap-2">
+                                    <span class="status-indicator {% if user.is_active %}status-active{% else %}status-inactive{% endif %}"></span>
+                                    <span class="badge-status" style="background: {% if user.is_active %}rgba(16, 185, 129, 0.1); color: #10b981;{% else %}rgba(239, 68, 68, 0.1); color: #ef4444;{% endif %}">
+                                        {% if user.is_active %}Active{% else %}Inactive{% endif %}
+                                    </span>
+                                </div>
+                            </td>
+                            <td class="px-4">
+                                <div class="form-check form-switch">
+                                    <input class="form-check-input status-toggle" type="checkbox" 
+                                           data-user-id="{{ user.id }}"
+                                           {% if user.is_active %}checked{% endif %}>
+                                </div>
+                            </td>
+                            <td class="px-4">
+                                <div class="d-flex gap-2">
+                                    <button class="btn-action btn-view" 
+                                            onclick="viewUserDetails({{ user.id }})"
+                                            data-bs-toggle="tooltip" title="View Details">
+                                        <i class="bi bi-eye-fill"></i>
+                                    </button>
+                                    <button class="btn-action btn-edit"
+                                            onclick="editUser({{ user.id }})"
+                                            data-bs-toggle="tooltip" title="Edit User">
+                                        <i class="bi bi-pencil-fill"></i>
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        {% else %}
+        <!-- Empty State -->
+        <div class="table-container text-center py-5 animate__animated animate__fadeIn">
+            <div class="empty-state">
+                <i class="bi bi-people display-1 text-secondary opacity-25"></i>
+                <h4 class="mt-4 text-secondary">No Users Found</h4>
+                <p class="text-muted mb-4">Click the "Create New User" button to add your first user.</p>
+                <button class="btn-create d-inline-flex align-items-center gap-2" data-bs-toggle="modal" data-bs-target="#createUserModal">
+                    <i class="bi bi-plus-circle"></i> Create New User
+                </button>
+            </div>
+        </div>
+        {% endif %}
     </div>
-    {% else %}
-    <!-- Empty State -->
-    <div class="text-center py-5 animate__animated animate__fadeIn">
-        <i class="bi bi-people display-1 text-secondary opacity-25"></i>
-        <h4 class="mt-4 text-secondary">No Users Found</h4>
-        <p class="text-muted">Click the "Create New User" button to add your first user.</p>
-    </div>
-    {% endif %}
 </div>
 
 <!-- Create User Modal -->
@@ -289,43 +510,81 @@
                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
             <div class="modal-body">
+                <!-- Profile Section -->
+                <div class="profile-section">
+                    <div class="user-avatar-lg">
+                        <i class="bi bi-person-plus-fill"></i>
+                    </div>
+                    <h5 class="mt-3 mb-0 fw-bold">New User</h5>
+                    <p class="text-muted small">Enter user details below</p>
+                </div>
+
+                <!-- Form in Cards -->
                 <form id="createUserForm">
                     {% csrf_token %}
                     <div class="row g-3">
                         <div class="col-md-6">
-                            <label class="form-label fw-semibold">First Name *</label>
-                            <input type="text" class="form-control" id="create_first_name" required>
+                            <div class="form-card">
+                                <div class="form-label">
+                                    <i class="bi bi-person me-1"></i> First Name <span class="text-danger">*</span>
+                                </div>
+                                <input type="text" class="form-control" id="create_first_name" placeholder="John" required>
+                            </div>
                         </div>
                         <div class="col-md-6">
-                            <label class="form-label fw-semibold">Last Name *</label>
-                            <input type="text" class="form-control" id="create_last_name" required>
+                            <div class="form-card">
+                                <div class="form-label">
+                                    <i class="bi bi-person me-1"></i> Last Name <span class="text-danger">*</span>
+                                </div>
+                                <input type="text" class="form-control" id="create_last_name" placeholder="Doe" required>
+                            </div>
                         </div>
                         <div class="col-12">
-                            <label class="form-label fw-semibold">Email *</label>
-                            <input type="email" class="form-control" id="create_email" required>
+                            <div class="form-card">
+                                <div class="form-label">
+                                    <i class="bi bi-envelope me-1"></i> Email <span class="text-danger">*</span>
+                                </div>
+                                <input type="email" class="form-control" id="create_email" placeholder="user@example.com" required>
+                            </div>
                         </div>
                         <div class="col-12">
-                            <label class="form-label fw-semibold">Phone Number *</label>
-                            <input type="tel" class="form-control" id="create_phone" required>
+                            <div class="form-card">
+                                <div class="form-label">
+                                    <i class="bi bi-phone me-1"></i> Phone Number <span class="text-danger">*</span>
+                                </div>
+                                <input type="tel" class="form-control" id="create_phone" placeholder="+1 234 567 8900" required>
+                            </div>
                         </div>
                         <div class="col-12">
-                            <label class="form-label fw-semibold">Password *</label>
-                            <input type="password" class="form-control" id="create_password" required>
+                            <div class="form-card">
+                                <div class="form-label">
+                                    <i class="bi bi-lock me-1"></i> Password <span class="text-danger">*</span>
+                                </div>
+                                <input type="password" class="form-control" id="create_password" placeholder="••••••••" required>
+                            </div>
                         </div>
                         <div class="col-12">
-                            <label class="form-label fw-semibold">Address *</label>
-                            <textarea class="form-control" id="create_address" rows="2" required></textarea>
+                            <div class="form-card">
+                                <div class="form-label">
+                                    <i class="bi bi-house me-1"></i> Address <span class="text-danger">*</span>
+                                </div>
+                                <textarea class="form-control" id="create_address" rows="2" placeholder="123 Main St, City" required></textarea>
+                            </div>
                         </div>
                         <div class="col-12">
-                            <label class="form-label fw-semibold">Optional Address</label>
-                            <textarea class="form-control" id="create_optional_address" rows="2"></textarea>
+                            <div class="form-card">
+                                <div class="form-label">
+                                    <i class="bi bi-house-plus me-1"></i> Optional Address
+                                </div>
+                                <textarea class="form-control" id="create_optional_address" rows="2" placeholder="Apt, Suite, etc."></textarea>
+                            </div>
                         </div>
                     </div>
                 </form>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-light" data-bs-dismiss="modal">Cancel</button>
-                <button type="button" class="btn btn-primary" onclick="createUser()" id="createUserBtn">
+                <button type="button" class="btn btn-light px-4" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-primary px-4" onclick="createUser()" id="createUserBtn">
                     <i class="bi bi-check-circle me-2"></i>Create User
                 </button>
             </div>
@@ -343,45 +602,91 @@
                 </h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
-            <div class="modal-body">
+            <div class="modal-body position-relative" style="min-height: 400px;">
+                <!-- Loading Overlay - Only covers body -->
+                <div class="modal-body-loading" id="editModalLoading" style="display: none;">
+                    <div class="loading-content">
+                        <div class="spinner"></div>
+                        <p>Loading user data...</p>
+                    </div>
+                </div>
+                
+                <!-- Profile Section -->
+                <div class="profile-section" id="editProfileSection">
+                    <div class="user-avatar-lg" id="editAvatar">
+                        <span id="editAvatarInitial">U</span>
+                    </div>
+                    <h5 class="mt-3 mb-0 fw-bold" id="editFullName">Loading...</h5>
+                    <p class="text-muted small" id="editUsername">@username</p>
+                </div>
+
+                <!-- Form in Cards -->
                 <form id="editUserForm">
                     {% csrf_token %}
                     <input type="hidden" id="edit_user_id">
                     <div class="row g-3">
                         <div class="col-md-6">
-                            <label class="form-label fw-semibold">First Name *</label>
-                            <input type="text" class="form-control" id="edit_first_name" required>
+                            <div class="form-card">
+                                <div class="form-label">
+                                    <i class="bi bi-person me-1"></i> First Name <span class="text-danger">*</span>
+                                </div>
+                                <input type="text" class="form-control" id="edit_first_name" required>
+                            </div>
                         </div>
                         <div class="col-md-6">
-                            <label class="form-label fw-semibold">Last Name *</label>
-                            <input type="text" class="form-control" id="edit_last_name" required>
+                            <div class="form-card">
+                                <div class="form-label">
+                                    <i class="bi bi-person me-1"></i> Last Name <span class="text-danger">*</span>
+                                </div>
+                                <input type="text" class="form-control" id="edit_last_name" required>
+                            </div>
                         </div>
                         <div class="col-12">
-                            <label class="form-label fw-semibold">Email *</label>
-                            <input type="email" class="form-control" id="edit_email" required>
+                            <div class="form-card">
+                                <div class="form-label">
+                                    <i class="bi bi-envelope me-1"></i> Email <span class="text-danger">*</span>
+                                </div>
+                                <input type="email" class="form-control" id="edit_email" required>
+                            </div>
                         </div>
                         <div class="col-12">
-                            <label class="form-label fw-semibold">Phone Number *</label>
-                            <input type="tel" class="form-control" id="edit_phone" required>
+                            <div class="form-card">
+                                <div class="form-label">
+                                    <i class="bi bi-phone me-1"></i> Phone Number <span class="text-danger">*</span>
+                                </div>
+                                <input type="tel" class="form-control" id="edit_phone" required>
+                            </div>
                         </div>
                         <div class="col-12">
-                            <label class="form-label fw-semibold">New Password (leave blank to keep current)</label>
-                            <input type="password" class="form-control" id="edit_password">
+                            <div class="form-card">
+                                <div class="form-label">
+                                    <i class="bi bi-lock me-1"></i> New Password (leave blank to keep current)
+                                </div>
+                                <input type="password" class="form-control" id="edit_password" placeholder="••••••••">
+                            </div>
                         </div>
                         <div class="col-12">
-                            <label class="form-label fw-semibold">Address *</label>
-                            <textarea class="form-control" id="edit_address" rows="2" required></textarea>
+                            <div class="form-card">
+                                <div class="form-label">
+                                    <i class="bi bi-house me-1"></i> Address <span class="text-danger">*</span>
+                                </div>
+                                <textarea class="form-control" id="edit_address" rows="2" required></textarea>
+                            </div>
                         </div>
                         <div class="col-12">
-                            <label class="form-label fw-semibold">Optional Address</label>
-                            <textarea class="form-control" id="edit_optional_address" rows="2"></textarea>
+                            <div class="form-card">
+                                <div class="form-label">
+                                    <i class="bi bi-house-plus me-1"></i> Optional Address
+                                </div>
+                                <textarea class="form-control" id="edit_optional_address" rows="2"></textarea>
+                            </div>
                         </div>
                     </div>
                 </form>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-light" data-bs-dismiss="modal">Cancel</button>
-                <button type="button" class="btn btn-primary" onclick="updateUser()" id="updateUserBtn">
+                <button type="button" class="btn btn-light px-4" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-primary px-4" onclick="updateUser()" id="updateUserBtn">
                     <i class="bi bi-save me-2"></i>Update User
                 </button>
             </div>
@@ -402,16 +707,15 @@
             <div class="modal-body">
                 <div id="viewUserContent">
                     <!-- Dynamic content will be loaded here -->
-                    <div class="text-center py-4">
-                        <div class="spinner-border text-primary" role="status">
-                            <span class="visually-hidden">Loading...</span>
-                        </div>
+                    <div class="text-center py-5">
+                        <div class="spinner mx-auto"></div>
+                        <p class="mt-3 text-muted">Loading user details...</p>
                     </div>
                 </div>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-light" data-bs-dismiss="modal">Close</button>
-                <button type="button" class="btn btn-warning" onclick="editFromView()" id="editFromViewBtn">
+                <button type="button" class="btn btn-light px-4" data-bs-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-warning px-4" onclick="editFromView()" id="editFromViewBtn">
                     <i class="bi bi-pencil-fill me-2"></i>Edit User
                 </button>
             </div>
@@ -429,15 +733,20 @@
         tooltipTriggerList.map(function(tooltipTriggerEl) {
             return new bootstrap.Tooltip(tooltipTriggerEl);
         });
+        
+        // Attach status toggle listeners
+        attachStatusToggleListeners();
     });
 
     // Show toast notification
     function showToast(message, type = 'success') {
         const toast = document.getElementById('toast');
-        const bgColor = type === 'success' ? '#10b981' : '#ef4444';
+        const bgColor = type === 'success' ? 'linear-gradient(135deg, #43e97b, #38f9d7)' : 'linear-gradient(135deg, #f093fb, #f5576c)';
+        const icon = type === 'success' ? 'check-circle-fill' : 'exclamation-triangle-fill';
+        
         toast.innerHTML = `
-            <div class="alert alert-${type === 'success' ? 'success' : 'danger'} shadow-lg border-0" style="background: ${bgColor}; color: white;">
-                <i class="bi bi-${type === 'success' ? 'check-circle' : 'exclamation-circle'} me-2"></i>
+            <div class="alert border-0 text-white shadow-lg" style="background: ${bgColor};">
+                <i class="bi bi-${icon} me-2"></i>
                 ${message}
             </div>
         `;
@@ -447,36 +756,200 @@
         }, 3000);
     }
 
-    // Toggle user status
-    document.querySelectorAll('.status-toggle').forEach(toggle => {
-        toggle.addEventListener('change', function() {
-            const userId = this.dataset.userId;
-            const isActive = this.checked;
-            
-            fetch('/admin/api/users/toggle-status/', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRFToken': '{{ csrf_token }}'
-                },
-                body: JSON.stringify({
-                    user_id: userId,
-                    is_active: isActive
-                })
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    showToast(`User status updated to ${isActive ? 'Active' : 'Inactive'}`, 'success');
+    // Get role badge class
+    function getRoleBadge(role) {
+        if (role === 1) return 'badge-role-admin';
+        if (role === 2) return 'badge-role-customer';
+        if (role === 3) return 'badge-role-worker';
+        return 'badge-role-customer';
+    }
+
+    // Get role text
+    function getRoleText(role) {
+        if (role === 1) return 'Admin';
+        if (role === 2) return 'Customer';
+        if (role === 3) return 'Worker';
+        return 'Customer';
+    }
+
+    // Create user row HTML
+    function createUserRow(user) {
+        const fullName = `${user.first_name || ''} ${user.last_name || ''}`.trim() || 'Unknown User';
+        const initial = fullName.charAt(0).toUpperCase();
+        const roleClass = getRoleBadge(user.role);
+        const roleText = getRoleText(user.role);
+        const statusClass = user.is_active ? 'status-active' : 'status-inactive';
+        const statusText = user.is_active ? 'Active' : 'Inactive';
+        const statusColor = user.is_active ? '#10b981' : '#ef4444';
+        const statusBg = user.is_active ? 'rgba(16, 185, 129, 0.1)' : 'rgba(239, 68, 68, 0.1)';
+
+        return `
+            <tr id="user-row-${user.id}" data-user-id="${user.id}">
+                <td class="px-4 fw-medium">#${user.id}</td>
+                <td class="px-4">
+                    <div class="d-flex align-items-center gap-3">
+                        <div class="user-avatar-sm">
+                            ${initial}
+                        </div>
+                        <div>
+                            <div class="fw-semibold">${fullName}</div>
+                            <small class="text-muted">@${user.username || 'username'}</small>
+                        </div>
+                    </div>
+                </td>
+                <td class="px-4">${user.email || '-'}</td>
+                <td class="px-4">${user.phone_number || '-'}</td>
+                <td class="px-4">
+                    <span class="${roleClass}">${roleText}</span>
+                </td>
+                <td class="px-4">
+                    <div class="d-flex align-items-center gap-2">
+                        <span class="status-indicator ${statusClass}"></span>
+                        <span class="badge-status" style="background: ${statusBg}; color: ${statusColor};">
+                            ${statusText}
+                        </span>
+                    </div>
+                </td>
+                <td class="px-4">
+                    <div class="form-check form-switch">
+                        <input class="form-check-input status-toggle" type="checkbox" 
+                               data-user-id="${user.id}"
+                               ${user.is_active ? 'checked' : ''}>
+                    </div>
+                </td>
+                <td class="px-4">
+                    <div class="d-flex gap-2">
+                        <button class="btn-action btn-view" onclick="viewUserDetails(${user.id})" 
+                                data-bs-toggle="tooltip" title="View Details">
+                            <i class="bi bi-eye-fill"></i>
+                        </button>
+                        <button class="btn-action btn-edit" onclick="editUser(${user.id})" 
+                                data-bs-toggle="tooltip" title="Edit User">
+                            <i class="bi bi-pencil-fill"></i>
+                        </button>
+                    </div>
+                </td>
+            </tr>
+        `;
+    }
+
+    // Update table with new/updated user
+    function updateTableAfterSave(user, action = 'create') {
+        const tableContainer = document.getElementById('usersTableContainer');
+        const existingRow = document.getElementById(`user-row-${user.id}`);
+        
+        if (action === 'create') {
+            // Check if table is empty
+            if (tableContainer.innerHTML.includes('No Users Found')) {
+                // Replace empty state with table
+                tableContainer.innerHTML = `
+                    <div class="table-container animate__animated animate__fadeInUp">
+                        <div class="table-responsive">
+                            <table class="table table-hover align-middle mb-0" id="usersTable">
+                                <thead>
+                                    <tr>
+                                        <th class="px-4 py-3">ID</th>
+                                        <th class="px-4 py-3">User</th>
+                                        <th class="px-4 py-3">Email</th>
+                                        <th class="px-4 py-3">Phone</th>
+                                        <th class="px-4 py-3">Role</th>
+                                        <th class="px-4 py-3">Status</th>
+                                        <th class="px-4 py-3">Toggle</th>
+                                        <th class="px-4 py-3">Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="usersTableBody">
+                                    ${createUserRow(user)}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                `;
+            } else {
+                // Add new row to existing table
+                const tbody = document.getElementById('usersTableBody') || 
+                             document.querySelector('#usersTable tbody');
+                if (tbody) {
+                    tbody.insertAdjacentHTML('beforeend', createUserRow(user));
                 }
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                showToast('Error updating user status', 'error');
-                this.checked = !isActive; // Revert on error
-            });
+            }
+            
+            // Highlight new row
+            setTimeout(() => {
+                const newRow = document.getElementById(`user-row-${user.id}`);
+                if (newRow) {
+                    newRow.classList.add('row-highlight');
+                }
+            }, 100);
+        } else if (action === 'update' && existingRow) {
+            // Update existing row
+            existingRow.outerHTML = createUserRow(user);
+            
+            // Highlight updated row
+            setTimeout(() => {
+                const updatedRow = document.getElementById(`user-row-${user.id}`);
+                if (updatedRow) {
+                    updatedRow.classList.add('row-highlight');
+                }
+            }, 100);
+        }
+        
+        // Reinitialize tooltips
+        var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+        tooltipTriggerList.map(function(tooltipTriggerEl) {
+            return new bootstrap.Tooltip(tooltipTriggerEl);
         });
-    });
+        
+        // Reattach status toggle listeners
+        attachStatusToggleListeners();
+    }
+
+    // Attach status toggle listeners
+    function attachStatusToggleListeners() {
+        document.querySelectorAll('.status-toggle').forEach(toggle => {
+            toggle.removeEventListener('change', handleStatusChange);
+            toggle.addEventListener('change', handleStatusChange);
+        });
+    }
+
+    // Handle status change
+    function handleStatusChange(event) {
+        const toggle = event.target;
+        const userId = toggle.dataset.userId;
+        const isActive = toggle.checked;
+        
+        fetch('/admin/api/users/toggle-status/', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': '{{ csrf_token }}'
+            },
+            body: JSON.stringify({
+                user_id: userId,
+                is_active: isActive
+            })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                showToast(`User status updated to ${isActive ? 'Active' : 'Inactive'}`, 'success');
+                // Update the row with new data
+                fetch(`/admin/api/users/${userId}/`)
+                    .then(res => res.json())
+                    .then(user => {
+                        updateTableAfterSave(user, 'update');
+                    });
+            } else {
+                showToast(data.error || 'Error updating status', 'error');
+                toggle.checked = !isActive;
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            showToast('Error updating user status', 'error');
+            toggle.checked = !isActive;
+        });
+    }
 
     // Create user
     function createUser() {
@@ -506,50 +979,102 @@
         .then(data => {
             if (data.success) {
                 showToast('User created successfully!', 'success');
-                setTimeout(() => location.reload(), 1500);
+                
+                // Close modal
+                bootstrap.Modal.getInstance(document.getElementById('createUserModal')).hide();
+                
+                // Reset form
+                document.getElementById('createUserForm').reset();
+                
+                // Add new user to table
+                updateTableAfterSave(data.user, 'create');
             } else {
                 showToast(data.error || 'Error creating user', 'error');
-                btn.disabled = false;
-                btn.innerHTML = '<i class="bi bi-check-circle me-2"></i>Create User';
             }
         })
         .catch(error => {
             console.error('Error:', error);
             showToast('Error creating user', 'error');
+        })
+        .finally(() => {
             btn.disabled = false;
             btn.innerHTML = '<i class="bi bi-check-circle me-2"></i>Create User';
         });
     }
 
-    // Edit user - open modal and load data
+    // Edit user with loading state
     function editUser(userId) {
+        const modal = new bootstrap.Modal(document.getElementById('editUserModal'));
+        const loadingOverlay = document.getElementById('editModalLoading');
+        
+        // Show modal first
+        modal.show();
+        
+        // Show loading overlay
+        loadingOverlay.style.display = 'flex';
+        
+        // Clear previous form data
+        document.getElementById('edit_user_id').value = '';
+        document.getElementById('edit_first_name').value = '';
+        document.getElementById('edit_last_name').value = '';
+        document.getElementById('edit_email').value = '';
+        document.getElementById('edit_phone').value = '';
+        document.getElementById('edit_address').value = '';
+        document.getElementById('edit_optional_address').value = '';
+        document.getElementById('edit_password').value = '';
+        
+        // Reset profile section
+        document.getElementById('editFullName').textContent = 'Loading...';
+        document.getElementById('editUsername').textContent = '@username';
+        document.getElementById('editAvatarInitial').textContent = 'U';
+        
+        // Fetch user data
         fetch(`/admin/api/users/${userId}/`)
-            .then(response => response.json())
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                return response.json();
+            })
             .then(user => {
-                document.getElementById('edit_user_id').value = user.id;
-                document.getElementById('edit_first_name').value = user.first_name;
-                document.getElementById('edit_last_name').value = user.last_name;
-                document.getElementById('edit_email').value = user.email;
-                document.getElementById('edit_phone').value = user.phone_number;
-                document.getElementById('edit_address').value = user.address;
-                document.getElementById('edit_optional_address').value = user.optional_address || '';
-                document.getElementById('edit_password').value = '';
+                // Update profile section
+                const fullName = `${user.first_name || ''} ${user.last_name || ''}`.trim() || 'User Name';
+                document.getElementById('editFullName').textContent = fullName;
+                document.getElementById('editUsername').textContent = `@${user.username || 'username'}`;
+                document.getElementById('editAvatarInitial').textContent = fullName.charAt(0).toUpperCase();
                 
-                new bootstrap.Modal(document.getElementById('editUserModal')).show();
+                // Populate form with user data
+                document.getElementById('edit_user_id').value = user.id;
+                document.getElementById('edit_first_name').value = user.first_name || '';
+                document.getElementById('edit_last_name').value = user.last_name || '';
+                document.getElementById('edit_email').value = user.email || '';
+                document.getElementById('edit_phone').value = user.phone_number || '';
+                document.getElementById('edit_address').value = user.address || '';
+                document.getElementById('edit_optional_address').value = user.optional_address || '';
+                
+                // Hide loading overlay
+                loadingOverlay.style.display = 'none';
             })
             .catch(error => {
                 console.error('Error:', error);
                 showToast('Error loading user data', 'error');
+                
+                // Hide loading overlay
+                loadingOverlay.style.display = 'none';
+                
+                // Close modal on error
+                bootstrap.Modal.getInstance(document.getElementById('editUserModal')).hide();
             });
     }
 
     // Update user
     function updateUser() {
         const btn = document.getElementById('updateUserBtn');
+        const userId = document.getElementById('edit_user_id').value;
+        
         btn.disabled = true;
         btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Updating...';
 
-        const userId = document.getElementById('edit_user_id').value;
         const data = {
             first_name: document.getElementById('edit_first_name').value,
             last_name: document.getElementById('edit_last_name').value,
@@ -559,7 +1084,6 @@
             optional_address: document.getElementById('edit_optional_address').value
         };
 
-        // Only include password if it's not empty
         const password = document.getElementById('edit_password').value;
         if (password) {
             data.password = password;
@@ -577,16 +1101,21 @@
         .then(data => {
             if (data.success) {
                 showToast('User updated successfully!', 'success');
-                setTimeout(() => location.reload(), 1500);
+                
+                // Close modal
+                bootstrap.Modal.getInstance(document.getElementById('editUserModal')).hide();
+                
+                // Update user in table
+                updateTableAfterSave(data.user, 'update');
             } else {
                 showToast(data.error || 'Error updating user', 'error');
-                btn.disabled = false;
-                btn.innerHTML = '<i class="bi bi-save me-2"></i>Update User';
             }
         })
         .catch(error => {
             console.error('Error:', error);
             showToast('Error updating user', 'error');
+        })
+        .finally(() => {
             btn.disabled = false;
             btn.innerHTML = '<i class="bi bi-save me-2"></i>Update User';
         });
@@ -598,23 +1127,30 @@
         const content = document.getElementById('viewUserContent');
         
         modal.show();
+        content.innerHTML = `
+            <div class="text-center py-5">
+                <div class="spinner mx-auto"></div>
+                <p class="mt-3 text-muted">Loading user details...</p>
+            </div>
+        `;
         
         fetch(`/admin/api/users/${userId}/`)
             .then(response => response.json())
             .then(user => {
+                const fullName = `${user.first_name || ''} ${user.last_name || ''}`.trim() || 'User Name';
                 const roleClass = user.role === 1 ? 'danger' : (user.role === 2 ? 'primary' : 'success');
-                const roleText = user.role === 1 ? 'Admin' : (user.role === 2 ? 'Customer' : 'Worker');
+                const roleText = getRoleText(user.role);
                 
                 content.innerHTML = `
                     <div class="text-center mb-4">
                         <div class="user-avatar-lg">
-                            ${user.full_name ? user.full_name.charAt(0).toUpperCase() : 'U'}
+                            ${fullName.charAt(0).toUpperCase()}
                         </div>
-                        <h4 class="mt-3 mb-1">${user.full_name}</h4>
-                        <p class="text-muted mb-3">@${user.username}</p>
+                        <h4 class="mt-3 mb-1 fw-bold">${fullName}</h4>
+                        <p class="text-muted mb-3">@${user.username || 'username'}</p>
                         <div class="d-flex justify-content-center gap-2">
-                            <span class="badge bg-${roleClass}">${roleText}</span>
-                            <span class="badge bg-${user.is_active ? 'success' : 'secondary'}">
+                            <span class="badge bg-${roleClass} text-white px-3 py-2 rounded-pill">${roleText}</span>
+                            <span class="badge bg-${user.is_active ? 'success' : 'secondary'} text-white px-3 py-2 rounded-pill">
                                 ${user.is_active ? 'Active' : 'Inactive'}
                             </span>
                         </div>
@@ -623,39 +1159,51 @@
                     <div class="row g-3">
                         <div class="col-md-6">
                             <div class="detail-card">
-                                <div class="detail-label">Email Address</div>
-                                <div class="detail-value">${user.email}</div>
+                                <div class="detail-label">
+                                    <i class="bi bi-envelope me-1"></i> Email Address
+                                </div>
+                                <div class="detail-value">${user.email || '-'}</div>
                             </div>
                         </div>
                         <div class="col-md-6">
                             <div class="detail-card">
-                                <div class="detail-label">Phone Number</div>
+                                <div class="detail-label">
+                                    <i class="bi bi-phone me-1"></i> Phone Number
+                                </div>
                                 <div class="detail-value">${user.phone_number || '-'}</div>
                             </div>
                         </div>
                         <div class="col-md-6">
                             <div class="detail-card">
-                                <div class="detail-label">User ID</div>
+                                <div class="detail-label">
+                                    <i class="bi bi-hash me-1"></i> User ID
+                                </div>
                                 <div class="detail-value">#${user.id}</div>
                             </div>
                         </div>
                         <div class="col-md-6">
                             <div class="detail-card">
-                                <div class="detail-label">Date Joined</div>
+                                <div class="detail-label">
+                                    <i class="bi bi-calendar me-1"></i> Date Joined
+                                </div>
                                 <div class="detail-value">${user.date_joined || '-'}</div>
                             </div>
                         </div>
                         <div class="col-md-6">
                             <div class="detail-card">
-                                <div class="detail-label">Last Login</div>
+                                <div class="detail-label">
+                                    <i class="bi bi-clock me-1"></i> Last Login
+                                </div>
                                 <div class="detail-value">${user.last_login || 'Never'}</div>
                             </div>
                         </div>
                         <div class="col-md-6">
                             <div class="detail-card">
-                                <div class="detail-label">Email Verified</div>
+                                <div class="detail-label">
+                                    <i class="bi bi-shield-check me-1"></i> Email Verified
+                                </div>
                                 <div class="detail-value">
-                                    <span class="badge bg-${user.is_active ? 'success' : 'warning'}">
+                                    <span class="badge bg-${user.is_active ? 'success' : 'warning'} text-white px-3 py-2 rounded-pill">
                                         ${user.is_active ? 'Verified' : 'Pending'}
                                     </span>
                                 </div>
@@ -663,14 +1211,18 @@
                         </div>
                         <div class="col-12">
                             <div class="detail-card">
-                                <div class="detail-label">Primary Address</div>
+                                <div class="detail-label">
+                                    <i class="bi bi-house me-1"></i> Primary Address
+                                </div>
                                 <div class="detail-value">${user.address || 'Not provided'}</div>
                             </div>
                         </div>
                         ${user.optional_address ? `
                         <div class="col-12">
                             <div class="detail-card">
-                                <div class="detail-label">Optional Address</div>
+                                <div class="detail-label">
+                                    <i class="bi bi-house-plus me-1"></i> Optional Address
+                                </div>
                                 <div class="detail-value">${user.optional_address}</div>
                             </div>
                         </div>
@@ -684,9 +1236,9 @@
             .catch(error => {
                 console.error('Error:', error);
                 content.innerHTML = `
-                    <div class="text-center py-4 text-danger">
+                    <div class="text-center py-5 text-danger">
                         <i class="bi bi-exclamation-triangle-fill display-4"></i>
-                        <p class="mt-3">Error loading user details.</p>
+                        <p class="mt-3">Error loading user details. Please try again.</p>
                     </div>
                 `;
             });
@@ -704,6 +1256,12 @@
     // Reset create form when modal is closed
     document.getElementById('createUserModal').addEventListener('hidden.bs.modal', function () {
         document.getElementById('createUserForm').reset();
+    });
+    
+    // Reset edit form when modal is closed and hide loading
+    document.getElementById('editUserModal').addEventListener('hidden.bs.modal', function () {
+        const loadingOverlay = document.getElementById('editModalLoading');
+        loadingOverlay.style.display = 'none';
     });
 </script>
 {% endblock %}
