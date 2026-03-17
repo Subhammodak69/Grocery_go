@@ -17,10 +17,11 @@ urlpatterns = [
     path('admin/api/users/<int:user_id>/update/', AdminUserUpdateAPIView.as_view(), name='admin_user_update_api'),
     path('admin/api/users/<int:user_id>/', AdminUserDetailAPIView.as_view(), name='admin_user_detail_api'),
     
-    path('admin/posters/',AdminPosterListView.as_view(), name='admin_poster_list'),
-    path('admin/poster/create/',AdminPosterCreateView.as_view(), name='admin_poster_create'),
-    path('admin/poster/update/<int:poster_id>/',AdminPosterUpdateView.as_view(), name='admin_user_update'),
-    path('admin/posters/toggle-active/',AdminPosterToggleActiveView.as_view(), name='admin_user_toggle_active'),
+    path('admin/posters/', AdminPosterListView.as_view(), name='admin_poster_list'),
+    path('admin/api/posters/create/', AdminPosterCreateView.as_view(), name='admin_poster_create'),
+    path('admin/api/posters/<int:poster_id>/', AdminPosterDetailView.as_view(), name='admin_poster_detail'),
+    path('admin/api/posters/toggle-status/', AdminPosterToggleActiveView.as_view(), name='admin_poster_toggle'),
+    path('admin/api/posters/<int:poster_id>/update/', AdminPosterUpdateView.as_view(), name='admin_poster_update'),
 
     path('admin/categories/', AdminCategoryManagementView.as_view(), name='admin_category_management'),
     path('admin/api/categories/create/', AdminCategoryCreateAPIView.as_view(), name='admin_category_create_api'),
