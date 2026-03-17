@@ -17,7 +17,7 @@ class AdminCategoryManagementView(View):
     
     def get(self, request):
         categories = category_service.get_all_categories()
-        return render(request, 'admin/category/category_list.html', {'categories': categories})
+        return render(request, 'admin/category_list.html', {'categories': categories})
 
 
 @method_decorator(admin_required, name='dispatch')

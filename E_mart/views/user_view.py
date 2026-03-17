@@ -15,7 +15,7 @@ class AdminUserManagementView(View):
     
     def get(self, request):
         users_data = user_service.get_all_users()
-        return render(request, 'admin/user/user_list.html', {'users': users_data})
+        return render(request, 'admin/user_list.html', {'users': users_data})
 
 @method_decorator(admin_required, name='dispatch')
 @method_decorator(csrf_exempt, name='dispatch')

@@ -15,7 +15,7 @@ class AdminWorkerManagementView(View):
     
     def get(self, request):
         workers_data = worker_service.get_all_workers()
-        return render(request, 'admin/worker/worker_list.html', {'workers': workers_data})
+        return render(request, 'admin/worker_list.html', {'workers': workers_data})
 
 @method_decorator(admin_required, name='dispatch')
 @method_decorator(csrf_exempt, name='dispatch')
