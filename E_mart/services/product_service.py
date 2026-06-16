@@ -56,7 +56,7 @@ def get_product_data_by_id(product_id):
     }
     return product_data
 
-def product_create(category_id ,name,size,price,original_price,stock,description,image_file):
+def product_create(category_id ,name,size,price,original_price,stock,description,image_file,is_active):
     category = category_service.get_category_by_id(category_id)
     return Product.objects.create(
         category = category,
@@ -66,7 +66,8 @@ def product_create(category_id ,name,size,price,original_price,stock,description
         original_price = original_price,
         stock = stock,
         description = description,
-        image = get_relative_url_of_product(image_file)
+        image = get_relative_url_of_product(image_file),
+        is_active = is_active
     )
 
 
