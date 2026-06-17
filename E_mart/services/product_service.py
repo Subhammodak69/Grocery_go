@@ -71,7 +71,7 @@ def product_create(category_id ,name,size,price,original_price,stock,description
     )
 
 
-def product_update(product_id,category_id ,name,size,price,original_price,stock,description,image_file):
+def product_update(product_id,category_id ,name,size,price,original_price,stock,description,image_file,is_active):
     category = category_service.get_category_by_id(category_id)
     product = get_product_by_id(product_id)
     if image_file == None:
@@ -82,6 +82,7 @@ def product_update(product_id,category_id ,name,size,price,original_price,stock,
         product.original_price = original_price
         product.stock = stock
         product.description = description
+        product.is_active = is_active
         product.save()
 
     else:
@@ -92,6 +93,7 @@ def product_update(product_id,category_id ,name,size,price,original_price,stock,
         product.original_price = original_price
         product.stock = stock
         product.description = description
+        product.is_active = is_active
         product.image = get_relative_url_of_product(image_file)
         product.save()
 
