@@ -60,18 +60,29 @@ WSGI_APPLICATION = 'grocery_go.wsgi.application'
 
 
 DATABASES = {
-        'default': {
-            'ENGINE': 'django.db.backends.postgresql',
-            'NAME': env('DB_NAME'),
-            'USER': env('DB_USER'),
-            'PASSWORD': env('DB_PASSWORD'),
-            'HOST': env('DB_HOST', default='localhost'),
-            'PORT': env('DB_PORT', default='5432'),
-            'OPTIONS': {
-                'sslmode': 'require' if not DEBUG else 'prefer',
-            },
-        }
-    }
+    'default': {
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': env('DB_NAME'),
+        'USER': env('DB_USER'),
+        'PASSWORD': env('DB_PASSWORD'),
+        'HOST': env('DB_HOST', default='localhost'),
+        'PORT': env('DB_PORT', default='5432'),
+        'OPTIONS': {
+            'sslmode': 'require' if not DEBUG else 'prefer',
+        },
+    },
+    'local': {
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': env('LOCAL_DB_NAME', default='grocery_db'),
+        'USER': env('LOCAL_DB_USER', default='postgres'),
+        'PASSWORD': env('LOCAL_DB_PASSWORD', default=''),
+        'HOST': env('LOCAL_DB_HOST', default='localhost'),
+        'PORT': env('LOCAL_DB_PORT', default='5432'),
+        'OPTIONS': {
+            'sslmode': 'prefer',
+        },
+    },
+}
 
 
 
